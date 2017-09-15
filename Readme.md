@@ -1,9 +1,8 @@
 # PyDcc
-MEL and MaxScript Python wrapper andmore.
-
+hscript, MEL and MaxScript Python wrapper.
 
 * better Wrapper
-* Qt helper
+* Qt snippet
 * CUI Util
 
 ### Semantics
@@ -15,12 +14,12 @@ MEL and MaxScript Python wrapper andmore.
     
     ```mel
     // MEL    
-    setProperty "" ""
+    setAttr "" ""
     ```
     
     ```python
     # python
-    p.value()    
+    pdc.value()    
     ``` 
 
 - File
@@ -31,12 +30,12 @@ MEL and MaxScript Python wrapper andmore.
     
     ```mel
     // MEL 
-    setProperty "" ""
+    setAttr "" ""
     ```
     
     ```python
     # python
-    p.value()    
+    pdc.value()    
     ``` 
 
 - Material
@@ -47,12 +46,12 @@ MEL and MaxScript Python wrapper andmore.
     
     ```mel
     // MEL    
-    setProperty "" ""
+    setAttr "" ""
     ```
     
     ```python
     # python
-    p.value()    
+    pdc.value()    
     ``` 
 
 - Camera
@@ -63,12 +62,12 @@ MEL and MaxScript Python wrapper andmore.
     
     ```mel  
     // MEL  
-    setProperty "" ""
+    setAttr "" ""
     ```
     
     ```python
     # python
-    p.value()    
+    pdc.value()    
     ``` 
 
 - Expression
@@ -79,12 +78,12 @@ MEL and MaxScript Python wrapper andmore.
     
     ```mel    
     // MEL
-    setProperty "" ""
+    setAttr "" ""
     ```
     
     ```python
     # python
-    p.value()    
+    pdc.value()    
     ``` 
 
 - GUI
@@ -95,12 +94,12 @@ MEL and MaxScript Python wrapper andmore.
 
     ```mel    
     // MEL
-    setProperty "" ""
+    setAttr "" ""
     ```
     
     ```python
     # python
-    p.value()    
+    pdc.value()    
     ``` 
 
 ## Contribute
