@@ -9,5 +9,7 @@ nopyc
 
 __all__ = []
 __version__ = "0.1"
+__name__ = "Yurlungur"
 
+name = __name__
 version = __version__

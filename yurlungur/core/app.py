@@ -8,7 +8,7 @@ if "maya" in application:
 
     application = cmds
 
-elif "houdini" in application:
+elif "houdini" in application or "hindie" in application:
     import hou
 
     application = hou
@@ -52,3 +52,5 @@ try:
     application = c4d
 except:
     pass
+
+__all__ = ["application"]

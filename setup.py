@@ -1,13 +1,12 @@
 from distutils.core import setup
 
 setup(
-    name='PyDCC',
+    name='Yurlungur',
     version='0.9',
-    packages=['PyDCC.src', 'tests', 'pybinary', 'cameraFrustumTools.v1', 'cameraFrustumTools.v1.OBB',
-              'cameraFrustumTools.v1.OBB.shelf'],
+    packages=["yurlungur"],
     url='',
     license='MIT',
     author='sumioka-sho',
     author_email='shosumioka@gmail.com',
-    description='MEL and MaxScript Python wrapper andmore.'
+    description='Meta programming wrapper for Maya, Houdini and 3dsMax and more.'
 )
