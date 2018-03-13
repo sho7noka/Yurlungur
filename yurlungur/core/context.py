@@ -5,6 +5,7 @@ from wrapper import _YNode, _YParm
 import app
 
 import inspect
+import yurlungur as yr
 
 
 class YException(Exception):
@@ -18,15 +19,17 @@ class YNotsupportException(YException):
 class YMObject(object):
     def __getattr__(self, item):
         for cmd, _ in inspect.getmembers(app.application):
-            try:
-                if item == cmd:
-                    setattr(yr, cmd, (
-                        lambda str: dict(inspect.getmembers(app.application))[str])(cmd)
-                            )
-                    return self
-            except:
-                pass
-        return
+            if item == cmd:
+                setattr(
+                    yr, cmd, (lambda str: dict(inspect.getmembers(app.application))[str])(cmd)
+                )
+                return getattr(yr, item)
+
+        raise YNotsupportException
+        return None
+
+    def mod(self):
+        return app.application
 
 
 class YObject(object):
@@ -58,15 +61,10 @@ class YNode(_YNode, YObject):
     """connect-able object"""
 
     def create(self, *args, **keys):
-
-        try:
-            return cmds.createNode(args, keys)
-        except:
-            return hou.node("/obj").createNode(args, keys)
+        return YMObject().createNode(args, keys)
 
     def delete(self):
-        if __name__ == '__main__':
-            return super(YNode, self)
+        return super(YNode, self)
 
     def connect(self, **keys):
         return

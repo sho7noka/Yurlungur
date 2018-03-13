@@ -1,23 +1,26 @@
-def ls():
+from context import YNode
+
+def _ls(self):
+    print "_ls"
     return
 
-def glob():
+def _glob(self):
     return
 
-def cd():
+def _cd(self):
     return
 
-def root():
+def _root(self):
     return
 
-def pwd():
+def _pwd(self):
     return
 
-def parent():
+def _parent(self):
     return
 
-def children():
+def _children(self):
     return
 
-def select(*args):
+def _select(self, *args):
     return
