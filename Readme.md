@@ -1,106 +1,34 @@
-# PyDcc
-hscript, MEL and MaxScript Python wrapper.
+# Yurlungur
+Meta programming wrapper for Maya, Houdini and 3dsMax and more.
 
-* better Wrapper
-* Qt snippet
-* CUI Util
+## summary
+DCC tool scripting is almost used Python, but these api isn't similarly anything.
+If you make lightweight tools, need to remember each application manners.
+Yurlungur is common interface which adapted each application for universal wrapper.
 
-### Semantics
+## future
+* HOM (Houdini object Model) like command wrapper.
+* PySide & PyQt shorten accessor.
+* Useful py-snippet for technical artist.
+
+### semantics
+
 - Object
     ```lua
     -- MXS
-    $.key[i].value = ""
+    $.value = 0
     ```
     
     ```mel
     // MEL    
-    setAttr "" ""
+    setAttr "hoge" 0;
     ```
     
     ```python
     # python
-    pdc.value()    
+    import yurlungur as yr
+    yr.YNode("hoge").attr(0)
     ``` 
 
-- File
-    ```lua
-    -- MXS
-    $.key[i].value = ""
-    ```
-    
-    ```mel
-    // MEL 
-    setAttr "" ""
-    ```
-    
-    ```python
-    # python
-    pdc.value()    
-    ``` 
-
-- Material
-    ```lua
-    -- MXS
-    $.key[i].value = ""
-    ```
-    
-    ```mel
-    // MEL    
-    setAttr "" ""
-    ```
-    
-    ```python
-    # python
-    pdc.value()    
-    ``` 
-
-- Camera
-    ```lua
-    -- MXS
-    $.key[i].value = ""
-    ```
-    
-    ```mel  
-    // MEL  
-    setAttr "" ""
-    ```
-    
-    ```python
-    # python
-    pdc.value()    
-    ``` 
-
-- Expression
-    ```lua
-    -- MXS
-    $.key[i].value = ""
-    ```
-    
-    ```mel    
-    // MEL
-    setAttr "" ""
-    ```
-    
-    ```python
-    # python
-    pdc.value()    
-    ``` 
-
-- GUI
-    ```lua
-    -- MXS
-    $.key[i].value = ""
-    ```
-
-    ```mel    
-    // MEL
-    setAttr "" ""
-    ```
-    
-    ```python
-    # python
-    pdc.value()    
-    ``` 
-
-## Contribute
-    a@gmail.com
+## License
+Yurlungur is MIT License.

@@ -1,9 +1,4 @@
 # encoding: utf-8
-
-"""
-Maya Pycharm connector
-"""
-
 from __future__ import print_function
 import sys
 import os
