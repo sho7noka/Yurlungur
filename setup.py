@@ -8,5 +8,5 @@ setup(
     license='MIT',
     author='sumioka-sho',
     author_email='shosumioka@gmail.com',
-    description='Meta programming wrapper for Maya, Houdini and 3dsMax and more.'
+    description='Universal scripting wrapper for Maya, Houdini, 3dsMax and more.'
 )

@@ -1,9 +1,55 @@
 # -*- coding: utf-8 -*-
-try:
-    import unicode
-except:
-    unicode = str
 import inspect
+import application
+import yurlungur as yr
+
+
+class YMObject(object):
+    """command wrapper for any application"""
+
+    def __getattr__(self, item):
+        for cmd, _ in inspect.getmembers(application.application):
+            if cmd == item:
+                setattr(
+                    yr, cmd, (lambda str: dict(inspect.getmembers(application.application))[str])(cmd)
+                )
+                return getattr(yr, item)
+        return None
+
+    @property
+    def module(self):
+        """current application module"""
+        return application.application.__name__
+
+
+class MetaYObject(type):
+    def __new__(cls, name, bases, attrs):
+        # attrs["name"] = cls
+        # attrs["id"] = (None or 0)
+        return super(MetaYObject, cls).__new__(cls, name, bases, attrs)
+
+    def __getattr__(self, item):
+        return item
+
+
+class MetaYParm(type):
+    """
+    cmds.getAttr("tx")
+    cmds.setAttr("tx", 1)
+
+    node.parm('tx').eval()
+    node.parm('tx').set(1)
+    """
+
+    def __new__(cls, name, bases, attrs):
+        attrs["version"] = "0.0.1"
+        return super(MetaYParm, cls).__new__(cls, name, bases, attrs)
+
+    def __getattr__(self, name):
+        def _(self, name):
+            return name
+
+        return _
 
 
 class Attribute(unicode):
@@ -28,84 +74,7 @@ class Attribute(unicode):
         cmds.setAttr(self, *val, **kwds)
 
 
-class HogeMeta(type):
-
-    def __new__(mcs, name, bases, dictionary):
-        cls = type.__new__(mcs, name, bases, dictionary)
-        setattr(cls, 'member1', 10)
-        setattr(cls, 'member2', 20)
-        return cls
-
-
-class AttackSkill(object):
-    name = u'特大攻撃'
-
-
-class HealSkill(object):
-    name = u'回復'
-
-
-class PoisonSkill(object):
-    name = u'毒攻撃'
-
-
-class SkillMeta(type):
-    def __new__(mcs, name, bases, dictionary):
-        cls = type.__new__(mcs, name, bases, dictionary)
-        skills = {'attack': AttackSkill,
-                  'heal': HealSkill,
-                  'poison': PoisonSkill}
-        cls.SKILLS = skills
-        return cls
-
-
-class Skills(object):
-    __metaclass__ = SkillMeta
-    SKILLS = {}
-
-    @classmethod
-    def get(cls, skill_key):
-        return cls.SKILLS[skill_key]
-
-
-class MetaYObject(type):
-    def __new__(cls, name, bases, attrs):
-        attrs["version"] = "0.0.1"
-        return super(MetaYParm, cls).__new__(cls, name, bases, attrs)
-
-    def __getattr__(self, item):
-        return item
-
-    def eval(self, *args, **kwargs):
-        return text
-
-
-
-class MetaYParm(type):
-    """
-    cmds.getAttr("tx")
-    cmds.setAttr("tx", 1)
-
-    node.parm('tx').eval()
-    node.parm('tx').set(1)
-    """
-    def __new__(cls, name, bases, attrs):
-        attrs["version"] = "0.0.1"
-        return super(MetaYParm, cls).__new__(cls, name, bases, attrs)
-
-    def __getattr__(self, name):
-        def _(self, name):
-            return name
-        return _
-
 class MetaYNode(type):
-    """
-    createNode
-    destroy
-
-    createNode
-    delete
-    """
     def __new__(cls, name, bases, attrs):
         attrs["version"] = "0.0.1"
         return super(MetaYNode, cls).__new__(cls, name, bases, attrs)
@@ -113,10 +82,11 @@ class MetaYNode(type):
     def __getattr__(self, name):
         def _(self, name):
             return name
+
         return _
 
 
+# metaclass interface
+_YObject = MetaYObject("YObject", (object,), {"__doc__": MetaYObject.__doc__})
 _YNode = MetaYNode("YNode", (object,), {"__doc__": MetaYNode.__doc__})
 _YParm = MetaYParm("YParm", (object,), {"__doc__": MetaYParm.__doc__})
-
-

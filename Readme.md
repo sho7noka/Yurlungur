@@ -1,15 +1,17 @@
 # Yurlungur
-Meta programming wrapper for Maya, Houdini and 3dsMax and more.
+Universal scripting wrapper for Maya, Houdini, 3dsMax and more.
 
 ## summary
 DCC tool scripting is almost used Python, but these api isn't similarly anything.
 If you make lightweight tools, need to remember each application manners.
 Yurlungur is common interface which adapted each application for universal wrapper.
 
+Yurlungur is inspired by [PyMel](https://github.com/LumaPictures/pymel).
+
 ## future
-* HOM (Houdini object Model) like command wrapper.
+* HOM (Houdini Object Model) like command wrapper.
 * PySide & PyQt shorten accessor.
-* Useful py-snippet for technical artist.
+* Useful py-snippet for Game&Film technical artist.
 
 ### semantics
 
@@ -29,6 +31,10 @@ Yurlungur is common interface which adapted each application for universal wrapp
     import yurlungur as yr
     yr.YNode("hoge").attr(0)
     ``` 
+
+## contribution
+WIP
+
 
 ## License
 Yurlungur is MIT License.
