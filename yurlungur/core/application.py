@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-from ..qtutil import *
+from yurlungur.tools.qtutil import *
 
+__all__ = ["application"]
 application = QCoreApplication.applicationName().lower()
 
 if "maya" in application:
@@ -16,25 +17,25 @@ elif "houdini" in application or "hindie" in application:
 elif "max" in application:
     import pymxs
 
+    application = pymxs
     on = True
     off = False
-    application = pymxs
 
 else:
     import standalone
 
     application = standalone
 
-#
+
+# NO-Qt application
 try:
     import bpy
 
-    application = "bpy"
+    application = bpy
 except:
     pass
 
 try:
-    # import
     application = arnold
 except:
     pass
@@ -52,5 +53,3 @@ try:
     application = c4d
 except:
     pass
-
-__all__ = ["application"]
