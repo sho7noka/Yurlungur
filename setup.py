@@ -1,10 +1,10 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(
     name='Yurlungur',
     version='0.9',
-    packages=["yurlungur"],
-    url='',
+    packages=find_packages(),
+    url='https://github.com/sho7noka/Yurlungur',
     license='MIT',
     author='sumioka-sho',
     author_email='shosumioka@gmail.com',

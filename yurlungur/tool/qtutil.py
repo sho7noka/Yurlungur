@@ -33,7 +33,7 @@ def main_window():
 
     if app_name == "pymxs":
         import MaxPlus
-        return MaxPlus.GetQMaxWindow()
+        return MaxPlus.QtHelpers_GetQmaxMainWindow()
         # MaxPlus.NotifyQWidgetModalityChange(w, false)
         # MaxPlus.MakeQWidgetDockable(w, 14)
 
@@ -67,5 +67,5 @@ def dark(view):
     local = os.path.dirname(
         os.path.dirname(inspect.currentframe().f_code.co_filename)
     )
-    with open(local + "/dark.css") as f:
+    with open(local + "/user/dark.css") as f:
         view.setStyleSheet("".join(f.readlines()))

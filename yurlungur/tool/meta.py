@@ -1,5 +1,5 @@
 from yurlungur.core.wrapper import YMObject
-from yurlungur.tools import util
+from yurlungur.tool import util
 
 meta = YMObject()
 

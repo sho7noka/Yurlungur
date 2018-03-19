@@ -1,7 +1,6 @@
 from proxy import YNode
 from application import application
 
-__doc__ = """Monkey Patch commands"""
 
 def _ls(self):
     print "_ls"
