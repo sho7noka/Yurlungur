@@ -32,27 +32,7 @@ class MetaYObject(type):
         return item
 
 
-class MetaYParm(type):
-    """
-    cmds.getAttr("tx")
-    cmds.setAttr("tx", 1)
-
-    node.parm('tx').eval()
-    node.parm('tx').set(1)
-    """
-
-    def __new__(cls, name, bases, attrs):
-        attrs["version"] = "0.0.1"
-        return super(MetaYParm, cls).__new__(cls, name, bases, attrs)
-
-    def __getattr__(self, name):
-        def _(self, name):
-            return name
-
-        return _
-
-
-class Attribute(unicode):
+class MetaAttribute(type):
     _node = ''
     _attr = ''
 
@@ -62,16 +42,16 @@ class Attribute(unicode):
             cls._attr = args[1]
         elif len(args) == 1:
             cls._node, cls._attr = args[0].split('.')
-        return super(Attribute, cls).__new__(cls, cls._node + "." + cls._attr)
+        return super(MetaAttribute, cls).__new__(cls, cls._node + "." + cls._attr)
 
     def __getitem__(self, idx):
-        return Attribute(self._node, self._attr + "[{0}]".format(idx))
+        return MetaAttribute(self._node, self._attr + "[{0}]".format(idx))
 
     def get(self, **kwds):
-        return cmds.getAttr(self, **kwds)
+        return YMObject().getAttr(self, **kwds)
 
     def set(self, *val, **kwds):
-        cmds.setAttr(self, *val, **kwds)
+        YMObject().setAttr(self, *val, **kwds)
 
 
 class MetaYNode(type):
@@ -89,4 +69,4 @@ class MetaYNode(type):
 # metaclass interface
 _YObject = MetaYObject("YObject", (object,), {"__doc__": MetaYObject.__doc__})
 _YNode = MetaYNode("YNode", (object,), {"__doc__": MetaYNode.__doc__})
-_YParm = MetaYParm("YParm", (object,), {"__doc__": MetaYParm.__doc__})
+_YParm = MetaAttribute("YParm", (object,), {"__doc__": MetaAttribute.__doc__})

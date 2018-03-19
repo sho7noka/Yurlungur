@@ -72,8 +72,7 @@ class YFile(object):
     def load(self, *args, **keys):
         """load file"""
 
-        return YMObject().file(args, keys) #or YMObject().hipFile.load(args, keys)
-
+        return YMObject().file(args, keys)  # or YMObject().hipFile.load(args, keys)
 
     def save(self, *args, **keys):
         return (

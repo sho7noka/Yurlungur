@@ -3,7 +3,7 @@ Universal scripting wrapper for Maya, Houdini, 3dsMax and more.
 
 ## summary
 DCC tool scripting is almost used Python, but these api isn't similarly anything.
-If you make lightweight tools, need to remember each application manners.
+If you make lightweight tool, need to remember each application manners.
 Yurlungur is common interface which adapted each application for universal wrapper.
 
 Yurlungur is inspired by [PyMel](https://github.com/LumaPictures/pymel).
