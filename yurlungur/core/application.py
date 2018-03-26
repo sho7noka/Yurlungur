@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from yurlungur.tool.qtutil import *
 
-__all__ = ["application"]
+__all__ = ["application", "exApplication"]
 application = QCoreApplication.applicationName().lower()
 
 if "maya" in application:
@@ -24,27 +24,32 @@ else:
     application = standalone
 
 
-# NO-Qt application
-try:
-    import bpy
-    application = bpy
-except:
-    pass
+def exApplication(module=""):
+    """NO-Qt application"""
+    application = ""
+    
+    try:
+        import bpy
+        application = bpy
+    except:
+        pass
 
-try:
-    import arnold
-    application = arnold
-except:
-    pass
+    try:
+        import arnold
+        application = arnold
+    except:
+        pass
 
-try:
-    import pysbs
-    application = pysbs
-except:
-    pass
+    try:
+        import pysbs
+        application = pysbs
+    except:
+        pass
 
-try:
-    import c4d
-    application = c4d
-except:
-    pass
+    try:
+        import c4d
+        application = c4d
+    except:
+        pass
+
+    return application
