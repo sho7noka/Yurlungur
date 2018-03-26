@@ -13,6 +13,7 @@ from ..Qt import __binding__
 import yurlungur as yr
 from yurlungur.tool import qtutil
 
+
 class Initialize(object):
 
     def call(self, pystr):
@@ -28,8 +29,8 @@ class Initialize(object):
             """C:/Program Files/Autodesk/Maya2017"""
 
             return {
-                "adesk" : "C:/Program Files/Autodesk",
-                "sidefx" : "C:/Program Files/Side Effects Software",
+                "adesk": "C:/Program Files/Autodesk",
+                "sidefx": "C:/Program Files/Side Effects Software",
             }
 
         if sys.platform == 'darwin':
@@ -43,7 +44,8 @@ class Initialize(object):
 
 def hython(pystr):
     subprocess.call(
-        "C:/Program Files/Side Effects Software/Houdini 16.5.323/bin/hython -c\"{0};{1}\"".format(sys.path.append(yr), pystr)
+        "C:/Program Files/Side Effects Software/Houdini 16.5.323/bin/hython -c\"{0};{1}\"".format(sys.path.append(yr),
+                                                                                                  pystr)
     )
 
 
@@ -134,7 +136,8 @@ def main():
     widget = YurPrompt()
     widget.show()
     sys.exit(app.exec_())
-    yr.application.mel
+
+
 
 
 if __name__ == '__main__':

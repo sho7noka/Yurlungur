@@ -108,14 +108,8 @@ class TestScene(unittest.TestCase):
         m = mtn.M(u"pCube1")
 
 
-def aaa(*args):
-    return bbb(args)
 
-def bbb(*args):
-    return type(args)
-
-
-yr.application.main()
+print yr.meta
 # yr.application.mayapy("import sys; print sys.path")
 # yr.application.maxpy("import yurlungur as yr; print yr.meta")
 # yr.application.hython("import yurlungur as yr; print yr.meta.pwd()")

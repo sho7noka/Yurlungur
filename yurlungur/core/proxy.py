@@ -2,12 +2,9 @@
 import functools
 import inspect
 
-from .. import *
-from wrapper import _YObject, _YNode, _YParm, YMObject
+from wrapper import _YObject, _YNode, _YParm
+import yurlungur.tool.meta as meta
 
-
-class YException(Exception):
-    pass
 
 
 class YObject(_YObject):
@@ -37,8 +34,14 @@ class YObject(_YObject):
 class YNode(_YNode):
     """connect-able object"""
 
+    def __init__(self, node):
+        self._node = node
+
+    @staticmethod
     def create(self, *args, **keys):
-        return YMObject().createNode(args, keys)
+        meta.createNode(args, keys)
+        return self._node
+        # return super(YNode, self)
 
     def delete(self, *args):
         return (
@@ -72,7 +75,7 @@ class YFile(object):
     def load(self, *args, **keys):
         """load file"""
 
-        return YMObject().file(args, keys)  # or YMObject().hipFile.load(args, keys)
+        return yr.meta.file(args, keys)  # or YMObject().hipFile.load(args, keys)
 
     def save(self, *args, **keys):
         return (

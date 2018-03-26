@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 import inspect
+
 import application
 import yurlungur as yr
+
+
+class YException(Exception):
+    pass
 
 
 class YMObject(object):
@@ -14,12 +19,17 @@ class YMObject(object):
                     yr, cmd, (lambda str: dict(inspect.getmembers(application.application))[str])(cmd)
                 )
                 return getattr(yr, item)
-        return None
+
+        raise YException
 
     @property
     def module(self):
         """current application module"""
         return application.application.__name__
+
+    def modules(self, mod=""):
+        """switch application"""
+        return application.exApplication(mod)
 
 
 class MetaYObject(type):
