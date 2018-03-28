@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from yurlungur.tool.qtutil import *
+from yurlungur.tool.qtutil import * # noQA
 
 __all__ = ["application", "exApplication"]
 application = QCoreApplication.applicationName().lower()
@@ -27,6 +27,12 @@ else:
 def exApplication(module=""):
     """NO-Qt application"""
     application = ""
+
+    try:
+        import unreal_engine
+        application = unreal_engine
+    except:
+        pass
     
     try:
         import bpy

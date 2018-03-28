@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import ctypes
 import inspect
+import traceback
 
 import application
 import yurlungur as yr
@@ -41,6 +43,8 @@ class MetaYObject(type):
     def __getattr__(self, item):
         return item
 
+_YObject = MetaYObject("YObject", (object,), {"__doc__": MetaYObject.__doc__})
+
 
 class MetaAttribute(type):
     _node = ''
@@ -63,6 +67,8 @@ class MetaAttribute(type):
     def set(self, *val, **kwds):
         YMObject().setAttr(self, *val, **kwds)
 
+_YParm = MetaAttribute("YParm", (object,), {"__doc__": MetaAttribute.__doc__})
+
 
 class MetaYNode(type):
     def __new__(cls, name, bases, attrs):
@@ -75,8 +81,5 @@ class MetaYNode(type):
 
         return _
 
-
-# metaclass interface
-_YObject = MetaYObject("YObject", (object,), {"__doc__": MetaYObject.__doc__})
 _YNode = MetaYNode("YNode", (object,), {"__doc__": MetaYNode.__doc__})
-_YParm = MetaAttribute("YParm", (object,), {"__doc__": MetaAttribute.__doc__})
+

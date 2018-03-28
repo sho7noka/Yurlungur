@@ -1,5 +1,5 @@
 # Yurlungur
-Universal scripting wrapper for Maya, Houdini, 3dsMax and more.
+universal scripting environment with Python which Maya, Houdini, 3dsMax and more.
 
 ## summary
 DCC tool scripting is almost used Python, but these api isn't similarly anything.
