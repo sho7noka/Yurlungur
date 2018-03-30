@@ -1,12 +1,18 @@
-from setuptools import setup, find_packages
+# from setuptools import setup, find_packages
+from distutils.core import setup
 
 setup(
     name='Yurlungur',
     version='0.9',
-    packages=find_packages(),
+    py_modules=['yurlungur', 'yurlungur.core', 'yurlungur.tools', 'yurlungur.user'],
     url='https://github.com/sho7noka/Yurlungur',
     license='MIT',
     author='sumioka-sho',
     author_email='shosumioka@gmail.com',
-    description='Universal scripting wrapper for Maya, Houdini, 3dsMax and more.'
+    description='Universal scripting environment with Python which Maya, Houdini, 3dsMax and more.',
+    # install_requires=[
+    #     'Werkzeug>=0.14',
+    # ],
 )
+
+

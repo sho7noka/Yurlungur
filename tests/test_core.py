@@ -99,22 +99,11 @@ class DynamicProxy(object):
 #         print("result : ")
 #         return getattr(self.target, attrname)
 
-class TestScene(unittest.TestCase):
-
-    def test_get(self):
-        cmds.file(new=True, f=True)
-        cube = cmds.polyCube()[0]
-        print cube
-        m = mtn.M(u"pCube1")
-
-
-
-print yr.meta
-# yr.application.mayapy("import sys; print sys.path")
-# yr.application.maxpy("import yurlungur as yr; print yr.meta")
-# yr.application.hython("import yurlungur as yr; print yr.meta.pwd()")
-
-# yr.YurPrompt()
+# class TestScene(unittest.TestCase):
 #
-# widget = yr.YurPrompt()
-# widget.show()
+#     def test_get(self):
+#         cmds.file(new=True, f=True)
+#         cube = cmds.polyCube()[0]
+#         print cube
+#         m = mtn.M(u"pCube1")
+#
