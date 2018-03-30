@@ -18,3 +18,9 @@ class TestApp(unittest.TestCase):
 
     def test_atandalone(self):
         yr.YurPrompt()
+
+    def test_main(self):
+        yr.application.main()
+
+if __name__ == '__main__':
+    unittest.main()

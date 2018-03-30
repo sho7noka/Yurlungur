@@ -13,3 +13,6 @@ class TestApp(unittest.TestCase):
 #
 #
 # yr.application.maxpy("print 1")
+
+if __name__ == '__main__':
+    unittest.main()

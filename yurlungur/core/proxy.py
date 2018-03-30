@@ -2,7 +2,7 @@
 import functools
 import inspect
 
-from wrapper import _YObject, _YNode, _YParm
+from wrapper import YMObject, _YObject, _YNode, _YParm
 import yurlungur.tool.meta as meta
 
 
@@ -74,11 +74,11 @@ class YFile(object):
 
     def load(self, *args, **kwargs):
         """load file"""
-        if hasattr(meta, "file"):
-            return meta.file(args, kwargs)
+        if hasattr(YMObject(), "file"):
+            return YMObject().file(kwargs)
 
-        if hasattr(meta, "hipFile"):
-            return meta.hipFile.load(args, kwargs)
+        if hasattr(YMObject(), "hipFile"):
+            return YMObject().hipFile.load(args, kwargs)
 
     def save(self, *args, **keys):
         return (
