@@ -107,14 +107,20 @@ class YurPrompt(QDockWidget):
 
     def init_attrs(self):
         tmp = []
-        for k, v in self.config.find_application().items():
-            for app in os.listdir(v):
-                tmp.append("")
+        # for k, v in self.config.find_application().items():
+        #     for app in os.listdir(v):
+        #         tmp.append("")
 
         for app in list(set(tmp)):
             self.box_application.addItem(app)
 
         self.box_versions.addItem("aaa")
+        sys.stdout.write("\r%d" % 111)
+        sys.stdout.flush()
+
+        
+
+        
 
     def refresh_item(self):
         pass
@@ -125,7 +131,8 @@ class YurPrompt(QDockWidget):
 
 def main():
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon(getattr(QStyle, "SP_DialogApplyButton")))
+    QTextCodec.setCodecForCStrings(QTextCodec.codecForLocale())
+    # app.setWindowIcon(QIcon(getattr(QStyle, "SP_DialogApplyButton")))
     widget = YurPrompt()
     widget.show()
     sys.exit(app.exec_())
