@@ -72,10 +72,13 @@ class YParm(_YParm):
 class YFile(object):
     """save, load and export"""
 
-    def load(self, *args, **keys):
+    def load(self, *args, **kwargs):
         """load file"""
+        if hasattr(meta, "file"):
+            return meta.file(args, kwargs)
 
-        return yr.meta.file(args, keys)  # or YMObject().hipFile.load(args, keys)
+        if hasattr(meta, "hipFile"):
+            return meta.hipFile.load(args, kwargs)
 
     def save(self, *args, **keys):
         return (

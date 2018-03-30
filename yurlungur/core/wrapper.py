@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import ctypes
 import inspect
-import traceback
 
 import application
 import yurlungur as yr
@@ -22,7 +21,7 @@ class YMObject(object):
                 )
                 return getattr(yr, item)
 
-        raise YException
+        return getattr(yr, None)
 
     @property
     def module(self):
@@ -34,16 +33,16 @@ class YMObject(object):
         return application.exApplication(mod)
 
 
-class MetaYObject(type):
+class MetaObject(type):
     def __new__(cls, name, bases, attrs):
         # attrs["name"] = cls
         # attrs["id"] = (None or 0)
-        return super(MetaYObject, cls).__new__(cls, name, bases, attrs)
+        return super(MetaObject, cls).__new__(cls, name, bases, attrs)
 
     def __getattr__(self, item):
         return item
 
-_YObject = MetaYObject("YObject", (object,), {"__doc__": MetaYObject.__doc__})
+_YObject = MetaObject("YObject", (object,), {"__doc__": MetaObject.__doc__})
 
 
 class MetaAttribute(type):
@@ -70,10 +69,10 @@ class MetaAttribute(type):
 _YParm = MetaAttribute("YParm", (object,), {"__doc__": MetaAttribute.__doc__})
 
 
-class MetaYNode(type):
+class MetaNode(type):
     def __new__(cls, name, bases, attrs):
         attrs["version"] = "0.0.1"
-        return super(MetaYNode, cls).__new__(cls, name, bases, attrs)
+        return super(MetaNode, cls).__new__(cls, name, bases, attrs)
 
     def __getattr__(self, name):
         def _(self, name):
@@ -81,5 +80,5 @@ class MetaYNode(type):
 
         return _
 
-_YNode = MetaYNode("YNode", (object,), {"__doc__": MetaYNode.__doc__})
+_YNode = MetaNode("YNode", (object,), {"__doc__": MetaNode.__doc__})
 

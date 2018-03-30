@@ -1,51 +1,44 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 import os
 import sys
 import optparse
 import subprocess
 import re
 
-from ..Qt.QtCore import *
-from ..Qt.QtGui import *
-from ..Qt.QtWidgets import *
-from ..Qt import __binding__
-
-import yurlungur as yr
-from yurlungur.tool import qtutil
+import yurlungur
+from yurlungur.Qt.QtCore import *
+from yurlungur.Qt.QtGui import *
+from yurlungur.Qt.QtWidgets import *
+from yurlungur.Qt import __binding__
+from yurlungur.tool import util
+from yurlungur.core import enviroment as env
 
 
 class Initialize(object):
 
     def call(self, pystr):
-        os.getcwd()
+        pass
 
     def execfile(self, *args, **kwargs):
         pass
 
     def find_application(self):
-        if sys.platform == 'linux':
-            "/usr/autodesk/maya2015-x64"
-        if sys.platform == 'win32':
-            """C:/Program Files/Autodesk/Maya2017"""
-
-            return {
-                "adesk": "C:/Program Files/Autodesk",
-                "sidefx": "C:/Program Files/Side Effects Software",
-            }
-
-        if sys.platform == 'darwin':
-            "/Applications/Autodesk/maya2017/Maya.app/Contents"
-        if sys.platform == 'cygwin':
-            pass
+        pass
 
     def set_application(self, application):
         pass
 
+    def batch(self, appdir):
+        for root, folders, files in os.walk(appdir):
+            for file in files:
+                if file.endswith(".exe"):
+                    print file
+
 
 def hython(pystr):
     subprocess.call(
-        "C:/Program Files/Side Effects Software/Houdini 16.5.323/bin/hython -c\"{0};{1}\"".format(sys.path.append(yr),
-                                                                                                  pystr)
+        "{0}/bin/hython -c\"{1}\"".format(env.Houdini, pystr)
     )
 
 
@@ -54,13 +47,13 @@ def mayapy(pystr):
     uninitialize = "maya.standalone.uninitialize()"
 
     subprocess.call(
-        "C:/Program Files/Autodesk/Maya2017/bin/mayapy -c \"{0};{1};{2}\"".format(initialize, pystr, uninitialize)
+        "{0}/bin/mayapy -c \"{1};{2};{3}\"".format(env.Maya, initialize, pystr, uninitialize)
     )
 
 
 def maxpy(pystr):
     subprocess.call(
-        "C:/Program Files/Autodesk/3ds Max 2018/3dsmaxpy -c \"{0};{1}\"".format(sys.path.append(yr), pystr)
+        "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.Max, sys.path.append(yr), pystr)
     )
 
 
@@ -68,7 +61,7 @@ class YurPrompt(QDockWidget):
     def __init__(self, parent=None):
         super(YurPrompt, self).__init__(parent)
 
-        self.setWindowTitle("{0} v{2} {1}".format(yr.name, yr.application.__name__, yr.version))
+        self.setWindowTitle("{0} v{2} {1}".format(yurlungur.name, yurlungur.application.__name__, yurlungur.version))
         self.setWindowFlags(Qt.Window)
         # self.setWindowIcon(QIcon(getattr(QStyle, "SP_DialogApplyButton")))
         self.setAttribute(Qt.WA_DeleteOnClose)
@@ -110,7 +103,7 @@ class YurPrompt(QDockWidget):
         self.setWidget(widget)
 
         self.init_attrs()
-        yr.dark(self)
+        yurlungur.dark_view(self)
 
     def init_attrs(self):
         tmp = []
@@ -136,8 +129,6 @@ def main():
     widget = YurPrompt()
     widget.show()
     sys.exit(app.exec_())
-
-
 
 
 if __name__ == '__main__':
