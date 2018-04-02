@@ -3,6 +3,7 @@ import unittest
 import doctest
 import yurlungur as yr
 
+
 # # docs.python.jp/2.7/reference/datamodel.html#object.__new__
 # from operator import methodcaller
 # from types import MethodType
