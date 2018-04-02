@@ -3,7 +3,6 @@ import doctest
 import yurlungur as yr
 
 
-
 class TestApp(unittest.TestCase):
     def test_env(self):
         print env.Max
