@@ -6,7 +6,6 @@ from wrapper import YMObject, _YObject, _YNode, _YParm
 import yurlungur.tool.meta as meta
 
 
-
 class YObject(_YObject):
     """base class"""
 
@@ -37,10 +36,10 @@ class YNode(_YNode):
     def __init__(self, node):
         self._node = node
 
-    @staticmethod
-    def create(self, *args, **keys):
+    @classmethod
+    def create(cls, *args, **keys):
         meta.createNode(args, keys)
-        return self._node
+        return cls
         # return super(YNode, self)
 
     def delete(self, *args):
@@ -72,13 +71,13 @@ class YParm(_YParm):
 class YFile(object):
     """save, load and export"""
 
-    def load(self, *args, **kwargs):
+    def load(self, arg, **kwargs):
         """load file"""
         if hasattr(YMObject(), "file"):
-            return YMObject().file(kwargs)
+            return YMObject().file(arg, kwargs)
 
         if hasattr(YMObject(), "hipFile"):
-            return YMObject().hipFile.load(args, kwargs)
+            return YMObject().hipFile.load(arg, kwargs)
 
     def save(self, *args, **keys):
         return (

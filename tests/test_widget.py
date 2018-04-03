@@ -1,26 +1,21 @@
 import doctest
 import unittest
-import yurlungur as yr
-import yurlungur.core.enviroment as env
+
+import yurlungur
 
 class TestApp(unittest.TestCase):
-    def test_env(self):
-        env.Max
-
     def test_maya(self):
-        yr.application.mayapy("import sys; print sys.path")
+        yurlungur.application.mayapy("import sys; print sys.path")
 
     def test_max(self):
-        yr.application.maxpy("import sys; print sys.path")
+        yurlungur.application.maxpy("import sys; print sys.path")
 
     def test_hou(self):
-        yr.application.hython("import sys; print sys.path")
+        yurlungur.application.hython("import sys; print sys.path")
 
-    def test_atandalone(self):
-        yr.YurPrompt()
+    def test_blender(self):
+        yurlungur.application.bpython("import bpy")
 
-    def test_main(self):
-        yr.application.main()
 
 if __name__ == '__main__':
     unittest.main()
