@@ -13,8 +13,10 @@ import cProfile
 
 try:
     import unicode
+    long
 except:
     unicode = str
+    long = int
 
 
 def _pyc():

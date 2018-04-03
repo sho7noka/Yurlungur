@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 from proxy import YNode
 from application import application
 
+__all__ = []
 
 def _ls(self):
     print "_ls"

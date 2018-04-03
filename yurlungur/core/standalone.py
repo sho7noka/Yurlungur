@@ -2,7 +2,6 @@
 from __future__ import absolute_import
 import os
 import sys
-import optparse
 import subprocess
 import re
 
@@ -36,24 +35,64 @@ class Initialize(object):
                     print file
 
 
+def _cli(args):
+    try:
+        import argparse
+    except:
+        import optparse
+        parser = optparse.OptionParser()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--convert",
+                        help="Path to compiled Python module, e.g. my_ui.py")
+    parser.add_argument("--compile",
+                        help="Accept raw .ui file and compile with native "
+                             "PySide2 compiler.")
+    parser.add_argument("--stdout",
+                        help="Write to stdout instead of file",
+                        action="store_true")
+    parser.add_argument("--stdin",
+                        help="Read from stdin instead of file",
+                        action="store_true")
+
+    args = parser.parse_args(args)
+
+    if args.stdout:
+        raise NotImplementedError("--stdout")
+
+    if args.stdin:
+        raise NotImplementedError("--stdin")
+
+
 def hython(pystr):
+    assert os.path.exists(env.Houdini)
     subprocess.call(
         "{0}/bin/hython -c\"{1}\"".format(env.Houdini, pystr)
     )
 
 
 def mayapy(pystr):
-    initialize = "import maya.standalone;maya.standalone.initialize(name='python')"
-    uninitialize = "maya.standalone.uninitialize()"
-
+    assert os.path.exists(env.Maya)
     subprocess.call(
-        "{0}/bin/mayapy -c \"{1};{2};{3}\"".format(env.Maya, initialize, pystr, uninitialize)
+        "{0}/bin/mayapy -c \"{1};{2};{3}\"".format(
+            env.Maya, "import maya.standalone;maya.standalone.initialize(name='python')",
+            pystr, "maya.standalone.uninitialize()"
+        )
     )
 
 
 def maxpy(pystr):
+    assert os.path.exists(env.Max)
     subprocess.call(
-        "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.Max, sys.path.append(yr), pystr)
+        "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.Max, sys.path.append(yurlungur), pystr)
+    )
+
+
+def bpython(pystr):
+    assert sys.version_info > (3, 5, 3), ('blender requires Python 3.5.3')
+    assert os.path.exists(env.Blender)
+    subprocess.call(
+        "{0}.blender --python-expr {1} -b".format(env.Blender, pystr)
     )
 
 
@@ -117,10 +156,6 @@ class YurPrompt(QDockWidget):
         self.box_versions.addItem("aaa")
         sys.stdout.write("\r%d" % 111)
         sys.stdout.flush()
-
-        
-
-        
 
     def refresh_item(self):
         pass

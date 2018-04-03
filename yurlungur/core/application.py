@@ -49,8 +49,8 @@ def exApplication(module=""):
     return application
 
 
+# Qt application
 application = QCoreApplication.applicationName().lower()
-
 if "maya" in application:
     from maya import cmds, mel, OpenMaya
 
