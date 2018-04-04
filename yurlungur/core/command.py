@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-from proxy import YNode
-from application import application
-
-__all__ = []
+import sys
+import inspect
 
 def _ls(self):
     print "_ls"
@@ -37,6 +35,4 @@ def _select(self, *args):
     return
 
 
-# patch
-# ls = YNode()
-# ls.ls = _ls
+__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isfunction))

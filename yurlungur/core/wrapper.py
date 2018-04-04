@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import inspect
 
+import yurlungur
 import application
-import yurlungur as yr
 
 __doc__ = """
 http://help.autodesk.com/view/MAYAUL/2017/JPN/?guid=GUID-55B63946-CDC9-42E5-9B6E-45EE45CFC7FC
@@ -11,6 +11,8 @@ https://www.yoheim.net/blog.php?q=20160610
 import os
 print getattr(os, "path").abspath("")
 """
+
+
 
 class YException(Exception):
     pass
@@ -23,11 +25,11 @@ class YMObject(object):
         for cmd, _ in inspect.getmembers(application.application):
             if cmd == item:
                 setattr(
-                    yr, cmd, (lambda str: dict(inspect.getmembers(application.application))[str])(cmd)
+                    yurlungur, cmd, (lambda str: dict(inspect.getmembers(application.application))[str])(cmd)
                 )
-                return getattr(yr, item)
+                return getattr(yurlungur, item)
 
-        return getattr(yr, None)
+        return getattr(yurlungur, None)
 
     @property
     def module(self):
@@ -87,4 +89,5 @@ class MetaNode(type):
         return _
 
 _YNode = MetaNode("YNode", (object,), {"__doc__": MetaNode.__doc__})
+
 

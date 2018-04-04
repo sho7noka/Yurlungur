@@ -2,8 +2,8 @@
 from __future__ import absolute_import
 import os
 import sys
+import inspect
 import subprocess
-import re
 
 import yurlungur
 from yurlungur.Qt.QtCore import *
@@ -12,6 +12,8 @@ from yurlungur.Qt.QtWidgets import *
 from yurlungur.Qt import __binding__
 from yurlungur.tool import util
 from yurlungur.core import enviroment as env
+
+__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
 
 
 class Initialize(object):
@@ -65,14 +67,14 @@ def _cli(args):
 
 
 def hython(pystr):
-    assert os.path.exists(env.Houdini)
+    assert os.path.getsize(env.Houdini)
     subprocess.call(
         "{0}/bin/hython -c\"{1}\"".format(env.Houdini, pystr)
     )
 
 
 def mayapy(pystr):
-    assert os.path.exists(env.Maya)
+    assert os.path.getsize(env.Maya)
     subprocess.call(
         "{0}/bin/mayapy -c \"{1};{2};{3}\"".format(
             env.Maya, "import maya.standalone;maya.standalone.initialize(name='python')",
@@ -82,15 +84,14 @@ def mayapy(pystr):
 
 
 def maxpy(pystr):
-    assert os.path.exists(env.Max)
+    assert os.path.getsize(env.Max)
     subprocess.call(
         "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.Max, sys.path.append(yurlungur), pystr)
     )
 
 
 def bpython(pystr):
-    assert sys.version_info > (3, 5, 3), ('blender requires Python 3.5.3')
-    assert os.path.exists(env.Blender)
+    assert sys.version_info > (3, 5, 3), ('blender requires Python 3.5.3') or os.path.getsize(env.Blender)
     subprocess.call(
         "{0}.blender --python-expr {1} -b".format(env.Blender, pystr)
     )
