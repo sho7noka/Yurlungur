@@ -3,6 +3,13 @@ import unittest
 import doctest
 import yurlungur as yr
 
+class TestCore(unittest.TestSuite):
+    def test_vector(self):
+        assert (yr.YVector() == yr.YVector())
+
+if __name__ == '__main__':
+    unittest.main()
+
 
 # # docs.python.jp/2.7/reference/datamodel.html#object.__new__
 # from operator import methodcaller

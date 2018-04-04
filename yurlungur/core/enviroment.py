@@ -3,11 +3,13 @@ import os
 import platform
 import functools
 
-__all__ = [
-    "Windows", "Linux", "MacOS",
-    "Maya", "Houdini", "Max", "Blender"
-]
-
+# __all__ = [
+#     "Windows", "Linux", "MacOS",
+#     "Maya", "Houdini", "Max", "Blender"
+# ]
+import sys
+import inspect
+__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isfunction))
 
 def Windows():
     return platform.system() == "Windows"
@@ -28,7 +30,9 @@ def _Maya():
         "Windows": "C:/Program Files/Autodesk/Maya2017",
         "Darwin": "/Applications/Autodesk/maya2017/Maya.app/Contents",
     }
-    return os.environ.get("MAYA_LOCATION") or d[platform.system()]
+    maya = os.environ.get("MAYA_LOCATION") or d[platform.system()]
+    assert os.path.getsize(maya)
+    return maya
 
 
 def _Houdini():
@@ -59,4 +63,4 @@ def _Blender():
 Maya = _Maya()
 Houdini = _Houdini()
 Max = _Max()
-Blender = _Blender()
+# Blender = _Blender()

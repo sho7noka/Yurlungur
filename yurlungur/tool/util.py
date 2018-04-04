@@ -2,31 +2,61 @@
 from __future__ import absolute_import, division
 import sys
 import os
+import re
 import string
 import itertools
 import traceback
 import functools
 import time
-import json
 import inspect
 import cProfile
 
 try:
-    import unicode
-    long
-except:
-    unicode = str
-    long = int
+    import __builtin__ as builtins
+except ImportError:
+    import builtins
 
 
 def _pyc():
     sys.dont_write_bytecode = True
 
+nopyc = _pyc()
+
+
+def iterator(l0, l1):
+    """shallow iteration"""
+    for a, b in itertools.product(l0, l1):
+        yield (a, b)
+
+
+# str = builtins.str()
+# str.replace = _replace
+#
+# print "aa\a".replace()
+
+class Container(builtins.str):
+    pass
+
+c = Container()
 
 def _replace(self):
-    return self.replace(os.sep, "/")
+    # return re.sub()
+    return builtins.str.replace(os.sep, "/")
+    # return self.replace(os.sep, "/")
+
+def new_method(self, val):
+    return val
+
+# Container.replace = _replace
+# print c.replace("new")
 
 
+
+
+
+# builtins.str.replace = _replace()
+
+# print "aaa".replace()
 # class MyStr(string):
 #     @staticmethod
 #     def replace(self):
@@ -35,13 +65,7 @@ def _replace(self):
 # print MyStr("G\tool_test\ciWildernessA\d").replace()
 
 
-nopyc = _pyc
 
-
-def iterator(l0, l1):
-    """shallow iteration"""
-    for a, b in itertools.product(l0, l1):
-        yield (a, b)
 
 
 def make_completer(mod):

@@ -65,7 +65,7 @@ elif "max" in application:
     import pymxs
 
     application = pymxs
-
+    global on, off
     on = True
     off = False
 

@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
-import functools
+import os
+from functools import partial
 import inspect
+import types
 
 from wrapper import YMObject, _YObject, _YNode, _YParm
 import yurlungur.tool.meta as meta
+meta = YMObject()
 
 
 class YObject(_YObject):
@@ -33,25 +36,25 @@ class YObject(_YObject):
 class YNode(_YNode):
     """connect-able object"""
 
-    def __init__(self, node):
+    def __init__(self, node=None):
         self._node = node
 
     @classmethod
-    def create(cls, *args, **keys):
-        meta.createNode(args, keys)
-        return cls
-        # return super(YNode, self)
+    def create(cls, *args, **kwargs):
+        if hasattr(meta, "createNode"):
+            return cls(meta.createNode(*args, **kwargs))
 
-    def delete(self, *args):
-        return (
-                super(YNode, self).destroy() or
-                super(YNode, self).delete(args)
-        )
+    def delete(self, *args, **kwargs):
+        if hasattr(meta, "delete"):
+            return meta.delete(*args, **kwargs)
 
-    def connect(self, **keys):
+        if hasattr(meta, "destroy"):
+            return meta.destroy()
+
+    def connect(self, *args, **kwargss):
         return
 
-    def disconnect(self, **keys):
+    def disconnect(self, *args, **kwargs):
         return
 
 
@@ -71,22 +74,33 @@ class YParm(_YParm):
 class YFile(object):
     """save, load and export"""
 
-    def load(self, arg, **kwargs):
+    def __init__(self, f=None):
+        self.file = f
+
+    @property
+    def file(self):
+        return os.path.dirname(self.file)
+
+    @property
+    def path(self):
+        return os.path.abspath(self.file)
+
+    @classmethod
+    def load(cls, *args, **kwargs):
         """load file"""
-        if hasattr(YMObject(), "file"):
-            return YMObject().file(arg, kwargs)
 
-        if hasattr(YMObject(), "hipFile"):
-            return YMObject().hipFile.load(arg, kwargs)
+        if hasattr(meta, "file"):
+            return cls(partial(meta.file, i=1)(*args, **kwargs))
 
-    def save(self, *args, **keys):
-        return (
-                YMObject().file or
-                YMObject().hipFile.save or
-                YMObject().rame(_name)
-        )
+        if hasattr(meta, "hipFile"):
+            return cls(meta.hipFile.load(*args, **kwargs))
 
-    def export(self, *args, **keys):
-        return (
+    @classmethod
+    def save(cls, *args, **kwargs):
+        """save file"""
 
-        )
+        if hasattr(meta, "file"):
+            return cls(partial(meta.file, s=1)(*args, **kwargs))
+
+        if hasattr(meta, "hipFile"):
+            return cls(meta.hipFile.save(*args, **kwargs))
