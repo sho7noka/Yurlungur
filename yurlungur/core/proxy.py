@@ -13,56 +13,85 @@ class YObject(_YObject):
     """base class"""
 
     def __init__(self, item):
-        self._item = item
+        self.item = item
+
+    def __call__(self, *args, **kwargs):
+        if hasattr(meta, "rename"):
+            meta.rename(*args, **kwargs)
+        raise NotImplementedError
+
+    def attr(self):
+
+        return YParm()
+
+        raise NotImplementedError
 
     @property
-    def name(self):
-        return self._item
+    def attrs(self, *args, **kwargs):
+        if hasattr(meta, "listAttr"):
+            return meta.listAttr(*args, **kwargs)
 
-    def name(cls, _name):
-        return (
-                super(YObject, self).renme(_name) or
-                super(YObject, self).rename(cls._item, _name) or
-                super(YObject, self).rame(_name)
-        )
+        raise NotImplementedError
 
     @property
     def id(self):
-        return (
-                YMObject().ls(self, uuid=1) or 0
-        )
+        if hasattr(meta, "ls"):
+            return meta.ls(self.item, uuid=1) or 0
+
+        raise NotImplementedError
 
 
 class YNode(_YNode):
     """connect-able object"""
 
     def __init__(self, node=None):
-        self._node = node
+        self.node = node
 
     @classmethod
     def create(cls, *args, **kwargs):
         if hasattr(meta, "createNode"):
             return cls(meta.createNode(*args, **kwargs))
 
+        raise NotImplementedError
+
     def delete(self, *args, **kwargs):
         if hasattr(meta, "delete"):
-            return meta.delete(*args, **kwargs)
+            meta.delete(self.node, *args, **kwargs)
 
         if hasattr(meta, "destroy"):
-            return meta.destroy()
+            meta.destroy()
+
+        raise NotImplementedError
 
     def connect(self, *args, **kwargss):
-        return
+        if hasattr(meta, "connectAttr"):
+            return meta.connectAttr(*args, **kwargss)
+
+        raise NotImplementedError
 
     def disconnect(self, *args, **kwargs):
-        return
+        if hasattr(meta, "disconnectAttr"):
+            return meta.disconnectAttr(*args, **kwargs)
+
+        raise NotImplementedError
+
+    def inputs(self):
+        pass
+
+    def outputs(self):
+        pass
 
 
 class YParm(_YParm):
     """parametric object"""
 
-    # def __new__():
-    #     return cmds.directionalLight(*args, **kwargs)
+    def __init__(self, attr):
+        self.attr = attr
+        if hasattr(meta, "getAttr"):
+            return meta.getAttr("")
+
+        if hasattr(meta, "parm"):
+            return meta.node().parm()
 
     def __getitem__(self, item):
         return item
@@ -74,33 +103,40 @@ class YParm(_YParm):
 class YFile(object):
     """save, load and export"""
 
-    def __init__(self, f=None):
-        self.file = f
+    def __init__(self, file):
+        self.file = file
 
     @property
-    def file(self):
+    def filename(self):
+        return os.path.basename(self.file)
+
+    @property
+    def filepath(self):
         return os.path.dirname(self.file)
-
-    @property
-    def path(self):
-        return os.path.abspath(self.file)
 
     @classmethod
     def load(cls, *args, **kwargs):
-        """load file"""
-
         if hasattr(meta, "file"):
             return cls(partial(meta.file, i=1)(*args, **kwargs))
 
         if hasattr(meta, "hipFile"):
             return cls(meta.hipFile.load(*args, **kwargs))
 
+        raise NotImplementedError
+
     @classmethod
     def save(cls, *args, **kwargs):
-        """save file"""
-
         if hasattr(meta, "file"):
             return cls(partial(meta.file, s=1)(*args, **kwargs))
 
         if hasattr(meta, "hipFile"):
             return cls(meta.hipFile.save(*args, **kwargs))
+
+        raise NotImplementedError
+
+    @property
+    def current(self):
+        if hasattr(meta, "file"):
+            return meta.file(exn=1, q=1)
+
+        raise NotImplementedError

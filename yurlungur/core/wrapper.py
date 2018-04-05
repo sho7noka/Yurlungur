@@ -8,8 +8,6 @@ __doc__ = """
 http://help.autodesk.com/view/MAYAUL/2017/JPN/?guid=GUID-55B63946-CDC9-42E5-9B6E-45EE45CFC7FC
 https://symfoware.blog.fc2.com/blog-entry-1590.html
 https://www.yoheim.net/blog.php?q=20160610
-import os
-print getattr(os, "path").abspath("")
 """
 
 

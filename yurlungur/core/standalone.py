@@ -4,73 +4,13 @@ import os
 import sys
 import inspect
 import subprocess
+import tempfile
 
 import yurlungur
-from yurlungur.Qt.QtCore import *
-from yurlungur.Qt.QtGui import *
-from yurlungur.Qt.QtWidgets import *
-from yurlungur.Qt import __binding__
 from yurlungur.tool import util
 from yurlungur.core import enviroment as env
 
 __all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
-
-
-class Initialize(object):
-
-    def call(self, pystr):
-        pass
-
-    def execfile(self, *args, **kwargs):
-        pass
-
-    def find_application(self):
-        pass
-
-    def set_application(self, application):
-        pass
-
-    def batch(self, appdir):
-        for root, folders, files in os.walk(appdir):
-            for file in files:
-                if file.endswith(".exe"):
-                    print file
-
-
-def _cli(args):
-    try:
-        import argparse
-    except:
-        import optparse
-        parser = optparse.OptionParser()
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--convert",
-                        help="Path to compiled Python module, e.g. my_ui.py")
-    parser.add_argument("--compile",
-                        help="Accept raw .ui file and compile with native "
-                             "PySide2 compiler.")
-    parser.add_argument("--stdout",
-                        help="Write to stdout instead of file",
-                        action="store_true")
-    parser.add_argument("--stdin",
-                        help="Read from stdin instead of file",
-                        action="store_true")
-
-    args = parser.parse_args(args)
-
-    if args.stdout:
-        raise NotImplementedError("--stdout")
-
-    if args.stdin:
-        raise NotImplementedError("--stdin")
-
-
-def hython(pystr):
-    assert os.path.getsize(env.Houdini)
-    subprocess.call(
-        "{0}/bin/hython -c\"{1}\"".format(env.Houdini, pystr)
-    )
 
 
 def mayapy(pystr):
@@ -80,6 +20,13 @@ def mayapy(pystr):
             env.Maya, "import maya.standalone;maya.standalone.initialize(name='python')",
             pystr, "maya.standalone.uninitialize()"
         )
+    )
+
+
+def hython(pystr):
+    assert os.path.getsize(env.Houdini)
+    subprocess.call(
+        "{0}/bin/hython -c\"{1}\"".format(env.Houdini, pystr)
     )
 
 
@@ -97,6 +44,24 @@ def bpython(pystr):
     )
 
 
+def uepython(project, pystr):
+    assert os.path.getsize(env.Unreal) or os.path.exists(project)
+
+    # temp
+    with tempfile.NamedTemporaryFile(delete=False) as tf:
+        tf.write(pystr)
+    subprocess.call(
+        "{0}/UE4Editor-Cmd {1} ExecutePythonScript = {2}".format(env.Unreal, project, pyfile)
+    )
+
+
+# available Qt
+from yurlungur.Qt.QtCore import *
+from yurlungur.Qt.QtGui import *
+from yurlungur.Qt.QtWidgets import *
+from yurlungur.Qt import __binding__
+
+
 class YurPrompt(QDockWidget):
     def __init__(self, parent=None):
         super(YurPrompt, self).__init__(parent)
@@ -105,7 +70,6 @@ class YurPrompt(QDockWidget):
         self.setWindowFlags(Qt.Window)
         # self.setWindowIcon(QIcon(getattr(QStyle, "SP_DialogApplyButton")))
         self.setAttribute(Qt.WA_DeleteOnClose)
-        self.config = Initialize()
         # print os.path.join(os.path.dirname(sys.executable),
         #                    'Lib',
         #                    'site-packages',
@@ -165,14 +129,46 @@ class YurPrompt(QDockWidget):
         self.status_bar.showMessage("")
 
 
-def main():
-    app = QApplication(sys.argv)
-    QTextCodec.setCodecForCStrings(QTextCodec.codecForLocale())
-    # app.setWindowIcon(QIcon(getattr(QStyle, "SP_DialogApplyButton")))
+def cli(args):
+    try:
+        import argparse
+    except:
+        import optparse
+        parser = optparse.OptionParser()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--convert",
+                        help="Path to compiled Python module, e.g. my_ui.py")
+    parser.add_argument("--dlg",
+                        help="Accept raw .ui file and compile with native "
+                             "PySide2 compiler.")
+    parser.add_argument("--stdout",
+                        help="Write to stdout instead of file",
+                        action="store_true")
+    parser.add_argument("--hython",
+                        help="Read from stdin instead of file",
+                        action="store_true")
+
+    args = parser.parse_args(args)
+    if args.dlg:
+        main()
+
+    if args.stdout:
+        raise NotImplementedError("--stdout")
+
+    if args.maya:
+        mayapy()
+
+    if args.houdini:
+        hython()
+
+
+def main(args=[]):
+    app = QApplication(args)
     widget = YurPrompt()
     widget.show()
     sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

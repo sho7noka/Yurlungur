@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
 import platform
-import functools
 
-# __all__ = [
-#     "Windows", "Linux", "MacOS",
-#     "Maya", "Houdini", "Max", "Blender"
-# ]
-import sys
-import inspect
-__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isfunction))
+__all__ = [
+    "Windows", "Linux", "MacOS",
+    "Maya", "Houdini", "Max", "Blender"
+]
 
 def Windows():
     return platform.system() == "Windows"
@@ -60,7 +56,17 @@ def _Blender():
     return d[platform.system()]
 
 
+def _Unreal():
+    d = {
+        "Linux" : "",
+        "Windows" : "C:/Program Files/Epic Games/UE_4.19/Engine/Binaries/Win64",
+        "Darwin" : ""
+    }
+    return d[platform.system()]
+
+
 Maya = _Maya()
 Houdini = _Houdini()
 Max = _Max()
-# Blender = _Blender()
+Blender = _Blender()
+Unreal = _Unreal()
