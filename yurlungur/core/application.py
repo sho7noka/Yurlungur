@@ -1,20 +1,17 @@
 # -*- coding: utf-8 -*-
 from yurlungur.tool.util import *  # noQA
+import yurlungur.Qt as qt
 
-try:
-    import imp as importlib
-except ImportError:
-    import importlib
-
-__all__ = ["application", "exApplication"]
+__all__ = ["application", "exApplication", "qtavailable"]
 
 
 def exApplication(module=""):
     """NO-Qt application"""
     application = ""
+
     try:
-        import unreal_engine
-        application = unreal_engine
+        import unreal
+        application = unreal
     except:
         pass
 
@@ -25,20 +22,8 @@ def exApplication(module=""):
         pass
 
     try:
-        import arnold
-        application = arnold
-    except:
-        pass
-
-    try:
         import pysbs
         application = pysbs
-    except:
-        pass
-
-    try:
-        import c4d
-        application = c4d
     except:
         pass
 
@@ -71,3 +56,5 @@ elif "max" in application:
 
 else:
     application = exApplication()
+
+qtavailable = any([qt.IsPyQt4, qt.IsPyQt5, qt.IsPySide, qt.IsPySide2])

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division
 import sys
 import os
 import re
@@ -10,11 +9,10 @@ import functools
 import time
 import inspect
 import cProfile
-
 try:
-    import __builtin__ as builtins
-except ImportError:
     import builtins
+except ImportError:
+    import __builtin__ as builtins
 
 
 def _pyc():
@@ -118,7 +116,6 @@ from yurlungur.Qt.QtWidgets import *
 
 
 class _GCProtector(object):
-    """GCプロテクター"""
     widgets = []
 
 
