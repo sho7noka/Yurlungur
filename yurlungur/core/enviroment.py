@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import platform
+import contextlib
 
 __all__ = [
     "Windows", "Linux", "MacOS",

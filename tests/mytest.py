@@ -9,4 +9,14 @@ https://docs.python.jp/2.7/reference/datamodel.html#object.__new__
 
 import yurlungur as yr
 
-yr.application.main()
+
+if yr.Windows():
+    print 1
+
+if yr.Max:
+    print 2
+
+print yr.app.application
+
+node = yr.YObject("pConeShape1")
+node.attr("castsShadows").set(1)

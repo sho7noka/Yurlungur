@@ -1,5 +1,10 @@
 from __future__ import print_function, unicode_literals, absolute_import
 from logging import basicConfig, getLogger, StreamHandler, DEBUG
+
+import yurlungur
+import imp
+imp.reload(yurlungur)
+
 from yurlungur.core import *  # noQA
 from yurlungur.tool.math import *  # noQA
 from yurlungur.tool.util import *  # noQA
