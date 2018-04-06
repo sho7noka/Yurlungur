@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-import sys
-import inspect
+import proxy
+# import enviroment as env
+
+__all__ = []
 
 def _ls(self):
     print "_ls"
@@ -35,4 +37,18 @@ def _select(self, *args):
     return
 
 
-__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isfunction))
+def ls():
+    pass
+
+# if env.Maya:
+#     # c = Container()
+#     # Container.new_method = new_method
+#     # print c.new_method("new")
+#     # ynode = proxy.YNode()
+#     # proxy.YNode.ls = _ls
+#     __all__.append("")
+#
+# if env.Houdini:
+#     __all__.append("")
+
+

@@ -8,7 +8,8 @@ import tempfile
 
 import yurlungur
 from yurlungur.tool import util
-from yurlungur.core import enviroment as env
+# from yurlungur.core import enviroment as env
+
 
 __all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
 

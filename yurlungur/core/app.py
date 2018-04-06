@@ -4,6 +4,7 @@ import yurlungur.Qt as qt
 
 __all__ = ["application", "exApplication", "qtavailable"]
 
+qtavailable = any([qt.IsPyQt4, qt.IsPyQt5, qt.IsPySide, qt.IsPySide2])
 
 def exApplication(module=""):
     """NO-Qt application"""
@@ -56,5 +57,3 @@ elif "max" in application:
 
 else:
     application = exApplication()
-
-qtavailable = any([qt.IsPyQt4, qt.IsPyQt5, qt.IsPySide, qt.IsPySide2])

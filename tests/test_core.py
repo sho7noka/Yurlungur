@@ -60,17 +60,6 @@ class DynamicProxy(object):
 # ns = NullSafeContainer()
 # print ns.replace("foo bar baz")("bar", "gege")
 #
-# class Container(object):
-#     pass
-#
-# c = Container()
-#
-# def new_method(self, val):
-#     return val
-#
-# Container.new_method = new_method
-# print c.new_method("new")
-#
 # class Spam:
 #     def hello(self):
 #         print('Hello')

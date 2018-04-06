@@ -126,7 +126,7 @@ def max_protect_window(w):
 
 
 def qmain_window():
-    import yurlungur.core.application
+    import yurlungur.core.app
     app_name = yurlungur.core.application.__name__
 
     if app_name == "maya.cmds":
