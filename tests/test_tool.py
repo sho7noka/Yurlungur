@@ -8,7 +8,7 @@ class TestApp(unittest.TestCase):
     """"""
     def test_env(self):
         """"""
-        env.Windows()
+        self.assertTrue(env.Windows())
 
 if __name__ == '__main__':
     unittest.main()

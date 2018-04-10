@@ -1,23 +1,78 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 import platform
-import contextlib
-
-__all__ = [
-    "Windows", "Linux", "MacOS",
-    "Maya", "Houdini", "Max", "Blender"
-]
-
-def Windows():
-    return platform.system() == "Windows"
+import functools
 
 
-def Linux():
-    return platform.system() == "Linux"
+def Windows(func=None):
+    if func == None:
+        return platform.system() == "Windows"
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if platform.system() == "Windows":
+            func(*args, **kwargs)
+    return wrapper
 
 
-def MacOS():
-    return platform.system() == "Darwin"
+def Linux(func=None):
+    if func == None:
+        return platform.system() == "Linux"
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if platform.system() == "Linux":
+            func(*args, **kwargs)
+    return wrapper
+
+
+def MacOS(func=None):
+    if func == None:
+        return platform.system() == "Darwin"
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if platform.system() == "Darwin":
+            func(*args, **kwargs)
+    return wrapper
+
+
+def Maya(func=None):
+    if func == None:
+        return "maya" in sys.executable
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "maya" in sys.executable:
+            func(*args, **kwargs)
+
+    return wrapper
+
+
+def Houdini(func=None):
+    if func == None:
+        return "houdini" in sys.executable
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "houdini" in sys.executable:
+            func(*args, **kwargs)
+
+    return wrapper
+
+
+def Unreal(func=functools.wraps):
+    if func == None:
+        return "UE4" in sys.executable
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "UE4" in sys.executable and func != None:
+            func(*args, **kwargs)
+        return "UE4" in sys.executable
+
+    return wrapper
 
 
 def _Maya():
@@ -50,24 +105,28 @@ def _Max():
 def _Blender():
     """find Blender app"""
     d = {
-        "Linux" : "" ,
-        "Windows" : "C:/Program Files/Blender Foundation/Blender",
-        "Darwin" : "/Applications/Blender/blender.app/Contents/MacOS/blender"
+        "Linux": "",
+        "Windows": "C:/Program Files/Blender Foundation/Blender",
+        "Darwin": "/Applications/Blender/blender.app/Contents/MacOS/blender"
     }
     return d[platform.system()]
 
 
 def _Unreal():
     d = {
-        "Linux" : "",
-        "Windows" : "C:/Program Files/Epic Games/UE_4.19/Engine/Binaries/Win64",
-        "Darwin" : ""
+        "Linux": "",
+        "Windows": "C:/Program Files/Epic Games/UE_4.19/Engine/Binaries/Win64",
+        "Darwin": ""
     }
     return d[platform.system()]
 
 
-Maya = _Maya()
-Houdini = _Houdini()
-Max = _Max()
-Blender = _Blender()
-Unreal = _Unreal()
+MayaBin = _Maya()
+HoudiniBin = _Houdini()
+UnrealBin = _Unreal()
+
+__all__ = [
+    "Windows", "Linux", "MacOS",
+    "Maya", "Houdini", "Unreal",
+    "MayaBin", "HoudiniBin", "UnrealBin"
+]

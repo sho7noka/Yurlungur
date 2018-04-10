@@ -10,9 +10,11 @@ https://symfoware.blog.fc2.com/blog-entry-1590.html
 https://www.yoheim.net/blog.php?q=20160610
 """
 
-# raise NotImplementedError(app.application)
 
 class YException(NotImplementedError):
+    """
+    >>> raise NotImplementedError(app.application)
+    """
     pass
 
 
@@ -43,6 +45,7 @@ class MetaObject(type):
     def __new__(cls, name, bases, attrs):
         return super(MetaObject, cls).__new__(cls, name, bases, attrs)
 
+
 _YObject = MetaObject("YObject", (object,), {"__doc__": MetaObject.__doc__})
 
 
@@ -52,6 +55,7 @@ class MetaAttribute(type):
 
     def __new__(cls, name, bases, attrs):
         return super(MetaAttribute, cls).__new__(cls, name, bases, attrs)
+
     # def __new__(cls, *args, **kwds):
     #     if len(args) == 2:
     #         cls._node = args[0]
@@ -62,6 +66,7 @@ class MetaAttribute(type):
 
     def __getitem__(self, idx):
         return MetaAttribute(self._node, self._attr + "[{0}]".format(idx))
+
 
 _YParm = MetaAttribute("YParm", (object,), {"__doc__": MetaAttribute.__doc__})
 
@@ -77,7 +82,7 @@ class MetaNode(type):
 
         return _
 
-_YNode = MetaNode("YNode", (object,), {"__doc__": MetaNode.__doc__})
 
+_YNode = MetaNode("YNode", (object,), {"__doc__": MetaNode.__doc__})
 
 __all__ = []

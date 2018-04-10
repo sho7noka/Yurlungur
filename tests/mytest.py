@@ -1,4 +1,5 @@
 import yurlungur as yr
+import sys
 
 __doc__ = """
 
@@ -7,16 +8,20 @@ https://docs.python.jp/2.7/reference/datamodel.html#object.__new__
 
 """
 
-import yurlungur as yr
+# print yr.app.application
+# node = yr.YObject("pConeShape1")
+# node.attr("castsShadows").set(1)
 
 
-if yr.Windows():
-    print 1
+print yr.Houdini()
+print sys.executable
 
-if yr.Max:
-    print 2
+@yr.Maya
+def aaa():
+    return 2
 
-print yr.app.application
 
-node = yr.YObject("pConeShape1")
-node.attr("castsShadows").set(1)
+print aaa()
+
+# yr.application.mayapy("print 111")
+yr.application.cli("--dlg")

@@ -8,51 +8,51 @@ import tempfile
 
 import yurlungur
 from yurlungur.tool import util
-# from yurlungur.core import enviroment as env
+from yurlungur.core import enviroment as env
 
 
-__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
+# __all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
 
 
 def mayapy(pystr):
-    assert os.path.getsize(env.Maya)
+    assert os.path.getsize(env.MayaBin)
     subprocess.call(
         "{0}/bin/mayapy -c \"{1};{2};{3}\"".format(
-            env.Maya, "import maya.standalone;maya.standalone.initialize(name='python')",
+            env.MayaBin, "import maya.standalone;maya.standalone.initialize(name='python')",
             pystr, "maya.standalone.uninitialize()"
         )
     )
 
 
 def hython(pystr):
-    assert os.path.getsize(env.Houdini)
+    assert os.path.getsize(env.HoudiniBin)
     subprocess.call(
-        "{0}/bin/hython -c\"{1}\"".format(env.Houdini, pystr)
+        "{0}/bin/hython -c\"{1}\"".format(env.HoudiniBin, pystr)
     )
 
 
 def maxpy(pystr):
-    assert os.path.getsize(env.Max)
+    assert os.path.getsize(env.MaxBin)
     subprocess.call(
-        "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.Max, sys.path.append(yurlungur), pystr)
+        "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.MaxBin, sys.path.append(yurlungur), pystr)
     )
 
 
 def bpython(pystr):
-    assert sys.version_info > (3, 5, 3), ('blender requires Python 3.5.3') or os.path.getsize(env.Blender)
+    assert sys.version_info > (3, 5, 3), ('blender requires Python 3.5.3') or os.path.getsize(env.BlenderBin)
     subprocess.call(
-        "{0}.blender --python-expr {1} -b".format(env.Blender, pystr)
+        "{0}.blender --python-expr {1} -b".format(env.BlenderBin, pystr)
     )
 
 
 def uepython(project, pystr):
-    assert os.path.getsize(env.Unreal) or os.path.exists(project)
+    assert os.path.getsize(env.UnrealBin) or os.path.exists(project)
 
     # temp
     with tempfile.NamedTemporaryFile(delete=False) as tf:
         tf.write(pystr)
     subprocess.call(
-        "{0}/UE4Editor-Cmd {1} ExecutePythonScript = {2}".format(env.Unreal, project, pyfile)
+        "{0}/UE4Editor-Cmd {1} ExecutePythonScript = {2}".format(env.UnrealBin, project, pyfile)
     )
 
 
@@ -131,22 +131,39 @@ class YurPrompt(QDockWidget):
 
 
 def cli(args):
+    """
+    parser.add_argument('path_root_src', \
+            action='store', \
+            nargs=None, \
+            const=None, \
+            default=None, \
+            type=str, \
+            choices=None, \
+            help='Directory path where your taken photo files are located.', \
+            metavar=None)
+    """
     try:
         import argparse
-    except:
-        import optparse
-        parser = optparse.OptionParser()
+    except ImportError:
+        sys.exit(1)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--convert",
-                        help="Path to compiled Python module, e.g. my_ui.py")
     parser.add_argument("--dlg",
-                        help="Accept raw .ui file and compile with native "
-                             "PySide2 compiler.")
-    parser.add_argument("--stdout",
-                        help="Write to stdout instead of file",
+                        help="Accept raw .ui file and compile with native ",
+                        action="store_true")
+    parser.add_argument("--mayapy",
+                        help="Read from stdin instead of file",
                         action="store_true")
     parser.add_argument("--hython",
+                        help="Read from stdin instead of file",
+                        action="store_true")
+    parser.add_argument("--unrealpy",
+                        help="Read from stdin instead of file",
+                        action="store_true")
+    parser.add_argument("--tests",
+                        help="Read from stdin instead of file",
+                        action="store_true")
+    parser.add_argument("--install",
                         help="Read from stdin instead of file",
                         action="store_true")
 
@@ -154,14 +171,14 @@ def cli(args):
     if args.dlg:
         main()
 
-    if args.stdout:
-        raise NotImplementedError("--stdout")
-
-    if args.maya:
+    if args.mayapy:
         mayapy()
 
-    if args.houdini:
+    if args.hython:
         hython()
+
+    if args.unrealpy:
+        uepython()
 
 
 def main(args=[]):

@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 import sys
 import inspect
+
 from math import *  # noQA
 from ctypes import *  # noQA
 from operator import *  # noQA
 from colorsys import *  # noQA
 from functools import *  # noQA
+
+import yurlungur.core.app
 
 # numpy is available on Houdini and Blender.
 try:
