@@ -1,23 +1,29 @@
 from __future__ import print_function, unicode_literals, absolute_import
-from logging import basicConfig, getLogger, StreamHandler, DEBUG
-
-import yurlungur
-import imp
-imp.reload(yurlungur)
-
-from yurlungur.core import *  # noQA
-from yurlungur.tool.math import *  # noQA
-from yurlungur.tool.util import *  # noQA
-from yurlungur.tool.meta import meta
 import sys
+assert sys.version_info > (2, 6), ('yurlungur currently requires Python 2.6')
+sys.dont_write_bytecode = True
+
+# reload
+import yurlungur
+try:
+    import imp
+    imp.reload(yurlungur)
+except ImportError:
+    import importlib
+    importlib.reload_module(yurlungur)
+
+# open yurlungur
+from yurlungur.core import *        # noQA
+from yurlungur.tool.math import *   # noQA
+from yurlungur.tool.util import *   # noQA
 
 __all__ = []
 __version__ = "0.9"
-
 name = __name__
 version = __version__
-sys.dont_write_bytecode = True
-assert sys.version_info > (2, 6), ('yurlungur currently requires Python 2.6')
+
+# logger
+from logging import basicConfig, getLogger, StreamHandler, DEBUG
 
 basicConfig(level=DEBUG)
 logger = getLogger(name)

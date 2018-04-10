@@ -1,54 +1,78 @@
 # -*- coding: utf-8 -*-
-import proxy
-# import enviroment as env
+from proxy import *
+import enviroment as env
 
-__all__ = []
 
-def _ls(self):
+def ls(self):
     print "_ls"
     return
 
 
-def _glob(self):
+def glob(self):
     return
 
 
-def _cd(self):
+def cd(self):
     return
 
 
-def _root(self):
+def root(self):
     return
 
 
-def _pwd(self):
+def pwd(self):
     return
 
 
-def _parent(self):
+def select(self, *args):
     return
 
 
-def _children(self):
-    return
+def _alembicImporter(self, *args, **kwargs):
+    """
+    >>> f = YFile()
+    >>> YFile.new_method = new_method
+    >>> print f.new_method("new")
+    """
+    if hasattr(meta, "AbcImport"):
+        return meta.AbcImport(*args, **kwargs)
 
 
-def _select(self, *args):
-    return
+def _alembicExporter(self, *args, **kwargs):
+    if hasattr(meta, "AbcExport"):
+        return meta.AbcExport(*args, **kwargs)
 
 
-def ls():
+
+def _fbxImporter(self, *args, **kwargs):
     pass
 
-# if env.Maya:
-#     # c = Container()
-#     # Container.new_method = new_method
-#     # print c.new_method("new")
-#     # ynode = proxy.YNode()
-#     # proxy.YNode.ls = _ls
-#     __all__.append("")
-#
-# if env.Houdini:
-#     __all__.append("")
+
+def _fbxExporter(self, *args, **kwargs):
+    import maya.mel; mel.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args))
 
 
+# Monkey-Patch
+if env.Maya():
+    # for plugin in ["fbxmaya.mll", "AbcImport.mll", "AbcExport.mll"]:
+    #     meta.loadPlugin(plugin, qt=1)
+
+    abc = YFile("aaa")
+    YFile.importer = _alembicImporter
+    YFile.exporter = _alembicExporter
+
+    fbx = YFile("bbb")
+    YFile.importer = _fbxImporter
+    YFile.exporter = _fbxExporter
+
+if env.Houdini():
+    abc = YFile("aaa")
+    YFile.importer = _alembicImporter
+    YFile.exporter = _alembicExporter
+
+if env.Unreal():
+    abc = YFile("aaa")
+    YFile.importer = _alembicImporter
+
+    fbx = YFile("bbb")
+    YFile.importer = _fbxImporter
