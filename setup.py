@@ -1,13 +1,18 @@
+# from setuptools import setup, find_packages
 from distutils.core import setup
 
 setup(
-    name='PyDCC',
+    name='Yurlungur',
     version='0.9',
-    packages=['PyDCC.src', 'tests', 'pybinary', 'cameraFrustumTools.v1', 'cameraFrustumTools.v1.OBB',
-              'cameraFrustumTools.v1.OBB.shelf'],
-    url='',
+    py_modules=['yurlungur', 'yurlungur.core', 'yurlungur.tools', 'yurlungur.user'],
+    url='https://github.com/sho7noka/Yurlungur',
     license='MIT',
     author='sumioka-sho',
     author_email='shosumioka@gmail.com',
-    description='MEL and MaxScript Python wrapper andmore.'
+    description='Universal scripting environment with Python which Maya, Houdini, 3dsMax and more.',
+    # install_requires=[
+    #     'Werkzeug>=0.14',
+    # ],
 )
+
+
