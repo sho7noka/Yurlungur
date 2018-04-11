@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
 import os
 import sys
 import inspect
@@ -7,11 +6,15 @@ import subprocess
 import tempfile
 
 import yurlungur
-from yurlungur.tool import util
+
 from yurlungur.core import enviroment as env
+from yurlungur.Qt.QtCore import *
+from yurlungur.Qt.QtGui import *
+from yurlungur.Qt.QtWidgets import *
+from yurlungur.Qt import __binding__
 
-
-# __all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
+__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
+local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
 
 
 def mayapy(pystr):
@@ -19,7 +22,7 @@ def mayapy(pystr):
     subprocess.call(
         "{0}/bin/mayapy -c \"{1};{2};{3}\"".format(
             env.MayaBin, "import maya.standalone;maya.standalone.initialize(name='python')",
-            pystr, "maya.standalone.uninitialize()"
+            "import sys; sys.path.append('{0}');".format(local) + pystr, "maya.standalone.uninitialize()"
         )
     )
 
@@ -54,13 +57,6 @@ def uepython(project, pystr):
     subprocess.call(
         "{0}/UE4Editor-Cmd {1} ExecutePythonScript = {2}".format(env.UnrealBin, project, pyfile)
     )
-
-
-# available Qt
-from yurlungur.Qt.QtCore import *
-from yurlungur.Qt.QtGui import *
-from yurlungur.Qt.QtWidgets import *
-from yurlungur.Qt import __binding__
 
 
 class YurPrompt(QDockWidget):
@@ -145,6 +141,7 @@ def cli(args):
     try:
         import argparse
     except ImportError:
+        yurlungur.logger.warn("argparse is not found.")
         sys.exit(1)
 
     parser = argparse.ArgumentParser()

@@ -2,15 +2,10 @@
 import os
 from functools import partial
 from wrapper import (
-    YMObject, _YObject, _YNode, _YParm, YException
+    YMObject, YException, _YObject, _YNode, _YParm
 )
 
 meta = YMObject()
-
-"""
-'cast', 'contains_emitter_type', 'execute_ubergraph', 'get_class', 'get_editor_property', 'get_fname'
-, 'get_full_name', 'get_name', 'get_outer', 'get_outermost', 'get_path_name', 'get_typed_outer', 'get_world', 'modify', 'rename', 'set_editor_property', 'static_class']
-"""
 
 """
     ['AbstractNavData', 'AchievementLibrary', 'AchievementQueryCallbackProxy', 'AchievementWriteCallbackProxy', 'Actor',
@@ -909,17 +904,17 @@ class YObject(_YObject):
 
     def attr(self, val, *args, **kwargs):
         if hasattr(meta, "getAttr"):
-            return YParm(
+            return YAttr(
                 meta.getAttr(self.name + "." + val, *args, **kwargs), self.name, val
             )
 
         if hasattr(meta, "root"):
-            return YParm(
+            return YAttr(
                 meta.node(self.name).parm(val).eval(), self.name, val
             )
 
         if hasattr(meta, "Actor"):
-            return YParm
+            return YAttr
 
         raise YException
 
@@ -943,7 +938,7 @@ class YObject(_YObject):
     @property
     def id(self):
         if hasattr(meta, "ls"):
-            return meta.ls(self.name, uuid=1) or 0
+            return meta.ls(self.name, uuid=1)[0] or 0
 
         if hasattr(meta, "root"):
             return meta.node(self.name).sessionId() or 0
@@ -957,9 +952,9 @@ class YObject(_YObject):
 class YNode(YObject):
     """connect-able object"""
 
-    def __init__(self, node):
-        super(YObject, self).__init__(node)
-        self.node = node
+    def __init__(self, item):
+        super(YNode, self).__init__(item)
+        self.item = item
 
     @classmethod
     def create(cls, *args, **kwargs):
@@ -967,17 +962,16 @@ class YNode(YObject):
             return cls(meta.createNode(*args, **kwargs))
 
         if hasattr(meta, "root"):
-            return cls(meta.node(cls.node).createNode(*args, **kwargs))
-
+            return cls(meta.node(cls.item).createNode(*args, **kwargs))
 
         raise YException
 
     def delete(self, *args, **kwargs):
         if hasattr(meta, "delete"):
-            meta.delete(self.node, *args, **kwargs)
+            meta.delete(self.item, *args, **kwargs)
 
         if hasattr(meta, "root"):
-            meta.node(self.node).destroy()
+            meta.node(self.item).destroy()
 
     def connect(self, *args, **kwargss):
         if hasattr(meta, "connectAttr"):
@@ -985,6 +979,7 @@ class YNode(YObject):
 
         if hasattr(meta, "root"):
             return
+
         raise YException
 
     def disconnect(self, *args, **kwargs):
@@ -1012,7 +1007,7 @@ class YNode(YObject):
         raise YException
 
 
-class YParm(_YParm):
+class YAttr(_YParm):
     """parametric object"""
 
     def __init__(self, *args, **kwargs):
@@ -1033,23 +1028,15 @@ class YParm(_YParm):
         raise YException
 
     @property
-    def value(self):
+    def values(self):
         return self.values
 
 
 class YFile(object):
     """save, load and export"""
 
-    def __init__(self, file):
+    def __init__(self, file=""):
         self.file = file
-
-    @property
-    def name(self):
-        return os.path.basename(self.file)
-
-    @property
-    def path(self):
-        return os.path.dirname(self.file)
 
     @classmethod
     def load(cls, *args, **kwargs):
@@ -1070,6 +1057,14 @@ class YFile(object):
             return cls(meta.hipFile.save(*args, **kwargs))
 
         raise YException
+
+    @property
+    def name(self):
+        return os.path.basename(self.file)
+
+    @property
+    def path(self):
+        return os.path.dirname(self.file)
 
     @property
     def current(cls):
