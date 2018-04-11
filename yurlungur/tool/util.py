@@ -9,23 +9,17 @@ import functools
 import time
 import inspect
 import cProfile
+
 try:
     import builtins
 except ImportError:
     import __builtin__ as builtins
 
 
-def _pyc():
-    sys.dont_write_bytecode = True
-
-nopyc = _pyc()
-
-
 def iterator(l0, l1):
     """shallow iteration"""
     for a, b in itertools.product(l0, l1):
         yield (a, b)
-
 
 
 def make_completer(mod):

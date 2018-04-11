@@ -2,9 +2,9 @@
 from yurlungur.tool.util import *  # noQA
 import yurlungur.Qt as qt
 
-__all__ = ["application", "exApplication", "qtavailable"]
+__all__ = ["application", "exApplication", "isQt"]
 
-qtavailable = any([qt.IsPyQt4, qt.IsPyQt5, qt.IsPySide, qt.IsPySide2])
+isQt = any([qt.IsPyQt4, qt.IsPyQt5, qt.IsPySide, qt.IsPySide2])
 
 def exApplication(module=""):
     """NO-Qt application"""
@@ -35,11 +35,9 @@ def exApplication(module=""):
     return application
 
 
-# Qt application
-application = QCoreApplication.applicationName().lower()
+application = sys.executable
 if "maya" in application:
     from maya import cmds, mel, OpenMaya
-
     application = cmds
 
 elif "houdini" in application or "hindie" in application:

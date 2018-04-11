@@ -3,76 +3,102 @@ from proxy import *
 import enviroment as env
 
 
-def ls(self):
-    print "_ls"
+class Command(object):
+    @staticmethod
+    def register(func):
+        pass
+
+    @staticmethod
+    def remove(func):
+        pass
+
+
+def _ls(cls):
+    return meta.ls()
+
+
+def _rm(cls):
     return
 
 
-def glob(self):
+def _glob(cls):
     return
 
 
-def cd(self):
+def _cd(cls):
     return
 
 
-def root(self):
+def _root(cls):
     return
 
 
-def pwd(self):
+def _pwd(cls):
     return
 
 
-def select(self, *args):
+def _parent(cls, *args, **kwargs):
     return
 
 
-def _alembicImporter(self, *args, **kwargs):
+def _children(cls, *args, **kwargs):
+    return
+
+
+def _select(cls, *args):
+    return
+
+
+def _alembicImporter(cls, *args, **kwargs):
     """
     >>> f = YFile()
     >>> YFile.new_method = new_method
     >>> print f.new_method("new")
     """
     if hasattr(meta, "AbcImport"):
-        return meta.AbcImport(*args, **kwargs)
+        return cls(meta.AbcImport(*args, **kwargs))
 
 
-def _alembicExporter(self, *args, **kwargs):
+def _alembicExporter(cls, *args, **kwargs):
     if hasattr(meta, "AbcExport"):
-        return meta.AbcExport(*args, **kwargs)
+        return cls(meta.AbcExport(*args, **kwargs))
 
 
-
-def _fbxImporter(self, *args, **kwargs):
+def _fbxImporter(cls, *args, **kwargs):
     pass
 
 
-def _fbxExporter(self, *args, **kwargs):
-    import maya.mel; mel.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args))
+def _fbxExporter(cls, *args, **kwargs):
+    import maya.mel
+    return cls(mel.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args)))
 
 
 # Monkey-Patch
 if env.Maya():
-    # for plugin in ["fbxmaya.mll", "AbcImport.mll", "AbcExport.mll"]:
-    #     meta.loadPlugin(plugin, qt=1)
+    try:
+        for plugin in ["fbxmaya.mll", "AbcImport.mll", "AbcExport.mll"]:
+            meta.loadPlugin(plugin, qt=1)
+    except:
+        pass
 
-    abc = YFile("aaa")
-    YFile.importer = _alembicImporter
-    YFile.exporter = _alembicExporter
+    file = YFile()
+    YFile.abcImporter = _alembicImporter
+    YFile.abcExporter = _alembicExporter
+    YFile.fbxImporter = _fbxImporter
+    YFile.fbxExporter = _fbxExporter
 
-    fbx = YFile("bbb")
-    YFile.importer = _fbxImporter
-    YFile.exporter = _fbxExporter
+    cmd = Command()
+    Command.ls = _ls
+    Command.pwd = _pwd
 
 if env.Houdini():
-    abc = YFile("aaa")
-    YFile.importer = _alembicImporter
-    YFile.exporter = _alembicExporter
+    file = YFile()
+    YFile.abcImporter = _alembicImporter
+    YFile.abcExporter = _alembicExporter
 
 if env.Unreal():
-    abc = YFile("aaa")
-    YFile.importer = _alembicImporter
+    file = YFile()
+    YFile.abcImporter = _alembicImporter
+    YFile.fbxImporter = _fbxImporter
 
-    fbx = YFile("bbb")
-    YFile.importer = _fbxImporter
+__all__ = ["file", "cmd", "Command"]

@@ -1,6 +1,6 @@
 from app import application
-from proxy import YObject, YFile, YNode, YParm
+from builder import Builder
 from standalone import YurPrompt
-from command import *
-from enviroment import *
+from proxy import YObject, YFile, YNode
+from enviroment import Maya, Houdini, Unreal
 
