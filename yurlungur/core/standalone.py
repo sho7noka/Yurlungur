@@ -1,59 +1,61 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
 import os
 import sys
-import optparse
+import inspect
 import subprocess
-import re
+import tempfile
 
 import yurlungur
+
+from yurlungur.core import enviroment as env
 from yurlungur.Qt.QtCore import *
 from yurlungur.Qt.QtGui import *
 from yurlungur.Qt.QtWidgets import *
 from yurlungur.Qt import __binding__
-from yurlungur.tool import util
-from yurlungur.core import enviroment as env
 
-
-class Initialize(object):
-
-    def call(self, pystr):
-        pass
-
-    def execfile(self, *args, **kwargs):
-        pass
-
-    def find_application(self):
-        pass
-
-    def set_application(self, application):
-        pass
-
-    def batch(self, appdir):
-        for root, folders, files in os.walk(appdir):
-            for file in files:
-                if file.endswith(".exe"):
-                    print file
-
-
-def hython(pystr):
-    subprocess.call(
-        "{0}/bin/hython -c\"{1}\"".format(env.Houdini, pystr)
-    )
+__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
+local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
 
 
 def mayapy(pystr):
-    initialize = "import maya.standalone;maya.standalone.initialize(name='python')"
-    uninitialize = "maya.standalone.uninitialize()"
-
+    assert os.path.getsize(env.MayaBin)
     subprocess.call(
-        "{0}/bin/mayapy -c \"{1};{2};{3}\"".format(env.Maya, initialize, pystr, uninitialize)
+        "{0}/bin/mayapy -c \"{1};{2};{3}\"".format(
+            env.MayaBin, "import maya.standalone;maya.standalone.initialize(name='python')",
+            "import sys; sys.path.append('{0}');".format(local) + pystr, "maya.standalone.uninitialize()"
+        )
+    )
+
+
+def hython(pystr):
+    assert os.path.getsize(env.HoudiniBin)
+    subprocess.call(
+        "{0}/bin/hython -c\"{1}\"".format(env.HoudiniBin, pystr)
     )
 
 
 def maxpy(pystr):
+    assert os.path.getsize(env.MaxBin)
     subprocess.call(
-        "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.Max, sys.path.append(yr), pystr)
+        "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.MaxBin, sys.path.append(yurlungur), pystr)
+    )
+
+
+def bpython(pystr):
+    assert sys.version_info > (3, 5, 3), ('blender requires Python 3.5.3') or os.path.getsize(env.BlenderBin)
+    subprocess.call(
+        "{0}.blender --python-expr {1} -b".format(env.BlenderBin, pystr)
+    )
+
+
+def uepython(project, pystr):
+    assert os.path.getsize(env.UnrealBin) or os.path.exists(project)
+
+    # temp
+    with tempfile.NamedTemporaryFile(delete=False) as tf:
+        tf.write(pystr)
+    subprocess.call(
+        "{0}/UE4Editor-Cmd {1} ExecutePythonScript = {2}".format(env.UnrealBin, project, pyfile)
     )
 
 
@@ -65,7 +67,6 @@ class YurPrompt(QDockWidget):
         self.setWindowFlags(Qt.Window)
         # self.setWindowIcon(QIcon(getattr(QStyle, "SP_DialogApplyButton")))
         self.setAttribute(Qt.WA_DeleteOnClose)
-        self.config = Initialize()
         # print os.path.join(os.path.dirname(sys.executable),
         #                    'Lib',
         #                    'site-packages',
@@ -118,10 +119,6 @@ class YurPrompt(QDockWidget):
         sys.stdout.write("\r%d" % 111)
         sys.stdout.flush()
 
-        
-
-        
-
     def refresh_item(self):
         pass
 
@@ -129,14 +126,64 @@ class YurPrompt(QDockWidget):
         self.status_bar.showMessage("")
 
 
-def main():
-    app = QApplication(sys.argv)
-    QTextCodec.setCodecForCStrings(QTextCodec.codecForLocale())
-    # app.setWindowIcon(QIcon(getattr(QStyle, "SP_DialogApplyButton")))
+def cli(args):
+    """
+    parser.add_argument('path_root_src', \
+            action='store', \
+            nargs=None, \
+            const=None, \
+            default=None, \
+            type=str, \
+            choices=None, \
+            help='Directory path where your taken photo files are located.', \
+            metavar=None)
+    """
+    try:
+        import argparse
+    except ImportError:
+        yurlungur.logger.warn("argparse is not found.")
+        sys.exit(1)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dlg",
+                        help="Accept raw .ui file and compile with native ",
+                        action="store_true")
+    parser.add_argument("--mayapy",
+                        help="Read from stdin instead of file",
+                        action="store_true")
+    parser.add_argument("--hython",
+                        help="Read from stdin instead of file",
+                        action="store_true")
+    parser.add_argument("--unrealpy",
+                        help="Read from stdin instead of file",
+                        action="store_true")
+    parser.add_argument("--tests",
+                        help="Read from stdin instead of file",
+                        action="store_true")
+    parser.add_argument("--install",
+                        help="Read from stdin instead of file",
+                        action="store_true")
+
+    args = parser.parse_args(args)
+    if args.dlg:
+        main()
+
+    if args.mayapy:
+        mayapy()
+
+    if args.hython:
+        hython()
+
+    if args.unrealpy:
+        uepython()
+
+
+def main(args=[]):
+    app = QApplication(args)
     widget = YurPrompt()
     widget.show()
     sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

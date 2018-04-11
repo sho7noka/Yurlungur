@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 from yurlungur.tool.util import *  # noQA
+import yurlungur.Qt as qt
 
-try:
-    import imp as importlib
-except ImportError:
-    import importlib
+__all__ = ["application", "exApplication", "isQt"]
 
-__all__ = ["application", "exApplication"]
-
+isQt = any([qt.IsPyQt4, qt.IsPyQt5, qt.IsPySide, qt.IsPySide2])
 
 def exApplication(module=""):
     """NO-Qt application"""
     application = ""
+
     try:
-        import unreal_engine
-        application = unreal_engine
+        import unreal
+        application = unreal
     except:
         pass
 
@@ -25,20 +23,8 @@ def exApplication(module=""):
         pass
 
     try:
-        import arnold
-        application = arnold
-    except:
-        pass
-
-    try:
         import pysbs
         application = pysbs
-    except:
-        pass
-
-    try:
-        import c4d
-        application = c4d
     except:
         pass
 
@@ -49,11 +35,9 @@ def exApplication(module=""):
     return application
 
 
-application = QCoreApplication.applicationName().lower()
-
+application = sys.executable
 if "maya" in application:
     from maya import cmds, mel, OpenMaya
-
     application = cmds
 
 elif "houdini" in application or "hindie" in application:
@@ -65,7 +49,7 @@ elif "max" in application:
     import pymxs
 
     application = pymxs
-
+    global on, off
     on = True
     off = False
 

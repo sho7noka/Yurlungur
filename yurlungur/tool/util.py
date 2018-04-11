@@ -1,39 +1,19 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division
 import sys
 import os
+import re
 import string
 import itertools
 import traceback
 import functools
 import time
-import json
 import inspect
 import cProfile
 
 try:
-    import unicode
-except:
-    unicode = str
-
-
-def _pyc():
-    sys.dont_write_bytecode = True
-
-
-def _replace(self):
-    return self.replace(os.sep, "/")
-
-
-# class MyStr(string):
-#     @staticmethod
-#     def replace(self):
-#         return self.replace(os.sep, "/")
-#
-# print MyStr("G\tool_test\ciWildernessA\d").replace()
-
-
-nopyc = _pyc
+    import builtins
+except ImportError:
+    import __builtin__ as builtins
 
 
 def iterator(l0, l1):
@@ -92,7 +72,6 @@ from yurlungur.Qt.QtWidgets import *
 
 
 class _GCProtector(object):
-    """GCプロテクター"""
     widgets = []
 
 
@@ -103,7 +82,7 @@ def max_protect_window(w):
 
 
 def qmain_window():
-    import yurlungur.core.application
+    import yurlungur.core.app
     app_name = yurlungur.core.application.__name__
 
     if app_name == "maya.cmds":
