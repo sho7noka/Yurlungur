@@ -8,7 +8,7 @@ if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )
 set SOURCEDIR=source
-set BUILDDIR=build
+set BUILDDIR=docs
 set SPHINXPROJ=Yurlungur
 
 if "%1" == "" goto help

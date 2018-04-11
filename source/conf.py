@@ -20,13 +20,13 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Yurlungur'
-copyright = '2018, sho-sumioka'
-author = 'sho-sumioka'
+copyright = '2018, sho sumioka'
+author = 'sho sumioka'
 
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.9'
+release = '1.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -41,6 +41,7 @@ release = '0.9'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
     'sphinx.ext.githubpages',
 ]
 
@@ -132,7 +133,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'Yurlungur.tex', 'Yurlungur Documentation',
-     'sho-sumioka', 'manual'),
+     'sho sumioka', 'manual'),
 ]
 
 
@@ -159,3 +160,8 @@ texinfo_documents = [
 
 
 # -- Extension configuration -------------------------------------------------
+
+# -- Options for intersphinx extension ---------------------------------------
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {'https://docs.python.org/': None}
