@@ -748,7 +748,7 @@ _misplaced_members = {
 
 """ Compatibility Members
 
-This dictionary is used to build Qt.QtCompat objects that provide a consistent
+This dictionary is used to docs Qt.QtCompat objects that provide a consistent
 interface for obsolete members, and differences in binding return values.
 
 {
@@ -835,7 +835,7 @@ def _apply_site_config():
         # to _common_members are needed.
         pass
     else:
-        # Provide the ability to modify the dicts used to build Qt.py
+        # Provide the ability to modify the dicts used to docs Qt.py
         if hasattr(QtSiteConfig, 'update_members'):
             QtSiteConfig.update_members(_common_members)
 
