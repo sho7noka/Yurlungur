@@ -8,7 +8,9 @@ class TestCore(unittest.TestSuite):
         assert (yr.YVector() == yr.YVector())
 
     def test_app(self):
-        pass
+        color = yr.YColor()
+        matrix = yr.YMatrix()
+        vec = yr.YVector()
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 from yurlungur.tool.util import *  # noQA
-import yurlungur.Qt as qt
+try:
+    import yurlungur.Qt as qt
+    isQt = any([qt.IsPyQt4, qt.IsPyQt5, qt.IsPySide, qt.IsPySide2])
+except ImportError:
+    pass
 
-__all__ = ["application", "exApplication", "isQt"]
+__all__ = ["application", "exApplication"]
 
-isQt = any([qt.IsPyQt4, qt.IsPyQt5, qt.IsPySide, qt.IsPySide2])
+
 
 def exApplication(module=""):
     """NO-Qt application"""

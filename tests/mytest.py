@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 import yurlungur as yr
 import sys
+import yurlungur.tool.util as util
 
 __doc__ = """
 https://docs.python.org/ja/2.7/reference/datamodel.html#customization
 https://docs.python.jp/2.7/reference/datamodel.html#object.__new__
 """
-
-yr.YVector()
 
 # from operator import methodcaller
 # from types import MethodType
@@ -83,25 +82,3 @@ class DynamicProxy(object):
 #
 # # proc.bye = MethodType(bye, Obj)
 # # print proc.bye("Ddd") # => "ByeBye"
-
-# class MyDynamicProxy:
-#
-#     def __init__(self, target):
-#         self.target = target
-#
-#     def __getattr__(self, attrname):
-#         print("result : ")
-#         return getattr(self.target, attrname)
-
-# class TestScene(unittest.TestCase):
-#
-#     def test_get(self):
-#         cmds.file(new=True, f=True)
-#         cube = cmds.polyCube()[0]
-#         print cube
-#         m = mtn.M(u"pCube1")
-
-
-# print yr.app.application
-# node = yr.YObject("pConeShape1")
-# node.attr("castsShadows").set(1)

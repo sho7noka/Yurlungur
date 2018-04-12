@@ -35,6 +35,7 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 ## TODO
 - [x] basic api
 - [ ] github.io
+- [ ] transparency PNG
 - [ ] unreal support
 
 ## contribution

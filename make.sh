@@ -1,0 +1,1 @@
+sphinx-build -b dirhtml source docs
