@@ -1,12 +1,12 @@
 # Yurlungur
-universal scripting environment with Python which Maya, Houdini and Blender.
+universal scripting environment with Python which Maya, Houdini and Unreal.
 
 ## summary
 DCC tool scripting is almost used Python, but these api isn't similarly anything.
 If you make lightweight tool, need to remember each application manners.
 Yurlungur is common interface which adapted each application for universal wrapper.
 
-Yurlungur is inspired by [PyMel](https://github.com/LumaPictures/pymel).
+Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 
 ## future
 * HOM (Houdini Object Model) like command wrapper.
@@ -26,11 +26,16 @@ Yurlungur is inspired by [PyMel](https://github.com/LumaPictures/pymel).
     setAttr "hoge" 0;
     ```
     
-    ```python
+    ```python:yurlungur
     # python
     import yurlungur as yr
     yr.YNode("hoge").attr(0)
     ``` 
+
+## TODO
+- [x] basic api
+- [ ] github.io
+- [ ] unreal support
 
 ## contribution
 WIP

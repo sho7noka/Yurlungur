@@ -65,17 +65,20 @@ def _alembicExporter(cls, *args, **kwargs):
 
 
 def _fbxImporter(cls, *args, **kwargs):
-    pass
+    if hasattr(meta, "importFBX"):
+        return meta.importFBX(*args, **kwargs)
+    else:
+        return cls(mel.eval("FBXImport -file {0};".format(*args)))
 
 
 def _fbxExporter(cls, *args, **kwargs):
-    import maya.mel
     return cls(mel.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args)))
 
 
 # Monkey-Patch
 if env.Maya():
     try:
+        import maya.mel
         for plugin in ["fbxmaya.mll", "AbcImport.mll", "AbcExport.mll"]:
             meta.loadPlugin(plugin, qt=1)
     except:
@@ -93,8 +96,7 @@ if env.Maya():
 
 if env.Houdini():
     file = YFile()
-    YFile.abcImporter = _alembicImporter
-    YFile.abcExporter = _alembicExporter
+    YFile.fbxImporter = _fbxImporter
 
 if env.Unreal():
     file = YFile()
