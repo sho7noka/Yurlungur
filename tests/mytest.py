@@ -7,6 +7,8 @@ https://docs.python.org/ja/2.7/reference/datamodel.html#customization
 https://docs.python.jp/2.7/reference/datamodel.html#object.__new__
 """
 
+yr.YVector()
+
 # from operator import methodcaller
 # from types import MethodType
 #

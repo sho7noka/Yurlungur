@@ -16,6 +16,7 @@ except ImportError:
 from yurlungur.core import *        # noQA
 from yurlungur.tool.math import *   # noQA
 from yurlungur.tool.util import *   # noQA
+from yurlungur.tool.meta import meta
 
 __all__ = []
 __version__ = "0.9"
