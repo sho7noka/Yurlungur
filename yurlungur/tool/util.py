@@ -2,32 +2,41 @@
 import sys
 import os
 import re
-import string
-import itertools
 import traceback
 import functools
 import time
 import inspect
 import cProfile
 import sqlite3
-
-try:
-    import builtins
-except ImportError:
-    import __builtin__ as builtins
+from collections import namedtuple
 
 
-def iterator(l0, l1):
-    """shallow iteration"""
-    for a, b in itertools.product(l0, l1):
-        yield (a, b)
+class ORM(object):
+    def __getattr__(self, item):
+        return getattr(self, item)
+
+
+def aaa():
+    local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
+    cache = os.path.join(local, "user", "cache.db").replace(os.sep, "/")
+
+    conn = sqlite3.connect(cache)
+    c = conn.cursor()
+    for row in c.execute('SELECT * FROM stocks ORDER BY price'):
+        print(row)
 
 
 def attr_cache():
     local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
     cache = os.path.join(local, "user", "cache.db").replace(os.sep, "/")
-    sqlite3
-    
+
+    conn = sqlite3.connect(cache)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE stocks
+                 (date text, trans text, symbol text, qty real, price real)''')
+    c.execute("INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)")
+    conn.commit()
+    conn.close()
 
 
 def make_completer(mod):
@@ -73,9 +82,12 @@ def timer(func):
     return Wrapper
 
 
-from yurlungur.Qt.QtCore import *
-from yurlungur.Qt.QtGui import *
-from yurlungur.Qt.QtWidgets import *
+try:
+    from yurlungur.Qt.QtCore import *
+    from yurlungur.Qt.QtGui import *
+    from yurlungur.Qt.QtWidgets import *
+except ImportError:
+    pass
 
 
 class _GCProtector(object):

@@ -12,7 +12,7 @@ def Windows(func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if platform.system() == "Windows":
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
     return wrapper
 
 
@@ -23,7 +23,7 @@ def Linux(func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if platform.system() == "Linux":
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
     return wrapper
 
 
@@ -34,7 +34,7 @@ def MacOS(func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if platform.system() == "Darwin":
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
     return wrapper
 
 
@@ -45,8 +45,7 @@ def Maya(func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if "maya" in sys.executable:
-            func(*args, **kwargs)
-
+            return func(*args, **kwargs)
     return wrapper
 
 
@@ -57,8 +56,7 @@ def Houdini(func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if "houdini" in sys.executable:
-            func(*args, **kwargs)
-
+            return func(*args, **kwargs)
     return wrapper
 
 
@@ -68,10 +66,8 @@ def Unreal(func=functools.wraps):
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if "UE4" in sys.executable and func != None:
-            func(*args, **kwargs)
-        return "UE4" in sys.executable
-
+        if "UE4" in sys.executable:
+            return func(*args, **kwargs)
     return wrapper
 
 

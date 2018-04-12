@@ -6,12 +6,14 @@ import subprocess
 import tempfile
 
 import yurlungur
-
-from yurlungur.core import enviroment as env
-from yurlungur.Qt.QtCore import *
-from yurlungur.Qt.QtGui import *
-from yurlungur.Qt.QtWidgets import *
-from yurlungur.Qt import __binding__
+import enviroment as env
+try:
+    from yurlungur.Qt.QtCore import *
+    from yurlungur.Qt.QtGui import *
+    from yurlungur.Qt.QtWidgets import *
+    from yurlungur.Qt import __binding__
+except ImportError:
+    QDockWidget = object
 
 __all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
 local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))

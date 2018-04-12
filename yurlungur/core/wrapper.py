@@ -79,11 +79,11 @@ _YNode = MetaNode("YNode", (object,), {"__doc__": MetaNode.__doc__})
 _YParm = MetaAttr("YParm", (object,), {"__doc__": MetaAttr.__doc__})
 
 if env.Maya():
-    import maya.api.OpenMaya as om
+    import maya.api.OpenMaya as OM
 
-    _YVector = type('_YVector', (om.MVector,), dict())
-    _YMatrix = type('_YMatrix', (om.MMatrix,), dict())
-    _YColor = type('_YColor', (om.MColor,), dict())
+    _YVector = type('_YVector', (OM.MVector,), dict())
+    _YMatrix = type('_YMatrix', (OM.MMatrix,), dict())
+    _YColor = type('_YColor', (OM.MColor,), dict())
 
 else:
     _YVector = type('_YVector', (
