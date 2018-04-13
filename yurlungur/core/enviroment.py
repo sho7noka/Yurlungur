@@ -5,6 +5,24 @@ import platform
 import functools
 
 
+def Qt(func=None):
+    try:
+        import yurlungur.Qt as qt
+        isQt = any([qt.IsPyQt4, qt.IsPyQt5, qt.IsPySide, qt.IsPySide2])
+    except ImportError:
+        return False
+
+    if func == None:
+        return isQt
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if isQt:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
 def Windows(func=None):
     if func == None:
         return platform.system() == "Windows"
@@ -13,6 +31,7 @@ def Windows(func=None):
     def wrapper(*args, **kwargs):
         if platform.system() == "Windows":
             return func(*args, **kwargs)
+
     return wrapper
 
 
@@ -24,6 +43,7 @@ def Linux(func=None):
     def wrapper(*args, **kwargs):
         if platform.system() == "Linux":
             return func(*args, **kwargs)
+
     return wrapper
 
 
@@ -35,6 +55,7 @@ def MacOS(func=None):
     def wrapper(*args, **kwargs):
         if platform.system() == "Darwin":
             return func(*args, **kwargs)
+
     return wrapper
 
 
@@ -46,17 +67,19 @@ def Maya(func=None):
     def wrapper(*args, **kwargs):
         if "maya" in sys.executable:
             return func(*args, **kwargs)
+
     return wrapper
 
 
 def Houdini(func=None):
     if func == None:
-        return "houdini" in sys.executable
+        return "houdini" in sys.executable or "hindie" in sys.executable
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if "houdini" in sys.executable:
+        if "houdini" in sys.executable or "hindie" in sys.executable:
             return func(*args, **kwargs)
+
     return wrapper
 
 
@@ -68,6 +91,7 @@ def Unreal(func=functools.wraps):
     def wrapper(*args, **kwargs):
         if "UE4" in sys.executable:
             return func(*args, **kwargs)
+
     return wrapper
 
 

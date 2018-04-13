@@ -30,9 +30,10 @@ class YMObject(object):
         """current application module"""
         return app.application.__name__
 
-    def modules(self, mod=""):
-        """switch application"""
-        return app.exApplication(mod)
+
+class ORM(object):
+    def __getattr__(self, item):
+        return getattr(self, item)
 
 
 class MetaObject(type):
@@ -55,9 +56,6 @@ class MetaAttr(type):
     #         cls._node, cls._attr = args[0].split('.')
     #     return super(MetaAttr, cls).__new__(cls, cls._node + "." + cls._attr)
 
-    def __getitem__(self, idx):
-        return MetaAttr(self._node, self._attr + "[{0}]".format(idx))
-
 
 class MetaNode(type):
     def __new__(cls, name, bases, attrs):
@@ -76,7 +74,7 @@ meta = YMObject()
 
 _YObject = MetaObject("YObject", (object,), {"__doc__": MetaObject.__doc__})
 _YNode = MetaNode("YNode", (object,), {"__doc__": MetaNode.__doc__})
-_YParm = MetaAttr("YParm", (object,), {"__doc__": MetaAttr.__doc__})
+_YAttr = MetaAttr("YAttr", (object,), {"__doc__": MetaAttr.__doc__})
 
 if env.Maya():
     import maya.api.OpenMaya as OM

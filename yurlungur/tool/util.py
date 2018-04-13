@@ -11,12 +11,7 @@ import sqlite3
 from collections import namedtuple
 
 
-class ORM(object):
-    def __getattr__(self, item):
-        return getattr(self, item)
-
-
-def aaa():
+def db_loader():
     local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
     cache = os.path.join(local, "user", "cache.db").replace(os.sep, "/")
 
@@ -26,7 +21,7 @@ def aaa():
         print(row)
 
 
-def attr_cache():
+def db_attr():
     local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
     cache = os.path.join(local, "user", "cache.db").replace(os.sep, "/")
 
