@@ -7,6 +7,7 @@ import tempfile
 
 import yurlungur
 import enviroment as env
+
 try:
     from yurlungur.Qt.QtCore import *
     from yurlungur.Qt.QtGui import *
@@ -32,7 +33,7 @@ def mayapy(pystr):
 def hython(pystr):
     assert os.path.getsize(env.HoudiniBin)
     subprocess.call(
-        "{0}/bin/hython -c\"{1}\"".format(env.HoudiniBin, pystr)
+        "{0}/bin/hython -c\"import sys; sys.path.append('{1}');{2}\"".format(env.HoudiniBin, local, pystr)
     )
 
 
@@ -110,10 +111,6 @@ class YurPrompt(QDockWidget):
 
     def init_attrs(self):
         tmp = []
-        # for k, v in self.config.find_application().items():
-        #     for app in os.listdir(v):
-        #         tmp.append("")
-
         for app in list(set(tmp)):
             self.box_application.addItem(app)
 

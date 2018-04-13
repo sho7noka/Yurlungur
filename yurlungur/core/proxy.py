@@ -2,7 +2,7 @@
 import os
 from functools import partial
 from wrapper import (
-    YMObject, YException, _YObject, _YNode, _YParm
+    YMObject, YException, _YObject, _YNode, _YAttr
 )
 
 meta = YMObject()
@@ -36,6 +36,22 @@ class YObject(_YObject):
 
         if hasattr(meta, "Actor"):
             return meta.Actor(self.item).rename(*args, **kwargs)
+
+    def __getattr__(self, item):
+        if hasattr(meta, "getAttr"):
+            return YAttr(
+                meta.getAttr(self.name + "." + item), self.name, item
+            )
+
+        if hasattr(meta, "root"):
+            return YAttr(
+                meta.node(self.name).parm(item).eval(), self.name, item
+            )
+
+        if hasattr(meta, "Actor"):
+            return YAttr
+
+        raise YException
 
     def attr(self, val, *args, **kwargs):
         if hasattr(meta, "getAttr"):
@@ -142,17 +158,18 @@ class YNode(YObject):
         raise YException
 
 
-class YAttr(_YParm):
+class YAttr(_YAttr):
     """parametric object"""
 
     def __init__(self, *args, **kwargs):
-        self.values = args
+        self.vals = args
 
     def __getitem__(self, idx):
-        return self.values[idx]
+        return self.vals[idx]
 
     def set(self, *args, **kwargs):
-        obj, val = self.values[1:]
+        assert len(self.vals) > 2, "parameter is invalid."
+        obj, val = self.vals[1:]
 
         if hasattr(meta, "setAttr"):
             return meta.setAttr(obj + "." + val, *args, **kwargs)
@@ -163,8 +180,8 @@ class YAttr(_YParm):
         raise YException
 
     @property
-    def values(self):
-        return self.values
+    def value(self):
+        return self.vals
 
 
 class YFile(object):

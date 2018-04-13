@@ -12,6 +12,10 @@ class Command(object):
     def remove(func):
         pass
 
+    @staticmethod
+    def list(cls):
+        pass
+
 
 def _ls(cls):
     return meta.ls()
