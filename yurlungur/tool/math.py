@@ -3,21 +3,17 @@ import sys
 import inspect
 
 from math import *  # noQA
-from ctypes import *  # noQA
 from operator import *  # noQA
 from colorsys import *  # noQA
 from functools import *  # noQA
 
 from meta import meta
-from yurlungur.core.wrapper import _YVector, _YMatrix, _YColor
+from yurlungur.core.wrapper import (
+    _YVector, _YMatrix, _YColor
+)
 
 try:
-    import numpy as nm
-except ImportError:
-    pass
-
-try:
-    import maya.api.OpenMaya as om
+    import maya.api.OpenMaya as OM
 except ImportError:
     pass
 
@@ -60,7 +56,7 @@ class YColor(_YColor):
         if hasattr(meta, "Color"):
             self.color = meta.Color()
         else:
-            self.color = om.MColor()
+            self.color = OM.MColor()
 
     @property
     def r(self):

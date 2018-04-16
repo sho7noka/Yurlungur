@@ -15,22 +15,21 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 
 ### semantics
 
-- Object
-    ```lua
-    -- MXS
-    $.value = 0
-    ```
-    
-    ```mel
-    // MEL    
-    setAttr "hoge" 0;
-    ```
-    
-    ```python:yurlungur
-    # python
-    import yurlungur as yr
-    yr.YNode("hoge").attr(0)
-    ``` 
+```lua
+-- MXS
+$.value = 0
+```
+
+```mel
+// MEL
+setAttr "hoge" 0;
+```
+
+```python
+# python
+import yurlungur as yr
+yr.YNode("hoge").attr(0)
+```
 
 ## TODO
 - [x] basic api

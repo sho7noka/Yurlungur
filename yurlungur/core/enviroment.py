@@ -7,8 +7,8 @@ import functools
 
 def Qt(func=None):
     try:
-        import yurlungur.Qt as qt
-        isQt = any([qt.IsPyQt4, qt.IsPyQt5, qt.IsPySide, qt.IsPySide2])
+        import yurlungur.Qt as Qt
+        isQt = any([Qt])
     except ImportError:
         return False
 
@@ -21,6 +21,14 @@ def Qt(func=None):
             return func(*args, **kwargs)
 
     return wrapper
+
+
+def Numpy(func=None):
+    try:
+        import numpy as nm
+        return True
+    except ImportError:
+        return False
 
 
 def Windows(func=None):
@@ -111,7 +119,7 @@ def _Houdini():
     """find Houdini app"""
     d = {
         "Linux": "/usr/autodesk/maya2017-x64",
-        "Windows": "C:/Program Files/Side Effects Software",
+        "Windows": "C:/Program Files/Side Effects Software/Houdini 16.5.323/bin",
         "Darwin": "/Applications/houdini/Houdini.app/Contents",
     }
     return os.environ.get("HIP") or d[platform.system()]

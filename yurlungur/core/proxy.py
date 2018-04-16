@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 from functools import partial
+
 from wrapper import (
     YMObject, YException, _YObject, _YNode, _YAttr
 )
@@ -27,6 +28,10 @@ class YObject(_YObject):
             assert meta.Actor(item), "{} not found".format(item)
             self.item = item
 
+    @property
+    def name(self):
+        return self.item
+
     def __call__(self, *args, **kwargs):
         if hasattr(meta, "rename"):
             return meta.rename(self.item, *args, **kwargs)
@@ -36,22 +41,6 @@ class YObject(_YObject):
 
         if hasattr(meta, "Actor"):
             return meta.Actor(self.item).rename(*args, **kwargs)
-
-    def __getattr__(self, item):
-        if hasattr(meta, "getAttr"):
-            return YAttr(
-                meta.getAttr(self.name + "." + item), self.name, item
-            )
-
-        if hasattr(meta, "root"):
-            return YAttr(
-                meta.node(self.name).parm(item).eval(), self.name, item
-            )
-
-        if hasattr(meta, "Actor"):
-            return YAttr
-
-        raise YException
 
     def attr(self, val, *args, **kwargs):
         if hasattr(meta, "getAttr"):
@@ -69,9 +58,21 @@ class YObject(_YObject):
 
         raise YException
 
-    @property
-    def name(self):
-        return self.item
+    def __getattr__(self, item):
+        if hasattr(meta, "getAttr"):
+            return YAttr(
+                meta.getAttr(self.name + "." + item), self.name, item
+            )
+
+        if hasattr(meta, "root"):
+            return YAttr(
+                meta.node(self.name).parm(item).eval(), self.name, item
+            )
+
+        if hasattr(meta, "Actor"):
+            return YAttr
+
+        raise YException
 
     @property
     def attrs(self, *args, **kwargs):

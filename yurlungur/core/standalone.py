@@ -16,7 +16,6 @@ try:
 except ImportError:
     QDockWidget = object
 
-__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
 local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
 
 
@@ -33,7 +32,7 @@ def mayapy(pystr):
 def hython(pystr):
     assert os.path.getsize(env.HoudiniBin)
     subprocess.call(
-        "{0}/bin/hython -c\"import sys; sys.path.append('{1}');{2}\"".format(env.HoudiniBin, local, pystr)
+        "{0}/hython -c\"import sys; sys.path.append('{1}');{2}\"".format(env.HoudiniBin, local, pystr)
     )
 
 
@@ -68,7 +67,6 @@ class YurPrompt(QDockWidget):
 
         self.setWindowTitle("{0} v{2} {1}".format(yurlungur.name, yurlungur.application.__name__, yurlungur.version))
         self.setWindowFlags(Qt.Window)
-        # self.setWindowIcon(QIcon(getattr(QStyle, "SP_DialogApplyButton")))
         self.setAttribute(Qt.WA_DeleteOnClose)
         # print os.path.join(os.path.dirname(sys.executable),
         #                    'Lib',
@@ -107,7 +105,7 @@ class YurPrompt(QDockWidget):
         self.setWidget(widget)
 
         self.init_attrs()
-        yurlungur.dark_view(self)
+        # yurlungur.__dark_view(self)
 
     def init_attrs(self):
         tmp = []
@@ -115,7 +113,7 @@ class YurPrompt(QDockWidget):
             self.box_application.addItem(app)
 
         self.box_versions.addItem("aaa")
-        sys.stdout.write("\r%d" % 111)
+        # sys.stdout.write("\r%d" % 1)
         sys.stdout.flush()
 
     def refresh_item(self):
@@ -125,17 +123,9 @@ class YurPrompt(QDockWidget):
         self.status_bar.showMessage("")
 
 
-def cli(args):
+def _cli(args):
     """
-    parser.add_argument('path_root_src', \
-            action='store', \
-            nargs=None, \
-            const=None, \
-            default=None, \
-            type=str, \
-            choices=None, \
-            help='Directory path where your taken photo files are located.', \
-            metavar=None)
+    command line parser
     """
     try:
         import argparse
@@ -143,46 +133,58 @@ def cli(args):
         yurlungur.logger.warn("argparse is not found.")
         sys.exit(1)
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--dlg",
-                        help="Accept raw .ui file and compile with native ",
+    parser = argparse.ArgumentParser(
+        prog='yurlungur cli',
+        usage='Demonstration of argparser',  # プログラムの利用方法
+        description='description',  # 引数のヘルプの前に表示
+        epilog="{0} v.{1} {2}".format(yurlungur.name, yurlungur.version, sys.executable),  # 引数のヘルプの後で表示
+        add_help=True,
+    )
+    parser.add_argument("--dialog", "-d",
+                        help="Launch yurlungur widget if Qt is installed.",
                         action="store_true")
-    parser.add_argument("--mayapy",
-                        help="Read from stdin instead of file",
-                        action="store_true")
-    parser.add_argument("--hython",
-                        help="Read from stdin instead of file",
-                        action="store_true")
-    parser.add_argument("--unrealpy",
-                        help="Read from stdin instead of file",
-                        action="store_true")
+    parser.add_argument("--mayapy", "-ma",
+                        help="Run Python from mayapy.",
+                        nargs=1)
+    parser.add_argument("--hython", "-hou",
+                        help="Run Python from hython.",
+                        nargs=1)
+    parser.add_argument("--unrealpy", "-ue",
+                        help="Run Python from unreal editor cmd.",
+                        nargs=2)
     parser.add_argument("--tests",
-                        help="Read from stdin instead of file",
-                        action="store_true")
-    parser.add_argument("--install",
                         help="Read from stdin instead of file",
                         action="store_true")
 
     args = parser.parse_args(args)
-    if args.dlg:
+    if args.dialog:
         main()
 
     if args.mayapy:
-        mayapy()
+        mayapy(args.mayapy[0])
 
     if args.hython:
-        hython()
+        hython(args.hython[0])
 
     if args.unrealpy:
-        uepython()
+        project, expr = args.unrealpy
+        uepython(project, expr)
+
+    if args.tests:
+        pass
 
 
 def main(args=[]):
-    app = QApplication(args)
-    widget = YurPrompt()
-    widget.show()
-    sys.exit(app.exec_())
+    if env.Qt():
+        app = QApplication(args)
+        widget = YurPrompt()
+        widget.show()
+        sys.exit(app.exec_())
+    else:
+        yurlungur.logger.warn("Qt isn't available")
 
 
 if __name__ == '__main__':
     main(sys.argv[1:])
+
+__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
