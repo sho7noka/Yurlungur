@@ -12,13 +12,18 @@ class Command(object):
     def remove(func):
         pass
 
+    @staticmethod
+    def list(cls):
+        pass
+
 
 def _ls(cls):
-    return meta.ls()
+    gen = meta.ls() if hasattr(meta, "ls") else meta.root.allItems()
+    return (YNode(obj) for obj in gen)
 
 
-def _rm(cls):
-    return
+def _rm(cls, item):
+    return YNode(item).delete()
 
 
 def _glob(cls):
@@ -65,17 +70,20 @@ def _alembicExporter(cls, *args, **kwargs):
 
 
 def _fbxImporter(cls, *args, **kwargs):
-    pass
+    if hasattr(meta, "importFBX"):
+        return meta.importFBX(*args, **kwargs)
+    else:
+        return cls(mel.eval("FBXImport -file {0};".format(*args)))
 
 
 def _fbxExporter(cls, *args, **kwargs):
-    import maya.mel
     return cls(mel.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args)))
 
 
 # Monkey-Patch
 if env.Maya():
     try:
+        import maya.mel
         for plugin in ["fbxmaya.mll", "AbcImport.mll", "AbcExport.mll"]:
             meta.loadPlugin(plugin, qt=1)
     except:
@@ -93,12 +101,16 @@ if env.Maya():
 
 if env.Houdini():
     file = YFile()
-    YFile.abcImporter = _alembicImporter
-    YFile.abcExporter = _alembicExporter
+    YFile.fbxImporter = _fbxImporter
+
+    cmd = Command()
+    # Command.ls = _ls
 
 if env.Unreal():
     file = YFile()
     YFile.abcImporter = _alembicImporter
     YFile.fbxImporter = _fbxImporter
+    
+    cmd = Command()
 
 __all__ = ["file", "cmd", "Command"]

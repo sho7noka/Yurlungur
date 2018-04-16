@@ -2,12 +2,7 @@
 import inspect
 import yurlungur
 import app
-
-__doc__ = """
-http://help.autodesk.com/view/MAYAUL/2017/JPN/?guid=GUID-55B63946-CDC9-42E5-9B6E-45EE45CFC7FC
-https://symfoware.blog.fc2.com/blog-entry-1590.html
-https://www.yoheim.net/blog.php?q=20160610
-"""
+import enviroment as env
 
 
 class YException(NotImplementedError):
@@ -35,9 +30,10 @@ class YMObject(object):
         """current application module"""
         return app.application.__name__
 
-    def modules(self, mod=""):
-        """switch application"""
-        return app.exApplication(mod)
+
+class ORM(object):
+    def __getattr__(self, item):
+        return getattr(self, item)
 
 
 class MetaObject(type):
@@ -45,15 +41,12 @@ class MetaObject(type):
         return super(MetaObject, cls).__new__(cls, name, bases, attrs)
 
 
-_YObject = MetaObject("YObject", (object,), {"__doc__": MetaObject.__doc__})
-
-
-class MetaAttribute(type):
+class MetaAttr(type):
     _node = ''
     _attr = ''
 
     def __new__(cls, name, bases, attrs):
-        return super(MetaAttribute, cls).__new__(cls, name, bases, attrs)
+        return super(MetaAttr, cls).__new__(cls, name, bases, attrs)
 
     # def __new__(cls, *args, **kwds):
     #     if len(args) == 2:
@@ -61,13 +54,7 @@ class MetaAttribute(type):
     #         cls._attr = args[1]
     #     elif len(args) == 1:
     #         cls._node, cls._attr = args[0].split('.')
-    #     return super(MetaAttribute, cls).__new__(cls, cls._node + "." + cls._attr)
-
-    def __getitem__(self, idx):
-        return MetaAttribute(self._node, self._attr + "[{0}]".format(idx))
-
-
-_YParm = MetaAttribute("YParm", (object,), {"__doc__": MetaAttribute.__doc__})
+    #     return super(MetaAttr, cls).__new__(cls, cls._node + "." + cls._attr)
 
 
 class MetaNode(type):
@@ -82,6 +69,27 @@ class MetaNode(type):
         return _
 
 
-_YNode = MetaNode("YNode", (object,), {"__doc__": MetaNode.__doc__})
+# dynamicClass
+meta = YMObject()
 
-__all__ = []
+_YObject = MetaObject("YObject", (object,), {"__doc__": MetaObject.__doc__})
+_YNode = MetaNode("YNode", (object,), {"__doc__": MetaNode.__doc__})
+_YAttr = MetaAttr("YAttr", (object,), {"__doc__": MetaAttr.__doc__})
+
+if env.Maya():
+    import maya.api.OpenMaya as OM
+
+    _YVector = type('_YVector', (OM.MVector,), dict())
+    _YMatrix = type('_YMatrix', (OM.MMatrix,), dict())
+    _YColor = type('_YColor', (OM.MColor,), dict())
+
+else:
+    _YVector = type('_YVector', (
+        meta.Vector if hasattr(meta, "Vector") else meta.Vector3,
+    ), dict())
+
+    _YMatrix = type('_YMatrix', (
+        meta.Matrix if hasattr(meta, "Matrix") else meta.Matrix4,
+    ), dict())
+
+    _YColor = type('_YColor', (meta.Color,), dict())
