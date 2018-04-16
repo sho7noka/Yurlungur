@@ -1,26 +1,23 @@
 # -*- coding: utf-8 -*-
-from yurlungur.tool.util import *  # noQA
+import sys
 
-__all__ = ["application", "exApplication"]
+application = sys.executable
 
 
 def exApplication(module=""):
     """NO-Qt application"""
-    application = ""
     try:
         import pysbs
         application = pysbs
     except:
         pass
 
-    # return standalone
     if application == "":
         import standalone
         application = standalone
     return application
 
 
-application = sys.executable
 if "maya" in application:
     from maya import cmds, mel
 
@@ -46,3 +43,5 @@ elif "max" in application:
 
 else:
     application = exApplication()
+
+__all__ = ["application", "exApplication"]

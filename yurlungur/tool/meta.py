@@ -3,5 +3,9 @@ from yurlungur.core.wrapper import YMObject
 from yurlungur.tool import util
 
 meta = YMObject()
-util.make_completer(meta.module)
+modules = util.__make_completer(meta.module)
+
 __all__ = ["meta"]
+
+# for mod in modules:
+#     __all__.append(mod)

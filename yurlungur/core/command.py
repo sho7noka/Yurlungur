@@ -18,11 +18,12 @@ class Command(object):
 
 
 def _ls(cls):
-    return meta.ls()
+    gen = meta.ls() if hasattr(meta, "ls") else meta.root.allItems()
+    return (YNode(obj) for obj in gen)
 
 
-def _rm(cls):
-    return
+def _rm(cls, item):
+    return YNode(item).delete()
 
 
 def _glob(cls):
@@ -102,9 +103,14 @@ if env.Houdini():
     file = YFile()
     YFile.fbxImporter = _fbxImporter
 
+    cmd = Command()
+    # Command.ls = _ls
+
 if env.Unreal():
     file = YFile()
     YFile.abcImporter = _alembicImporter
     YFile.fbxImporter = _fbxImporter
+    
+    cmd = Command()
 
 __all__ = ["file", "cmd", "Command"]
