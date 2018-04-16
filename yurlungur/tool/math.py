@@ -3,27 +3,25 @@ import sys
 import inspect
 
 from math import *  # noQA
-from ctypes import *  # noQA
 from operator import *  # noQA
 from colorsys import *  # noQA
 from functools import *  # noQA
 
-import yurlungur.core.app
+from meta import meta
+from yurlungur.core.wrapper import (
+    _YVector, _YMatrix, _YColor
+)
 
-# numpy is available on Houdini and Blender.
 try:
-    import numpy as nm
+    import maya.api.OpenMaya as OM
 except ImportError:
     pass
 
 
 # @total_ordering
-class YVector(Structure):
-    _fields_ = [
-        ("x", c_int),
-        ("y", c_int),
-        ("z", c_int)
-    ]
+class YVector(_YVector):
+    def __init__(self):
+        super(YVector, self).__init__()
 
     def __eq__(self, other):
         return True
@@ -46,18 +44,31 @@ class YVector(Structure):
         return sqrt(self.x ** 2 + self.y ** 2)
 
 
-# @total_ordering
-class YMatrix3(Structure):
-    pass
+class YMatrix(_YMatrix):
+    def __init__(self):
+        super(YMatrix, self).__init__()
 
 
-# @total_ordering
-class YMatrix4(Structure):
-    pass
+class YColor(_YColor):
+    def __init__(self):
+        super(YColor, self).__init__()
 
+        if hasattr(meta, "Color"):
+            self.color = meta.Color()
+        else:
+            self.color = OM.MColor()
 
-class YColor(object):
-    pass
+    @property
+    def r(self):
+        return self.color[0]
+
+    @property
+    def g(self):
+        return self.color[1]
+
+    @property
+    def b(self):
+        return self.color[2]
 
 
 __all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))

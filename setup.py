@@ -4,7 +4,7 @@ from distutils.core import setup
 setup(
     name='Yurlungur',
     version='0.9',
-    py_modules=['yurlungur', 'yurlungur.core', 'yurlungur.tools', 'yurlungur.user'],
+    py_modules=['yurlungur'],
     url='https://github.com/sho7noka/Yurlungur',
     license='MIT',
     author='sumioka-sho',
