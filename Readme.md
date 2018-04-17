@@ -1,4 +1,10 @@
 # Yurlungur
+
+|       | Windows | Unix |
+| ----- | ------ | --- |
+| OS | [![Build status](https://ci.appveyor.com/api/projects/status/46vinb8jd1jbbhdg?svg=true)](https://ci.appveyor.com/project/sho7noka/yurlungur) | [![Build Status](https://travis-ci.org/sho7noka/Yurlungur.svg?branch=master)](https://travis-ci.org/sho7noka/Yurlungur) |
+
+
 universal scripting environment with Python which Maya, Houdini and Unreal.
 
 ## summary

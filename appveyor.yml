@@ -1,0 +1,20 @@
+init:
+- ECHO %PYTHON%
+environment:
+  matrix:
+  - PYTHON: C:/Python27-x64
+#  - PYTHON: C:/Python35-x64
+
+install:
+  - ECHO "Filesystem root:"
+  - ps: "ls \"C:/\""
+
+  - ECHO "Installed SDKs:"
+  - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
+
+  - ps: (new-object net.webclient).DownloadFile('https://raw.github.com/pypa/pip/master/contrib/get-pip.py', 'C:/get-pip.py')
+  - "%PYTHON%/python.exe C:/get-pip.py"
+#  - "%PYTHON%/Scripts/pip.exe install ==2.9.0"
+
+test_script:
+- '%PYTHON%\python.exe python -m unittest discover -s tests -t tests'
