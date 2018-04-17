@@ -1,7 +1,19 @@
 language: python
 
 python:
-  - 2.7
+  - "2.7"
+  - "3.5"
+
+install:
+  - pip install sphinx travis-sphinx
+
+script:
+  - unittest discover -s tests -t tests
+
+after_success:
+  - travis-sphinx --source=source build
+  - travis-sphinx deploy
 
 notifications:
   email: false
+
