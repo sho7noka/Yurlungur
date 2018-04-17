@@ -19,6 +19,13 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 * PySide & PyQt shorten accessor.
 * Useful py-snippet for Game&Film technical artist.
 
+### availables
+|       | Node | Attr | Builder |
+| ---- | --- | --- | --- |
+| Maya | --- | --- | --- |
+| Houdini | --- | --- | --- |
+| Unreal | --- | --- | --- |
+
 ### semantics
 
 ```lua
