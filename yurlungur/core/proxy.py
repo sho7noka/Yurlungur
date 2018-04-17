@@ -55,6 +55,7 @@ class YObject(_YObject):
 
         if hasattr(meta, "Actor"):
             return YAttr
+            self.get_editor_property(val)
 
         raise YException
 
@@ -179,6 +180,9 @@ class YAttr(_YAttr):
             return meta.node(obj).parm(val).set(*args, **kwargs)
 
         raise YException
+
+    def add(self):
+        pass
 
     @property
     def value(self):
