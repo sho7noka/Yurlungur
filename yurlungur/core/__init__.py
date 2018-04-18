@@ -1,6 +1,6 @@
-from app import application
-from builder import Builder
-from command import file, cmd
-from proxy import YObject, YFile, YNode
-from enviroment import installed, Maya, Houdini, Unreal
+from yurlungur.core.app import application
+from yurlungur.core.builder import Builder
+from yurlungur.core.command import file, cmd
+from yurlungur.core.proxy import YObject, YFile, YNode
+from yurlungur.core.enviroment import installed, Maya, Houdini, Unreal
 
