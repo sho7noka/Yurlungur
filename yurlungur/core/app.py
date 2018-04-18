@@ -6,6 +6,8 @@ application = sys.executable
 
 def exApplication(module=""):
     """NO-Qt application"""
+    application = ""
+
     try:
         import pysbs
         application = pysbs
