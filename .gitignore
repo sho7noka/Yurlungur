@@ -3,3 +3,6 @@
 *.pyc
 *.db
 *.pyi
+dist
+build
+*.egg-info

@@ -23,7 +23,7 @@ class YMObject(object):
                 )
                 return getattr(yurlungur, item)
 
-        return getattr(yurlungur, "")
+        return None
 
     @property
     def module(self):
@@ -70,8 +70,6 @@ class MetaNode(type):
 
 
 # dynamicClass
-meta = YMObject()
-
 _YObject = MetaObject("YObject", (object,), {"__doc__": MetaObject.__doc__})
 _YNode = MetaNode("YNode", (object,), {"__doc__": MetaNode.__doc__})
 _YAttr = MetaAttr("YAttr", (object,), {"__doc__": MetaAttr.__doc__})
@@ -83,7 +81,9 @@ if env.Maya():
     _YMatrix = type('_YMatrix', (OM.MMatrix,), dict())
     _YColor = type('_YColor', (OM.MColor,), dict())
 
-else:
+elif env.Houdini() or env.Unreal():
+    meta = YMObject()
+
     _YVector = type('_YVector', (
         meta.Vector if hasattr(meta, "Vector") else meta.Vector3,
     ), dict())

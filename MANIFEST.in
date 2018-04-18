@@ -1,0 +1,2 @@
+recursive-include yurlungur/user *
+include yurlungur/user/dark.css
