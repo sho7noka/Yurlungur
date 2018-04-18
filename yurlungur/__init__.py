@@ -1,6 +1,6 @@
 from __future__ import print_function, unicode_literals, absolute_import
 import sys
-assert sys.version_info > (2, 6), ('yurlungur currently requires Python 2.6 later')
+assert sys.version_info > (2, 7), ('yurlungur currently requires Python 2.7 later')
 sys.dont_write_bytecode = True
 
 # open yurlungur
@@ -11,7 +11,7 @@ from yurlungur.tool.util import *   # noQA
 from yurlungur.tool.meta import meta
 
 __all__ = []
-__version__ = "0.9"
+__version__ = "0.9.0"
 name = __name__
 version = __version__
 

@@ -2,7 +2,7 @@ import doctest
 import unittest
 import yurlungur as yr
 
-@unittest.skipIf(yr.Houdini(), "Houdini is not found")
+@unittest.skipIf(yr.installed("houdini"), "Houdini is not found")
 class TestApp(unittest.TestCase):
 
     def test_hou(self):

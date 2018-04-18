@@ -103,6 +103,20 @@ def Unreal(func=None):
     return wrapper
 
 
+def installed(app):
+    if app == "maya":
+        return os.path.getsize(_Maya())
+    if app == "houdini":
+        return os.path.getsize(_Houdini())
+    if app == "unreal":
+        return os.path.getsize(_Unreal())
+    if app == "blender":
+        return os.path.getsize(_Blender())
+    if app == "max":
+        return os.path.exists(_Max())
+    return False
+
+
 def _Maya():
     """find Maya app"""
     d = {

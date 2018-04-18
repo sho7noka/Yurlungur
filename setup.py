@@ -8,7 +8,7 @@ Yurlungur is common interface which adapted each application for universal wrapp
 
 setup(
     name='yurlungur',
-    version='0.9',
+    version='0.9.0',
     package_dir={"": "yurlungur"},
     packages=find_packages("yurlungur"),
     url='https://sho7noka.github.io/Yurlungur/',
