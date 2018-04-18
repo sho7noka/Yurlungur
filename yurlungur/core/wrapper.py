@@ -23,7 +23,7 @@ class YMObject(object):
                 )
                 return getattr(yurlungur, item)
 
-        return None
+        return getattr(yurlungur, "")
 
     @property
     def module(self):

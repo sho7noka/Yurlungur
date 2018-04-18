@@ -20,7 +20,7 @@ class YObject(_YObject):
             assert meta.objExists(item), "{} not found".format(item)
             self.item = item
 
-        if hasattr(meta, "node"):
+        if hasattr(meta, "root"):
             assert meta.node(item), "{} not found".format(item)
             self.item = item
 
