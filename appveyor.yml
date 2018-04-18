@@ -14,7 +14,7 @@ install:
 
   - ps: (new-object net.webclient).DownloadFile('https://bootstrap.pypa.io/get-pip.py', 'C:/get-pip.py')
   - "%PYTHON%/python.exe C:/get-pip.py"
-#  - "%PYTHON%/Scripts/pip.exe install ==2.9.0"
+  - "%PYTHON%/Scripts/pip.exe install ==10.0"
 
 test_script:
 - '%PYTHON%\python.exe setup.py test'
