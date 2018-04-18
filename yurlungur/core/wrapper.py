@@ -74,6 +74,8 @@ _YObject = MetaObject("YObject", (object,), {"__doc__": MetaObject.__doc__})
 _YNode = MetaNode("YNode", (object,), {"__doc__": MetaNode.__doc__})
 _YAttr = MetaAttr("YAttr", (object,), {"__doc__": MetaAttr.__doc__})
 
+_YVector = _YMatrix = _YColor = object
+
 if env.Maya():
     import maya.api.OpenMaya as OM
 

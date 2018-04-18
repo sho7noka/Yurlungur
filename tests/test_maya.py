@@ -4,6 +4,7 @@ import yurlungur as yr
 from yurlungur.core import enviroment
 from yurlungur.core import standalone
 
+@unittest.skipIf(yr.Maya(), "Maya is not found")
 class TestApp(unittest.TestCase):
     def test_env(self):
         self.assertTrue(enviroment.Maya())
@@ -15,6 +16,8 @@ class TestApp(unittest.TestCase):
         pass
 
     def test_cmds(self):
+        pass
+        
         yr.meta.file(new=1, f=1)
         cone, shape = yr.meta.polyCone()
 
