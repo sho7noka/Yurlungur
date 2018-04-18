@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import inspect
 import yurlungur
-import app
-import enviroment as env
+from yurlungur.core import app
+from yurlungur.core import enviroment as env
 
 
 class YException(NotImplementedError):

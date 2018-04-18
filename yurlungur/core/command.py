@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from proxy import *
-import enviroment as env
+from yurlungur.core.proxy import *
+from yurlungur.core import enviroment as env
 
 file = cmd = object
 

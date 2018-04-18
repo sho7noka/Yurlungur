@@ -6,12 +6,12 @@ sys.dont_write_bytecode = True
 # open yurlungur
 import yurlungur
 from yurlungur.core import *        # noQA
-from yurlungur.tool.math import *   # noQA
+# from yurlungur.tool.math import *   # noQA
 from yurlungur.tool.util import *   # noQA
 from yurlungur.tool.meta import meta
 
 __all__ = []
-__version__ = "0.9.0"
+__version__ = "0.9.1"
 name = __name__
 version = __version__
 

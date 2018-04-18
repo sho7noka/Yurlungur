@@ -14,7 +14,7 @@ def exApplication(module=""):
         pass
 
     if application == "":
-        import standalone
+        from yurlungur.core import standalone
         application = standalone
     return application
 

@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import sys
-# import yurlungur as yr
+import yurlungur as yr
 # import yurlungur.tool.util as util
 # from yurlungur.core import standalone
 # from yurlungur.core import command
+
+yr.application.main()
 
 # import subprocess
 #
