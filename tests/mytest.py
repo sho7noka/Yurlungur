@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 import sys
-import yurlungur as yr
-import yurlungur.tool.util as util
-from yurlungur.core import standalone
-from yurlungur.core import command
+# import yurlungur as yr
+# import yurlungur.tool.util as util
+# from yurlungur.core import standalone
+# from yurlungur.core import command
 
-import subprocess
-
-
-subprocess.call("C:\Program Files\Autodesk\Maya2017\bin\mayapy C:\Users\sumioka-sho\Desktop\Yurlungur\yurlungur")
-subprocess.call("C:\python26\python C:\Users\sumioka-sho\Desktop\Yurlungur\yurlungur --dlg")
+# import subprocess
+#
+# subprocess.call("C:\Program Files\Autodesk\Maya2017\bin\mayapy C:\Users\sumioka-sho\Desktop\Yurlungur\yurlungur")
+# subprocess.call("C:\python26\python C:\Users\sumioka-sho\Desktop\Yurlungur\yurlungur --dlg")
 
 # from operator import methodcaller
 # from types import MethodType

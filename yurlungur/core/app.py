@@ -5,7 +5,6 @@ application = sys.executable
 
 
 def exApplication(module=""):
-    """NO-Qt application"""
     application = ""
 
     try:

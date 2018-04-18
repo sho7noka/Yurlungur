@@ -17,4 +17,4 @@ install:
 #  - "%PYTHON%/Scripts/pip.exe install ==2.9.0"
 
 test_script:
-- '%PYTHON%\python.exe python -m unittest discover -s tests -t tests'
+- '%PYTHON%\python.exe setup.py test'

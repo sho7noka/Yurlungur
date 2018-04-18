@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from yurlungur.core.proxy import *
-import yurlungur.core.enviroment as env
+from proxy import *
+import enviroment as env
 
+file = cmd = object
 
 class Command(object):
     @staticmethod

@@ -91,7 +91,7 @@ def Houdini(func=None):
     return wrapper
 
 
-def Unreal(func=functools.wraps):
+def Unreal(func=None):
     if func == None:
         return "UE4" in sys.executable
 
@@ -110,9 +110,7 @@ def _Maya():
         "Windows": "C:/Program Files/Autodesk/Maya2017",
         "Darwin": "/Applications/Autodesk/maya2017/Maya.app/Contents",
     }
-    maya = os.environ.get("MAYA_LOCATION") or d[platform.system()]
-    assert os.path.getsize(maya)
-    return maya
+    return os.environ.get("MAYA_LOCATION") or d[platform.system()]
 
 
 def _Houdini():

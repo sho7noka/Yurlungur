@@ -8,7 +8,7 @@ install:
   - pip install sphinx travis-sphinx
 
 script:
-  - unittest discover -s tests -t tests
+  - python setup.py test
 
 after_success:
   - travis-sphinx --source=source build
