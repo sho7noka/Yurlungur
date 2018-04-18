@@ -2,7 +2,7 @@
 import os
 from functools import partial
 
-from wrapper import (
+from yurlungur.core.wrapper import (
     YMObject, YException, _YObject, _YNode, _YAttr
 )
 
