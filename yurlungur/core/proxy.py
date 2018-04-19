@@ -5,8 +5,7 @@ from functools import partial
 from yurlungur.core.wrapper import (
     YMObject, YException, _YObject, _YNode, _YAttr
 )
-
-meta = YMObject()
+from yurlungur.tool.meta import meta
 
 
 class YObject(_YObject):
@@ -28,6 +27,9 @@ class YObject(_YObject):
             assert meta.Actor(item), "{} not found".format(item)
             self.item = item
 
+        if hasattr(meta, "data"):
+            self.item = item
+
     def __repr__(self):
         return self.item
 
@@ -40,6 +42,9 @@ class YObject(_YObject):
 
         if hasattr(meta, "Actor"):
             return meta.Actor(self.item).rename(*args, **kwargs)
+
+        if hasattr(meta, "data"):
+            meta.data.Objects[self.item] = args
 
     @property
     def name(self):
@@ -102,6 +107,9 @@ class YObject(_YObject):
         if hasattr(meta, "Actor"):
             return meta.Actor(self.name).tags
 
+        if hasattr(meta, "data"):
+            return meta.data.Objects[self.name].id_data
+
         raise YException
 
 
@@ -127,6 +135,9 @@ class YNode(YObject):
 
         if hasattr(meta, "root"):
             meta.node(self.item).destroy()
+
+        if hasattr(meta, "context"):
+            meta.context.scene.objects.unlink(meta.data.objects[self.item])
 
         raise YException
 
@@ -162,6 +173,10 @@ class YNode(YObject):
             return meta.node(self.name).outputs()
 
         raise YException
+
+    def geometry(self):
+        if hasattr(meta, "data"):
+            meta.data.meshes[self.name]
 
 
 class YAttr(_YAttr):

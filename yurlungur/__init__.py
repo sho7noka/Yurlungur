@@ -11,7 +11,7 @@ from yurlungur.tool.util import *   # noQA
 from yurlungur.tool.meta import meta
 
 __all__ = []
-__version__ = "0.9.1"
+__version__ = "0.9.2"
 name = __name__
 version = __version__
 

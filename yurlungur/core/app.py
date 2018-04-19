@@ -39,6 +39,11 @@ elif "max" in application:
 
     application = pymxs
 
+elif "blender" in application:
+    import bpy
+    print(bpy)
+    application = bpy
+
 else:
     application = exApplication()
 

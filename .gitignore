@@ -1,3 +1,4 @@
+.DS_Store
 *.vscode
 *.idea
 *.pyc
@@ -5,4 +6,5 @@
 *.pyi
 dist
 build
+*.egg
 *.egg-info
