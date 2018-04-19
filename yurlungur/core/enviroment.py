@@ -103,6 +103,18 @@ def Unreal(func=None):
     return wrapper
 
 
+def Blender(func=None):
+    if func == None:
+        return "blender" in sys.executable
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "blender" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
 def installed(app):
     if app == "maya":
         return os.path.getsize(_Maya())

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import inspect
+import cmath
 
 from yurlungur.tool.meta import meta
 from yurlungur.core.wrapper import (
@@ -36,7 +37,7 @@ class YVector(_YVector):
         return [a[0] / length, a[1] / length]
 
     def length(self):
-        return sqrt(self.x ** 2 + self.y ** 2)
+        return cmath.sqrt(self.x ** 2 + self.y ** 2)
 
 
 class YMatrix(_YMatrix):

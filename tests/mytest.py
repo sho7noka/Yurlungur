@@ -5,8 +5,6 @@ import yurlungur as yr
 # from yurlungur.core import standalone
 # from yurlungur.core import command
 
-yr.application.main()
-
 # import subprocess
 #
 # subprocess.call("C:\Program Files\Autodesk\Maya2017\bin\mayapy C:\Users\sumioka-sho\Desktop\Yurlungur\yurlungur")

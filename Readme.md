@@ -14,7 +14,7 @@ Yurlungur is common interface which adapted each application for universal wrapp
 
 Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 
-## future
+### future
 * HOM (Houdini Object Model) like command wrapper.
 * PySide & PyQt shorten accessor.
 * Useful py-snippet for Game&Film technical artist.
@@ -25,6 +25,13 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 | Maya | --- | --- | --- |
 | Houdini | --- | --- | --- |
 | Unreal | --- | --- | --- |
+
+
+
+### Installing
+```bash
+pip install yurlungur
+```
 
 ### semantics
 
