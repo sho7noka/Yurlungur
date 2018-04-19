@@ -7,7 +7,7 @@ import maya.cmds as cmds
 import maya.utils
 
 PORT = 10000 # sample
-USER = "" # your pycharm 
+USER = os.environ.get("USERNAME")
 PTH = [p for p in os.listdir(USER) if os.path.isdir("{}/{}".format(USER, p))]
 EGG = "{}/{}/debug-eggs/pycharm-debug.egg".format(USER, PTH[0 if len(PTH) == 1 else -1])
 PDV = "{}/{}/helpers/pydev".format(USER, PTH[0 if len(PTH) == 1 else -1])
