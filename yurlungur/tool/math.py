@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
 import inspect
-from math import sqrt
 
 from yurlungur.tool.meta import meta
 from yurlungur.core.wrapper import (

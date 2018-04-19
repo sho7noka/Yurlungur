@@ -17,7 +17,7 @@ class YObject(_YObject):
 
     def __init__(self, item):
         if hasattr(meta, "objExists"):
-            assert meta.objExists(item), "{} not found".format(item)
+            # assert meta.objExists(item), "{} not found".format(item)
             self.item = item
 
         if hasattr(meta, "root"):
@@ -28,8 +28,7 @@ class YObject(_YObject):
             assert meta.Actor(item), "{} not found".format(item)
             self.item = item
 
-    @property
-    def name(self):
+    def __repr__(self):
         return self.item
 
     def __call__(self, *args, **kwargs):
@@ -41,6 +40,10 @@ class YObject(_YObject):
 
         if hasattr(meta, "Actor"):
             return meta.Actor(self.item).rename(*args, **kwargs)
+
+    @property
+    def name(self):
+        return self.item
 
     def attr(self, val, *args, **kwargs):
         if hasattr(meta, "getAttr"):
@@ -105,17 +108,16 @@ class YObject(_YObject):
 class YNode(YObject):
     """connect-able object"""
 
-    def __init__(self, item):
+    def __init__(self, item=None):
         super(YNode, self).__init__(item)
         self.item = item
 
-    @classmethod
-    def create(cls, *args, **kwargs):
+    def create(self, *args, **kwargs):
         if hasattr(meta, "createNode"):
-            return cls(meta.createNode(*args, **kwargs))
+            return YNode(meta.createNode(*args, **kwargs))
 
         if hasattr(meta, "root"):
-            return cls(meta.node(cls.item).createNode(*args, **kwargs))
+            return YNode(meta.node(self.item).createNode(*args, **kwargs).path())
 
         raise YException
 
@@ -125,6 +127,8 @@ class YNode(YObject):
 
         if hasattr(meta, "root"):
             meta.node(self.item).destroy()
+
+        raise YException
 
     def connect(self, *args, **kwargss):
         if hasattr(meta, "connectAttr"):
@@ -180,9 +184,6 @@ class YAttr(_YAttr):
             return meta.node(obj).parm(val).set(*args, **kwargs)
 
         raise YException
-
-    def add(self):
-        pass
 
     @property
     def value(self):
