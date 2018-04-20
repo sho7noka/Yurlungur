@@ -3,7 +3,7 @@ import os
 from functools import partial
 
 from yurlungur.core.wrapper import (
-    YMObject, YException, _YObject, _YNode, _YAttr
+    YMObject, YException, _YObject, _YNode, _YAttr, OM, ORM
 )
 from yurlungur.tool.meta import meta
 
@@ -62,12 +62,14 @@ class YObject(_YObject):
             )
 
         if hasattr(meta, "Actor"):
-            return YAttr
-            self.get_editor_property(val)
+            return YAttr(
+                self.get_editor_property(val)
+            )
 
         raise YException
 
     def __getattr__(self, item):
+
         if hasattr(meta, "getAttr"):
             return YAttr(
                 meta.getAttr(self.name + "." + item), self.name, item
@@ -105,7 +107,7 @@ class YObject(_YObject):
             return meta.node(self.name).sessionId() or 0
 
         if hasattr(meta, "Actor"):
-            return meta.Actor(self.name).tags
+            return meta.Actor(self.name).tags or 0
 
         if hasattr(meta, "data"):
             return meta.data.Objects[self.name].id_data
@@ -148,9 +150,6 @@ class YNode(YObject):
         if hasattr(meta, "connectAttr"):
             return meta.connectAttr(*args, **kwargss)
 
-        if hasattr(meta, "root"):
-            return
-
         raise YException
 
     def disconnect(self, *args, **kwargs):
@@ -178,8 +177,17 @@ class YNode(YObject):
         raise YException
 
     def geometry(self):
+        if hasattr(meta, "ls"):
+            dag = OM.MGlobal.getSelectionListByName(self.name).getDagPath(0)
+            return OM.MFnMesh(dag)
+
+        if hasattr(meta, "root"):
+            return meta.node(self.name).geometry()
+
         if hasattr(meta, "data"):
-            meta.data.meshes[self.name]
+            return meta.data.meshes[self.name]
+
+        raise YException
 
 
 class YAttr(_YAttr):

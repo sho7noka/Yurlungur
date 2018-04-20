@@ -7,6 +7,13 @@ import time
 import inspect
 import sqlite3
 
+try:
+    from yurlungur.Qt.QtCore import *
+    from yurlungur.Qt.QtGui import *
+    from yurlungur.Qt.QtWidgets import *
+except ImportError:
+    pass
+
 
 def __db_loader():
     from collections import namedtuple
@@ -111,14 +118,6 @@ def timer(func):
         return ret
 
     return Wrapper
-
-
-try:
-    from yurlungur.Qt.QtCore import *
-    from yurlungur.Qt.QtGui import *
-    from yurlungur.Qt.QtWidgets import *
-except ImportError:
-    pass
 
 
 class __GCProtector(object):
