@@ -2,7 +2,7 @@
 import inspect
 import yurlungur
 from yurlungur.core import app
-from yurlungur.core import enviroment as env
+from yurlungur.core import env
 
 
 class YException(NotImplementedError):
@@ -38,6 +38,7 @@ class ORM(object):
 
 class MetaObject(type):
     def __new__(cls, name, bases, attrs):
+        attrs["version"] = "0.0.1"
         return super(MetaObject, cls).__new__(cls, name, bases, attrs)
 
 
@@ -59,7 +60,6 @@ class MetaAttr(type):
 
 class MetaNode(type):
     def __new__(cls, name, bases, attrs):
-        attrs["version"] = "0.0.1"
         return super(MetaNode, cls).__new__(cls, name, bases, attrs)
 
     def __getattr__(self, name):

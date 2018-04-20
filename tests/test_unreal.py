@@ -1,7 +1,7 @@
 import doctest
 import unittest
 import yurlungur as yr
-from yurlungur.core import enviroment
+from yurlungur.core import env
 from yurlungur.core import standalone
 
 @unittest.skipUnless(yr.installed("unreal"), "Unreal is not found")

@@ -41,7 +41,7 @@ elif "max" in application:
 
 elif "blender" in application:
     import bpy
-    print(bpy)
+
     application = bpy
 
 else:
