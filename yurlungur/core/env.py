@@ -26,9 +26,19 @@ def Qt(func=None):
 def Numpy(func=None):
     try:
         import numpy as nm
-        return True
+        isNpy = True
     except ImportError:
         return False
+
+    if func == None:
+        return isNpy
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if isNpy:
+            return func(*args, **kwargs)
+
+    return wrapper
 
 
 def Windows(func=None):

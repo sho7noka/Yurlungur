@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-from yurlungur.core.proxy import *  # noQA
 from yurlungur.core import env
+from yurlungur.core.proxy import YObject, YNode, YFile
+
+__all__ = ["file", "cmd", "Command"]
 
 file = cmd = object
 
@@ -115,5 +117,3 @@ if env.Unreal():
     YFile.fbxImporter = _fbxImporter
 
     cmd = Command()
-
-__all__ = ["file", "cmd", "Command"]

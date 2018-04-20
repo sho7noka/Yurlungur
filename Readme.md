@@ -22,8 +22,8 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 ### availables
 |       | Node | Attr | Builder |
 | ---- | --- | --- | --- |
-| Maya | --- | --- | --- |
-| Houdini | --- | --- | --- |
+| Maya | ○ | ○ | --- |
+| Houdini | ○ | △ | --- |
 | Unreal | --- | --- | --- |
 
 
@@ -54,8 +54,7 @@ yr.YNode("hoge").attr(0)
 ## TODO
 - [x] basic api
 - [ ] github.io
-- [ ] transparency PNG
-- [ ] unreal support
+- [ ] unreal
 
 ## contribution
 WIP
