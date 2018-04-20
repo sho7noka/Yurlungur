@@ -4,14 +4,12 @@ import inspect
 import cmath
 
 from yurlungur.tool.meta import meta
+from yurlungur.core.env import Numpy
 from yurlungur.core.wrapper import (
-    _YVector, _YMatrix, _YColor
+    _YVector, _YMatrix, _YColor, OM
 )
 
-try:
-    import maya.api.OpenMaya as OM
-except ImportError:
-    pass
+__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
 
 
 # @total_ordering
@@ -65,6 +63,3 @@ class YColor(_YColor):
     @property
     def b(self):
         return self.color[2]
-
-
-__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))

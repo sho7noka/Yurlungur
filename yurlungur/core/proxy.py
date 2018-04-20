@@ -15,23 +15,10 @@ class YObject(_YObject):
     """
 
     def __init__(self, item):
-        if hasattr(meta, "objExists"):
-            # assert meta.objExists(item), "{} not found".format(item)
-            self.item = item
-
-        if hasattr(meta, "root"):
-            assert meta.node(item), "{} not found".format(item)
-            self.item = item
-
-        if hasattr(meta, "Actor"):
-            assert meta.Actor(item), "{} not found".format(item)
-            self.item = item
-
-        if hasattr(meta, "data"):
-            self.item = item
+        self.item = item
 
     def __repr__(self):
-        return self.item
+        return self.name
 
     def __call__(self, *args, **kwargs):
         if hasattr(meta, "rename"):
@@ -69,6 +56,7 @@ class YObject(_YObject):
         raise YException
 
     def __getattr__(self, item):
+        # something ORM
 
         if hasattr(meta, "getAttr"):
             return YAttr(
@@ -88,10 +76,12 @@ class YObject(_YObject):
     @property
     def attrs(self, *args, **kwargs):
         if hasattr(meta, "listAttr"):
-            return meta.listAttr(*args, **kwargs)
+            return tuple(meta.listAttr(self.name, *args, **kwargs))
 
         if hasattr(meta, "root"):
-            return meta.node(self.item).parms()
+            return (
+                p.eval() for p in meta.node(self.name).parms()
+            )
 
         if hasattr(meta, "Actor"):
             return meta.Actor(self.name).get_editor_property()
@@ -124,7 +114,7 @@ class YNode(YObject):
 
     def create(self, *args, **kwargs):
         if hasattr(meta, "createNode"):
-            return YNode(meta.createNode(*args, **kwargs))
+            return YObject(meta.createNode(*args, **kwargs))
 
         if hasattr(meta, "root"):
             return YNode(meta.node(self.item).createNode(*args, **kwargs).path())
@@ -148,7 +138,10 @@ class YNode(YObject):
 
     def connect(self, *args, **kwargss):
         if hasattr(meta, "connectAttr"):
-            return meta.connectAttr(*args, **kwargss)
+            meta.connectAttr(*args, **kwargss)
+
+        if hasattr(meta, ""):
+            meta.setInput(*args, **kwargss)
 
         raise YException
 
@@ -194,14 +187,14 @@ class YAttr(_YAttr):
     """parametric object"""
 
     def __init__(self, *args, **kwargs):
-        self.vals = args
+        self.values = args
 
     def __getitem__(self, idx):
-        return self.vals[idx]
+        return self.values[idx]
 
     def set(self, *args, **kwargs):
-        assert len(self.vals) > 2, "parameter is invalid."
-        obj, val = self.vals[1:]
+        assert len(self.values) > 2, "parameter is invalid."
+        obj, val = self.values[1:]
 
         if hasattr(meta, "setAttr"):
             return meta.setAttr(obj + "." + val, *args, **kwargs)
@@ -213,7 +206,7 @@ class YAttr(_YAttr):
 
     @property
     def value(self):
-        return self.vals
+        return self.values
 
 
 class YFile(object):
