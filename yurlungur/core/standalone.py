@@ -133,9 +133,9 @@ def _cli(args):
 
     parser = argparse.ArgumentParser(
         prog='yr.cli',
-        usage='Demonstration of argparser',  # プログラムの利用方法
-        description='description',  # 引数のヘルプの前に表示
-        epilog="{0} v.{1} {2}".format(yr.name, yr.version, sys.executable),  # 引数のヘルプの後で表示
+        usage='Demonstration of argparser',
+        description='yurlungur console.',
+        epilog="{0} v.{1} {2}".format(yr.name, yr.version, sys.executable),
         add_help=True,
     )
     parser.add_argument("--dialog", "-d",
@@ -150,9 +150,6 @@ def _cli(args):
     parser.add_argument("--unrealpy", "-ue",
                         help="Run Python from unreal editor cmd.",
                         nargs=2)
-    parser.add_argument("--tests",
-                        help="Read from stdin instead of file",
-                        action="store_true")
 
     args = parser.parse_args(args)
     if args.dialog:
@@ -167,9 +164,6 @@ def _cli(args):
     if args.unrealpy:
         project, expr = args.unrealpy
         uepython(project, expr)
-
-    if args.tests:
-        pass
 
 
 def main(args=[]):

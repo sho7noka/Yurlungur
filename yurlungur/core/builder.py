@@ -3,9 +3,7 @@ from yurlungur.core.app import application
 from yurlungur.core.proxy import YNode, YAttr
 from yurlungur.tool.math import YVector, YMatrix, YColor
 from yurlungur.core.env import Maya, Houdini, Unreal
-
-if Maya():
-    from yurlungur.core.wrapper import OM
+from yurlungur.core.wrapper import OM
 
 
 class Builder(object):
@@ -15,20 +13,10 @@ class Builder(object):
     """
 
     def geometry(self):
-        if Maya():
-            dag = OM.MGlobal.getSelectionListByName("polySurfaceShape1").getDagPath(0)
-            mesh = OM.MFnMesh(dag)
-        elif Houdini():
-            mesh = hou.node("polySurfaceShape1").geometry()
-
-        return YNode
+        pass
 
     def camera(self):
-        if Maya():
-            obj = OM.MGlobal.getSelectionListByName("cameraShape1").getDagPath(0)
-            camera = OM.MFnCamera(obj)
-
-        return YAttr
+        pass
 
 
 class Shader(object):
