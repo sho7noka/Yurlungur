@@ -2,7 +2,7 @@
 from yurlungur.core.app import application
 from yurlungur.core.proxy import YNode, YAttr
 from yurlungur.tool.math import YVector, YMatrix, YColor
-from yurlungur.core.enviroment import Maya, Houdini, Unreal
+from yurlungur.core.env import Maya, Houdini, Unreal
 
 if Maya():
     from yurlungur.core.wrapper import OM

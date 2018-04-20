@@ -136,6 +136,9 @@ class YNode(YObject):
         if hasattr(meta, "root"):
             meta.node(self.item).destroy()
 
+        if hasattr(meta, "Actor"):
+            meta.destroy_actor()
+
         if hasattr(meta, "context"):
             meta.context.scene.objects.unlink(meta.data.objects[self.item])
 

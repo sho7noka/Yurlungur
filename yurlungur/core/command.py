@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from yurlungur.core.proxy import *
-from yurlungur.core import enviroment as env
+from yurlungur.core.proxy import *  # noQA
+from yurlungur.core import env
 
 file = cmd = object
+
 
 class Command(object):
     @staticmethod
@@ -85,6 +86,7 @@ def _fbxExporter(cls, *args, **kwargs):
 if env.Maya():
     try:
         import maya.mel
+
         for plugin in ["fbxmaya.mll", "AbcImport.mll", "AbcExport.mll"]:
             meta.loadPlugin(plugin, qt=1)
     except:
@@ -111,7 +113,7 @@ if env.Unreal():
     file = YFile()
     YFile.abcImporter = _alembicImporter
     YFile.fbxImporter = _fbxImporter
-    
+
     cmd = Command()
 
 __all__ = ["file", "cmd", "Command"]
