@@ -5,6 +5,7 @@ import inspect
 import subprocess
 import tempfile
 import yurlungur as yr
+from yurlungur.core import env
 
 try:
     from yurlungur.Qt.QtCore import *
@@ -18,44 +19,44 @@ local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filenam
 
 
 def mayapy(pystr):
-    assert os.path.getsize(yr.MayaBin)
+    assert os.path.getsize(env.MayaBin)
     subprocess.call(
         "{0}/bin/mayapy -c \"{1};{2};{3}\"".format(
-            yr.MayaBin, "import maya.standalone;maya.standalone.initialize(name='python')",
+            env.MayaBin, "import maya.standalone;maya.standalone.initialize(name='python')",
             "import sys; sys.path.append('{0}');".format(local) + pystr, "maya.standalone.uninitialize()"
         )
     )
 
 
 def hython(pystr):
-    assert os.path.getsize(yr.HoudiniBin)
+    assert os.path.getsize(env.HoudiniBin)
     subprocess.call(
-        "{0}/hython -c\"import sys; sys.path.append('{1}');{2}\"".format(yr.HoudiniBin, local, pystr)
+        "{0}/hython -c\"import sys; sys.path.append('{1}');{2}\"".format(env.HoudiniBin, local, pystr)
     )
 
 
 def maxpy(pystr):
-    assert os.path.getsize(yr.MaxBin)
+    assert os.path.getsize(env.MaxBin)
     subprocess.call(
-        "{0}/3dsmaxpy -c \"{1};{2}\"".format(yr.MaxBin, sys.path.append(yr), pystr)
+        "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.MaxBin, sys.path.append(yr), pystr)
     )
 
 
 def bpython(pystr):
-    assert sys.version_info > (3, 5, 3), ('blender requires Python 3.5.3') or os.path.getsize(yr.BlenderBin)
+    assert sys.version_info > (3, 5, 3), ('blender requires Python 3.5.3') or os.path.getsize(env.BlenderBin)
     subprocess.call(
-        "{0}.blender --python-expr {1} -b".format(yr.BlenderBin, pystr)
+        "{0}.blender --python-expr {1} -b".format(env.BlenderBin, pystr)
     )
 
 
 def uepython(project, pystr):
-    assert os.path.getsize(yr.UnrealBin) or os.path.exists(project)
+    assert os.path.getsize(env.UnrealBin) or os.path.exists(project)
 
     # temp
     with tempfile.NamedTemporaryFile(delete=False) as tf:
         tf.write(pystr)
     subprocess.call(
-        "{0}/UE4Editor-Cmd {1} ExecutePythonScript = {2}".format(yr.UnrealBin, project, pyfile)
+        "{0}/UE4Editor-Cmd {1} ExecutePythonScript = {2}".format(env.UnrealBin, project, pyfile)
     )
 
 

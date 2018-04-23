@@ -3,12 +3,12 @@ import sys
 assert sys.version_info > (2, 7), ('yurlungur currently requires Python 2.7 later')
 sys.dont_write_bytecode = True
 
-# open yurlungur
-import yurlungur
-from yurlungur.core import *        # noQA
-# from yurlungur.tool.math import *   # noQA
-from yurlungur.tool.util import *   # noQA
+# yurlungur
+from yurlungur.core import * # noQA
+from yurlungur.tool import qt
 from yurlungur.tool.meta import meta
+from yurlungur.tool.util import cache, trace, timer
+from yurlungur.tool.math import YVector, YMatrix, YColor
 
 __all__ = []
 __version__ = "0.9.2"

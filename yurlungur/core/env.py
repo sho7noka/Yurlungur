@@ -125,6 +125,18 @@ def Blender(func=None):
     return wrapper
 
 
+def Max(func=None):
+    if func == None:
+        return "3dsmax" in sys.executable
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "3dsmax" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
 def installed(app):
     if app == "maya":
         return os.path.getsize(_Maya())
