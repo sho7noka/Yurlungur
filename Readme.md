@@ -23,7 +23,7 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 |       | Node | Attr | Builder |
 | ---- | --- | --- | --- |
 | Maya | ○ | ○ | --- |
-| Houdini | ○ | △ | --- |
+| Houdini | ○ | ○ | --- |
 | Unreal | --- | --- | --- |
 
 
@@ -33,6 +33,13 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 pip install yurlungur
 ```
 
+#### optional
+If you use Unreal or Standalone for full supports, Yurlungur require `PySide` module.
+
+```bash
+pip install pyside
+```
+
 ### semantics
 
 ```lua
@@ -40,7 +47,7 @@ pip install yurlungur
 $.value = 0
 ```
 
-```mel
+```bash
 // MEL
 setAttr "hoge" 0;
 ```
