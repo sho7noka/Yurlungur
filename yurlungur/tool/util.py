@@ -5,11 +5,17 @@ import traceback
 import functools
 import time
 import inspect
+import re
 import sqlite3
+import keyword
 import yurlungur
 
 
-def cache(func):
+def log(obj):
+    return yurlungur.logger.info(obj)
+
+
+def cache(func, *args, **kwargs):
     saved = {}
 
     @functools.wraps(func)
@@ -20,33 +26,35 @@ def cache(func):
         saved[args] = result
         return result
 
-    return Wrapper if sys.version_info < (3, 2) else functools.lcu_cache
+    return Wrapper if sys.version_info < (3, 2) else functools.lcu_cache(*args, **kwargs)
 
 
 def trace(func):
     @functools.wraps(func)
-    def Wrapper(*args, **kw):
+    def Wrapper(*args, **kwargs):
         try:
-            func(*args, **kw)
+            return func(*args, **kwargs)
         except:
             yurlungur.logger.warn(traceback.format_exc())
-        return
 
     return Wrapper
 
 
 def timer(func):
     @functools.wraps(func)
-    def Wrapper(*args, **kw):
-        yurlungur.logger.debug('{0} start'.format(func.__name__))
+    def Wrapper(*args, **kwargs):
+        yurlungur.logger.info(
+            '{0} start'.format(func.__name__)
+        )
         start_time = time.clock()
-        ret = func(*args, **kw)
+        ret = func(*args, **kwargs)
         end_time = time.clock()
-        yurlungur.logger.debug('\n{0}: {1:,f}s'.format("total: ", (end_time - start_time)))
+        yurlungur.logger.info(
+            '\n{0}: {1:,f}s'.format("total: ", (end_time - start_time))
+        )
         return ret
 
     return Wrapper
-
 
 
 def __db_loader():
@@ -113,7 +121,7 @@ def __make_completer(mod):
             if fn.startswith("_"):
                 continue
 
-            f.write("def {0}(*args, **kwargs):\n".format(fn))
+            f.write("def {0}(*args, **kwargsargs):\n".format(fn))
             f.write("   \"\"\"{0}\"\"\"\n".format(inspect.getdoc(fn)))
             f.write("   pass\n\n")
 
