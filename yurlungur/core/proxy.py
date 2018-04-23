@@ -6,6 +6,7 @@ from yurlungur.core.wrapper import (
     YMObject, YException, _YObject, _YNode, _YAttr, OM, ORM
 )
 from yurlungur.tool.meta import meta
+from yurlungur.tool.util import trace
 
 
 class YObject(_YObject):
@@ -31,11 +32,19 @@ class YObject(_YObject):
             return meta.Actor(self.item).rename(*args, **kwargs)
 
         if hasattr(meta, "data"):
-            meta.data.Objects[self.item] = args
+            meta.data.objects[self.item] = args
 
     @property
     def name(self):
         return self.item
+
+    @property
+    def parent(self):
+        raise YException
+
+    @property
+    def child(self):
+        raise YException
 
     def attr(self, val, *args, **kwargs):
         if hasattr(meta, "getAttr"):
@@ -55,6 +64,7 @@ class YObject(_YObject):
 
         raise YException
 
+    @trace
     def __getattr__(self, item):
         # something ORM
 
@@ -79,8 +89,8 @@ class YObject(_YObject):
             return tuple(meta.listAttr(self.name, *args, **kwargs))
 
         if hasattr(meta, "root"):
-            return (
-                p.eval() for p in meta.node(self.name).parms()
+            return tuple(
+                p.name() for p in meta.node(self.name).parms()
             )
 
         if hasattr(meta, "Actor"):
@@ -100,7 +110,7 @@ class YObject(_YObject):
             return meta.Actor(self.name).tags or 0
 
         if hasattr(meta, "data"):
-            return meta.data.Objects[self.name].id_data
+            return meta.data.objects[self.name].id_data
 
         raise YException
 
@@ -112,6 +122,7 @@ class YNode(YObject):
         super(YNode, self).__init__(item)
         self.item = item
 
+    @trace
     def create(self, *args, **kwargs):
         if hasattr(meta, "createNode"):
             return YObject(meta.createNode(*args, **kwargs))
@@ -169,6 +180,7 @@ class YNode(YObject):
 
         raise YException
 
+    @trace
     def geometry(self):
         if hasattr(meta, "ls"):
             dag = OM.MGlobal.getSelectionListByName(self.name).getDagPath(0)
@@ -192,6 +204,7 @@ class YAttr(_YAttr):
     def __getitem__(self, idx):
         return self.values[idx]
 
+    @trace
     def set(self, *args, **kwargs):
         assert len(self.values) > 2, "parameter is invalid."
         obj, val = self.values[1:]
