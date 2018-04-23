@@ -4,6 +4,7 @@ import os
 import traceback
 import inspect
 
+import yurlungur
 from yurlungur.core import env
 
 if env.Qt():
@@ -42,7 +43,7 @@ def show(view):
     try:
         view.deleteLater()
     except:
-        pass
+        yurlungur.logger.info(view)
 
     try:
         __dark_view(view)
@@ -53,7 +54,7 @@ def show(view):
             view.show()
     except:
         view.deleteLater()
-        traceback.print_exc()
+        yurlungur.logger.warn(traceback.print_exc())
 
     if not QApplication.instance():
         app = QApplication(sys.argv)
