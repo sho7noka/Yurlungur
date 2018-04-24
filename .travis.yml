@@ -11,9 +11,9 @@ install:
 
 script:
   - python setup.py test
+  - travis-sphinx build --source=source
 
 after_success:
-  - travis-sphinx --source=source build
   - travis-sphinx deploy
 
 notifications:
