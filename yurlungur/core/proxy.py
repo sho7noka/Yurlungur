@@ -134,25 +134,25 @@ class YNode(YObject):
 
     def delete(self, *args, **kwargs):
         if hasattr(meta, "delete"):
-            meta.delete(self.item, *args, **kwargs)
+            return meta.delete(self.item, *args, **kwargs)
 
         if hasattr(meta, "root"):
-            meta.node(self.item).destroy()
+            return meta.node(self.item).destroy()
 
         if hasattr(meta, "Actor"):
-            meta.destroy_actor()
+            return meta.destroy_actor()
 
         if hasattr(meta, "context"):
-            meta.context.scene.objects.unlink(meta.data.objects[self.item])
+            return meta.context.scene.objects.unlink(meta.data.objects[self.item])
 
         raise YException
 
     def connect(self, *args, **kwargss):
         if hasattr(meta, "connectAttr"):
-            meta.connectAttr(*args, **kwargss)
+            return meta.connectAttr(*args, **kwargss)
 
         if hasattr(meta, ""):
-            meta.setInput(*args, **kwargss)
+            return meta.setInput(*args, **kwargss)
 
         raise YException
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from yurlungur.core import env
+from yurlungur.tool.meta import meta
 from yurlungur.core.proxy import YObject, YNode, YFile
 
 __all__ = ["file", "cmd", "Command"]
@@ -21,13 +22,14 @@ class Command(object):
         pass
 
 
-def _ls(cls):
-    gen = meta.ls() if hasattr(meta, "ls") else meta.root.allItems()
-    return (YNode(obj) for obj in gen)
+def _ls(cls, *args, **kwargs):
+    gen = meta.ls(*args, **kwargs) if hasattr(meta, "ls") else meta.root.allItems()
+    return tuple(YNode(obj) for obj in gen)
 
 
-def _rm(cls, item):
-    return YNode(item).delete()
+def _rm(cls, *args):
+    for obj in args:
+        YNode(obj).delete()
 
 
 def _glob(cls):
@@ -86,13 +88,10 @@ def _fbxExporter(cls, *args, **kwargs):
 
 # Monkey-Patch
 if env.Maya():
-    try:
-        import maya.mel
+    import maya.mel
 
-        for plugin in ["fbxmaya.mll", "AbcImport.mll", "AbcExport.mll"]:
-            meta.loadPlugin(plugin, qt=1)
-    except:
-        pass
+    for plugin in ["fbxmaya.mll", "AbcImport.mll", "AbcExport.mll"]:
+        meta.loadPlugin(plugin, qt=1)
 
     file = YFile()
     YFile.abcImporter = _alembicImporter
@@ -102,14 +101,15 @@ if env.Maya():
 
     cmd = Command()
     Command.ls = _ls
-    Command.pwd = _pwd
+    Command.rm = _rm
 
 if env.Houdini():
     file = YFile()
     YFile.fbxImporter = _fbxImporter
 
     cmd = Command()
-    # Command.ls = _ls
+    Command.ls = _ls
+    Command.rm = _rm
 
 if env.Unreal():
     file = YFile()
