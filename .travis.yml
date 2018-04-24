@@ -5,9 +5,9 @@ python:
 
 install:
   - pip install sphinx travis-sphinx
-  - wget https://gist.githubusercontent.com/borgfriend/b83467639cb8039dc79974bf780a4994/raw/fdb608b9ab0c02c4a9237b54ab98d680ef608b11/maya2017install.sh
-  - sudo travis_wait 30 chmod +x maya2017install.sh
-  - sudo travis_wait 30 ./maya2017install.sh
+#  - wget https://gist.githubusercontent.com/borgfriend/b83467639cb8039dc79974bf780a4994/raw/fdb608b9ab0c02c4a9237b54ab98d680ef608b11/maya2017install.sh
+#  - sudo travis_wait 30 chmod +x maya2017install.sh
+#  - sudo travis_wait 30 ./maya2017install.sh
 
 script:
   - python setup.py test
