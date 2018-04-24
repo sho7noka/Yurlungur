@@ -11,7 +11,7 @@ install:
 
 script:
   - python setup.py test
-  - travis-sphinx build --source=source
+  - travis-sphinx build --source=source --outdir docs
 
 after_success:
   - travis-sphinx deploy
