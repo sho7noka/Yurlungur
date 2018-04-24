@@ -5,17 +5,26 @@ environment:
   - PYTHON: C:/Python27-x64
 #  - PYTHON: C:/Python35-x64
 
-install:
-  - ECHO "Filesystem root:"
-  - ps: "ls \"C:/\""
+#install:
+#  - ECHO "Filesystem root:"
+#  - ps: "ls \"C:/\""
+#
+#  - ECHO "Installed SDKs:"
+#  - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
 
-  - ECHO "Installed SDKs:"
-  - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
-
-  - ps: (new-object net.webclient).DownloadFile('https://bootstrap.pypa.io/get-pip.py', 'C:/get-pip.py')
+#  - ps: (new-object net.webclient).DownloadFile('https://bootstrap.pypa.io/get-pip.py', 'C:/get-pip.py')
 #  - "%PYTHON%/python.exe C:/get-pip.py"
 #  - "%PYTHON%/python.exe -m pip install --upgrade pip"
 #  - "%PYTHON%/Scripts/pip.exe install ==10.0"
 
+
+version: 1.0.{build}
+build: off
 test_script:
-  - '%PYTHON%\python.exe setup.py test'
+  - cmd: '%PYTHON%\python.exe setup.py test'
+
+notifications:
+  - provider: GitHubPullRequest
+    on_build_success: true
+    on_build_failure: true
+    on_build_status_changed: true
