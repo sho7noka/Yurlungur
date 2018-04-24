@@ -23,13 +23,10 @@ Chapters:
 
 .. toctree::
 	:maxdepth: 1
-    api
 
+	api
 
-.. toctree::
-	:maxdepth: 1
-
-
+Appendices:
 
 Indices and tables
 ==================
