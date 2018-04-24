@@ -3,9 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-===================================
+=============================================
 Yurlungur for Universal DCC Scripting API
-===================================
+=============================================
 Yurlungur is universal scripting environment with Python which Maya, Houdini and Unreal.
 
 DCC tool scripting is almost used Python, but these api isn't similarly anything.
