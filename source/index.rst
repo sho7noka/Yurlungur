@@ -23,22 +23,11 @@ Chapters:
 
 .. toctree::
 	:maxdepth: 1
+    api
 
-	whats_new
-	install
-	tutorial
-	object
-	standalone
-
-Appendices:
 
 .. toctree::
 	:maxdepth: 1
-
-	eclipse
-	dev
-	mel_to_python
-	modules
 
 
 
