@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-from functools import partial
+from functools import partial, total_ordering
 
 from yurlungur.core.wrapper import (
     YMObject, YException, _YObject, _YNode, _YAttr, OM, ORM
@@ -43,7 +43,7 @@ class YObject(_YObject):
         raise YException
 
     @property
-    def child(self):
+    def children(self):
         raise YException
 
     def attr(self, val, *args, **kwargs):
@@ -204,6 +204,15 @@ class YAttr(_YAttr):
     def __getitem__(self, idx):
         return self.values[idx]
 
+    def __repr__(self):
+        return str(self.value[0])
+
+    def __eq__(self, other):
+        return
+
+    def __gt__(self, other):
+        return
+
     @trace
     def set(self, *args, **kwargs):
         assert len(self.values) > 2, "parameter is invalid."
@@ -214,6 +223,30 @@ class YAttr(_YAttr):
 
         if hasattr(meta, "root"):
             return meta.node(obj).parm(val).set(*args, **kwargs)
+
+        raise YException
+
+    def lock(self, on):
+        assert len(self.values) > 2, "parameter is invalid."
+        obj, val = self.values[1:]
+
+        if hasattr(meta, "setAttr"):
+            return meta.setAttr(obj + "." + val, lock=on)
+
+        if hasattr(meta, "root"):
+            return meta.node(obj).parm(val).lock(on)
+
+        raise YException
+
+    def hide(self, on=True):
+        assert len(self.values) > 2, "parameter is invalid."
+        obj, val = self.values[1:]
+
+        if hasattr(meta, "setAttr"):
+            return meta.setAttr(obj + "." + val, keyable=not on, channelBox=not on)
+
+        if hasattr(meta, "root"):
+            return meta.node(obj).parm(val).hide(on)
 
         raise YException
 
