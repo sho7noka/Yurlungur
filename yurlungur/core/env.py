@@ -138,15 +138,17 @@ def Max(func=None):
 
 
 def installed(app):
-    if app == "maya":
+    _app = app.lower()
+
+    if _app == "maya":
         return os.path.exists(_Maya())
-    if app == "houdini":
+    if _app == "houdini":
         return os.path.exists(_Houdini())
-    if app == "unreal":
+    if _app == "unreal":
         return os.path.exists(_Unreal())
-    if app == "blender":
+    if _app == "blender":
         return os.path.exists(_Blender())
-    if app == "max":
+    if _app == "max":
         return os.path.exists(_Max())
     return False
 

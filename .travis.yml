@@ -15,7 +15,7 @@ script:
   - travis-sphinx --outdir docs build --source=source
 
 after_success:
-  - travis-sphinx deploy --branches master --message "doc Update Sphinx pages"
+  - travis-sphinx deploy --branches "master" --message "doc Update Sphinx pages"
 
 notifications:
   email: false

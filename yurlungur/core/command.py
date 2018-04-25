@@ -3,8 +3,6 @@ from yurlungur.core import env
 from yurlungur.tool.meta import meta
 from yurlungur.core.proxy import YObject, YNode, YFile
 
-__all__ = ["file", "cmd", "Command"]
-
 file = cmd = object
 
 
@@ -14,16 +12,16 @@ class Command(object):
         pass
 
     @staticmethod
-    def remove(func):
+    def unregister(func):
         pass
 
-    @staticmethod
+    @classmethod
     def list(cls):
-        pass
+        return [obj for obj in dir(cls) if not obj.startswith("_")]
 
 
 def _ls(cls, *args, **kwargs):
-    gen = meta.ls(*args, **kwargs) if hasattr(meta, "ls") else meta.root.allItems()
+    gen = meta.ls(*args, **kwargs) if hasattr(meta, "ls") else meta.pwd().allItems()
     return tuple(YNode(obj) for obj in gen)
 
 
@@ -32,32 +30,18 @@ def _rm(cls, *args):
         YNode(obj).delete()
 
 
-def _glob(cls):
-    return
+def _glob(cls, *args, **kwargs):
+    gen = meta.ls(*args, **kwargs) if hasattr(meta, "ls") else meta.pwd().glob(*args, **kwargs)
+    return tuple(YNode(obj) for obj in gen)
 
 
-def _cd(cls):
-    return
-
-
-def _root(cls):
-    return
-
-
-def _pwd(cls):
-    return
-
-
-def _parent(cls, *args, **kwargs):
-    return
-
-
-def _children(cls, *args, **kwargs):
-    return
-
-
-def _select(cls, *args):
-    return
+def _select(cls, *args, **kwargs):
+    if hasattr(meta, "select"):
+        meta.select(*args, **kwargs)
+    
+    if hasattr(meta, "root"):
+        for node in meta.nodes(args):
+            node.setSelected(True, **kwargs)
 
 
 def _alembicImporter(cls, *args, **kwargs):
@@ -68,6 +52,12 @@ def _alembicImporter(cls, *args, **kwargs):
     """
     if hasattr(meta, "AbcImport"):
         return cls(meta.AbcImport(*args, **kwargs))
+
+    if hasattr(meta, "root"):
+        geo = yr.YNode("obj").create("geo")
+        abc = geo.create("alembic")
+        abc.fileName.set(*args)
+        return cls(*args)
 
 
 def _alembicExporter(cls, *args, **kwargs):
@@ -102,14 +92,19 @@ if env.Maya():
     cmd = Command()
     Command.ls = _ls
     Command.rm = _rm
+    Command.glob = _glob
+    Command.select = _select
 
 if env.Houdini():
     file = YFile()
+    YFile.abcImporter = _alembicImporter
     YFile.fbxImporter = _fbxImporter
 
     cmd = Command()
     Command.ls = _ls
     Command.rm = _rm
+    Command.glob = _glob
+    Command.select = _select
 
 if env.Unreal():
     file = YFile()
@@ -117,3 +112,5 @@ if env.Unreal():
     YFile.fbxImporter = _fbxImporter
 
     cmd = Command()
+
+__all__ = ["file", "cmd", "Command"]
