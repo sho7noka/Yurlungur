@@ -29,6 +29,7 @@ class YObject(_YObject):
             return meta.node(self.item).setName(*args, **kwargs)
 
         if hasattr(meta, "Actor"):
+            world = meta.World().get_world()
             return meta.Actor(self.item).rename(*args, **kwargs)
 
         if hasattr(meta, "data"):
