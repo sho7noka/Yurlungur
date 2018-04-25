@@ -15,7 +15,7 @@ if env.Qt():
 
 
 @env.Qt
-def qWindowPtr():
+def widgetPtr():
     import yurlungur.core.app
     app_name = yurlungur.core.application.__name__
 

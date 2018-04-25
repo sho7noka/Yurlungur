@@ -18,13 +18,16 @@ class Builder(object):
     def camera(self):
         pass
 
+    def light(self):
+        pass
+
 
 class Shader(object):
     def material(self):
         pass
 
-    def light(self):
+    def texture(self):
         pass
 
-    def texture(self):
+    def renderer(self):
         pass

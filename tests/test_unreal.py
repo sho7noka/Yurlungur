@@ -1,8 +1,8 @@
 import doctest
 import unittest
-import yurlungur as yr
-from yurlungur.core.env import installed, Unreal
+
 from yurlungur.core import standalone
+from yurlungur.core.env import installed, Unreal
 
 @unittest.skipUnless(installed("unreal"), "Unreal is not found")
 class TestApp(unittest.TestCase):

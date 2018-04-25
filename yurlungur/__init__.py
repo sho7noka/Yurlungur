@@ -1,4 +1,5 @@
 from __future__ import print_function, unicode_literals, absolute_import
+
 import sys
 assert sys.version_info > (2, 7), ('yurlungur currently requires Python 2.7 later')
 sys.dont_write_bytecode = True

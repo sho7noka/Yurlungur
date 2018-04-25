@@ -1,8 +1,8 @@
 import doctest
 import unittest
-import yurlungur as yr
-from yurlungur.core.env import installed, Houdini
+
 from yurlungur.core import standalone
+from yurlungur.core.env import installed, Houdini
 
 @unittest.skipUnless(installed("houdini"), "Houdini is not found")
 class TestApp(unittest.TestCase):
@@ -10,9 +10,7 @@ class TestApp(unittest.TestCase):
         self.assertTrue(installed("houdini"))
 
     def test_hou(self):
-        self.assertTrue(
-            standalone.hython("import yurlungur as yr; print yr.name, yr.version")
-        )
+        standalone.hython("import yurlungur as yr; print yr.name, yr.version")
 
     def test_node(self):
         standalone.hython("import yurlungur as yr; print yr.YNode('obj')")
