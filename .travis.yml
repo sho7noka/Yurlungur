@@ -18,6 +18,14 @@ after_success:
   - travis-sphinx deploy --branches "master" --message "doc Update Sphinx pages"
   - codecov
 
+deploy:
+  provider: pypi
+  user: "sho7noka"
+  password:
+    secure: "Your encrypted password"
+  on:
+    branch: master
+
 notifications:
   email: false
 
