@@ -19,30 +19,30 @@ def cache(func, *args, **kwargs):
     saved = {}
 
     @functools.wraps(func)
-    def Wrapper(*args):
+    def wrapper(*args):
         if args in saved:
             return saved[args]
         result = func(*args)
         saved[args] = result
         return result
 
-    return Wrapper if sys.version_info < (3, 2) else functools.lcu_cache(*args, **kwargs)
+    return wrapper if sys.version_info < (3, 2) else functools.lcu_cache(*args, **kwargs)
 
 
 def trace(func):
     @functools.wraps(func)
-    def Wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except:
             yurlungur.logger.warn(traceback.format_exc())
 
-    return Wrapper
+    return wrapper
 
 
 def timer(func):
     @functools.wraps(func)
-    def Wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         yurlungur.logger.info(
             '{0} start'.format(func.__name__)
         )
@@ -54,7 +54,7 @@ def timer(func):
         )
         return ret
 
-    return Wrapper
+    return wrapper
 
 
 def __db_loader():
