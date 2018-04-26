@@ -4,7 +4,7 @@ import sys
 import os
 
 PORT = 10000 # sample
-USER = os.environ.get("USERNAME")
+USER = os.environ.get("APPDATA")
 PTH = [p for p in os.listdir(USER) if os.path.isdir("{}/{}".format(USER, p))]
 EGG = "{}/{}/debug-eggs/pycharm-debug.egg".format(USER, PTH[0 if len(PTH) == 1 else -1])
 PDV = "{}/{}/helpers/pydev".format(USER, PTH[0 if len(PTH) == 1 else -1])
@@ -27,7 +27,7 @@ def main():
             print(cmds.commandPort(':{}'.format(PORT), q=1))
 
         except ImportError:
-            import hrpyc
+            import hou, hrpyc
             hrpyc.start_server(PORT, False, False)
             connection, hou = hrpyc.import_remote_module()
 
