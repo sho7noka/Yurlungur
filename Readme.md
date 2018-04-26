@@ -44,18 +44,18 @@ pip install pyside
 
 ```lua
 -- MXS
-$.value = 0
+$.value = 1
 ```
 
 ```bash
 // MEL
-setAttr "hoge" 0;
+setAttr "foo.bar" 1;
 ```
 
 ```python
-# python
+# yurlungur
 import yurlungur as yr
-yr.YNode("hoge").attr(0)
+yr.YNode("foo").bar.set(1)
 ```
 
 ## TODO
@@ -64,8 +64,8 @@ yr.YNode("hoge").attr(0)
 - [ ] unreal
 
 ## contribution
-WIP
+lets see [CONTRIBUTING](./CONTRIBUTING.md).
 
 
 ## License
-Yurlungur is MIT License.
+Yurlungur is [MIT](./LICENSE.md) License.
