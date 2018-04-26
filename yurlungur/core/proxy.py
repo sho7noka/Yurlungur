@@ -87,10 +87,10 @@ class YObject(_YObject):
     @property
     def attrs(self, *args, **kwargs):
         if hasattr(meta, "listAttr"):
-            return tuple(meta.listAttr(self.name, *args, **kwargs))
+            return dict(meta.listAttr(self.name, *args, **kwargs))
 
         if hasattr(meta, "root"):
-            return tuple(
+            return dict(
                 p.name() for p in meta.node(self.name).parms()
             )
 
@@ -129,37 +129,39 @@ class YNode(YObject):
             return YObject(meta.createNode(*args, **kwargs))
 
         if hasattr(meta, "root"):
-            return YNode(meta.node(self.item).createNode(*args, **kwargs).path())
+            return YNode(meta.node(self.name).createNode(*args, **kwargs).path())
 
         raise YException
 
+    @trace
     def delete(self, *args, **kwargs):
         if hasattr(meta, "delete"):
-            return meta.delete(self.item, *args, **kwargs)
+            return meta.delete(self.name, *args, **kwargs)
 
         if hasattr(meta, "root"):
-            return meta.node(self.item).destroy()
+            return meta.node(self.name).destroy()
 
         if hasattr(meta, "Actor"):
             return meta.destroy_actor()
 
         if hasattr(meta, "context"):
-            return meta.context.scene.objects.unlink(meta.data.objects[self.item])
+            return meta.context.scene.objects.unlink(meta.data.objects[self.name])
 
         raise YException
 
-    def connect(self, *args, **kwargss):
-        if hasattr(meta, "connectAttr"):
-            return meta.connectAttr(*args, **kwargss)
-
-        if hasattr(meta, ""):
-            return meta.setInput(*args, **kwargss)
+    @trace
+    def connect(self, *args, **kwargs):
+        if hasattr(meta, "root"):
+            return partial(
+                meta.node(self.name).setInput, 0)(*args, **kwargs)
 
         raise YException
 
+    @trace
     def disconnect(self, *args, **kwargs):
-        if hasattr(meta, "disconnectAttr"):
-            return meta.disconnectAttr(*args, **kwargs)
+        if hasattr(meta, "root"):
+            return partial(
+                meta.node(self.name).setInput, 0, None)(*args, **kwargs)
 
         raise YException
 
@@ -172,7 +174,7 @@ class YNode(YObject):
 
         raise YException
 
-    def outputs(self):
+    def outputs(self, *args, **kwargs):
         if hasattr(meta, "listConnections"):
             return partial(meta.listConnections, d=1)(*args, **kwargs)
 
@@ -196,11 +198,14 @@ class YNode(YObject):
         raise YException
 
 
+@total_ordering
 class YAttr(_YAttr):
     """parametric object"""
 
     def __init__(self, *args, **kwargs):
         self.values = args
+        assert len(self.values) > 2, "parameter is invalid."
+        self.obj, self.val = self.values[1:]
 
     def __getitem__(self, idx):
         return self.values[idx]
@@ -209,45 +214,56 @@ class YAttr(_YAttr):
         return str(self.value[0])
 
     def __eq__(self, other):
-        return
+        return self.value[0] == other.value[0]
 
     def __gt__(self, other):
-        return
+        return self.value[0] >= other.value[0]
+
+    @trace
+    def connect(self, val, **kwargs):
+        if hasattr(meta, "connectAttr"):
+            return partial(
+                meta.connectAttr, self.obj +"."+ self.val
+            )(val[1] +"."+ val[2], **kwargs)
+
+        raise YException
+
+    @trace
+    def disconnect(self, val, **kwargs):
+        if hasattr(meta, "disconnectAttr"):
+            return partial(
+                meta.disconnectAttr, self.obj +"."+ self.val
+            )(val[1] +"."+ val[2], **kwargs)
+
+        raise YException
 
     @trace
     def set(self, *args, **kwargs):
-        assert len(self.values) > 2, "parameter is invalid."
-        obj, val = self.values[1:]
-
         if hasattr(meta, "setAttr"):
-            return meta.setAttr(obj + "." + val, *args, **kwargs)
+            return meta.setAttr(self.obj + "." + self.val, *args, **kwargs)
 
         if hasattr(meta, "root"):
-            return meta.node(obj).parm(val).set(*args, **kwargs)
+            return meta.node(self.obj).parm(self.val).set(*args, **kwargs)
 
         raise YException
 
+    @trace
     def lock(self, on):
-        assert len(self.values) > 2, "parameter is invalid."
-        obj, val = self.values[1:]
-
         if hasattr(meta, "setAttr"):
-            return meta.setAttr(obj + "." + val, lock=on)
+            return meta.setAttr(self.obj + "." + self.val, lock=on)
 
         if hasattr(meta, "root"):
-            return meta.node(obj).parm(val).lock(on)
+            return meta.node(self.obj).parm(self.val).lock(on)
 
         raise YException
 
+    @trace
     def hide(self, on=True):
-        assert len(self.values) > 2, "parameter is invalid."
-        obj, val = self.values[1:]
-
         if hasattr(meta, "setAttr"):
-            return meta.setAttr(obj + "." + val, keyable=not on, channelBox=not on)
+            return meta.setAttr(self.obj + "." + self.val, keyable=not on, channelBox=not on)
 
         if hasattr(meta, "root"):
-            return meta.node(obj).parm(val).hide(on)
+            return meta.node(self.obj).parm(self.val).hide(on)
 
         raise YException
 
