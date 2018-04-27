@@ -1,31 +1,23 @@
 language: python
-
 python:
-  - "2.7"
-
+- '2.7'
 install:
-  - pip install sphinx travis-sphinx sphinxcontrib-napoleon sphinx_rtd_theme codecov
-#  - wget https://gist.githubusercontent.com/borgfriend/b83467639cb8039dc79974bf780a4994/raw/fdb608b9ab0c02c4a9237b54ab98d680ef608b11/maya2017install.sh
-#  - sudo travis_wait 30 chmod +x maya2017install.sh
-#  - sudo travis_wait 30 ./maya2017install.sh
-
+- pip install sphinx travis-sphinx sphinxcontrib-napoleon sphinx_rtd_theme codecov
 script:
-  - python setup.py test
-#  - sphinx-apidoc -F -o source/ yurlungur/
-  - travis-sphinx --outdir docs build --source=source
-
+- python setup.py test
+- travis-sphinx --outdir docs build --source=source
 after_success:
-  - travis-sphinx deploy --branches "master" --message "doc Update Sphinx pages"
-  - codecov
-
+- travis-sphinx deploy --branches "master" --message "doc Update Sphinx pages"
+- codecov
 deploy:
   provider: pypi
-  user: "sho7noka"
-  password:
-    secure: "Your encrypted password"
+  user: sho7noka
   on:
     branch: master
-
+    distributions: sdist --formats=gztar,zip
+    python: 2.7
+  allow_failure: false
+  password:
+    secure: WaXN4uYxyV0Woj027MUlb3ctbzX/DN2RNHuSiRH+u/BYL33W3MslsJcMk6vIlWeOxXu1OkT/HE2rk2t0NyyqnRWG1bn14sNpGk4w8LYQ4q2xFOxNV9lGeoBHV55LlfZ1M6tNnFOHiNbK+d2NCr50RnpaNkVnr9Y/p42R27NX+MQ5q5KKXqX8wgAGIAEVeMtjtS9JWr9XAdri5jbo2+0xIUtWYIGz8ZWu2U7+OmGkfRyKWVTYclyMMWfflk2KIS/DhpgHUqkMlD1CXV5qMl/hUJEkw2lsWeeOe7Wq5zKIkUSuCOJ5XSOg1rbEMHZXl0PJn7FAjAlAXKHlm6l5jyLsuRf8ClUXEd9hFlyjLb/959D8Bp+Aj5iEL3/2nO1QC4zdrPZDsljBAWQguYDQgTd2BYAnftqkFVHpChI/2pEmUBuzz8NdYZ9PtoGiA75/WxvCfTypDOF+LXOOmVelztfPh75k49/Gog76fo3Phn5fod8qsMoeEkPi07x05jsTw1ajfEYo12aXlzajZNhIvxuwmNMGVE0LNGYBcEQ8esksmOtEE3aktX8BWYCZdqDCVg/7RIygsAqb07yN8CXk4j6NzHZn8l1r6CNJmGCtipOlBm3Wv0ZXpezH5O6szd9ODB9pRmwf9yR1TobFps4nFwOlQDMWG9UhnfbPr8jETHxHG3g=
 notifications:
   email: false
-
