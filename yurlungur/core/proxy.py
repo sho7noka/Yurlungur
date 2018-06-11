@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-from functools import partial
+from functools import partial, total_ordering
 
-from wrapper import (
-    YMObject, YException, _YObject, _YNode, _YAttr
+from yurlungur.core.wrapper import (
+    YMObject, YException, _YObject, _YNode, _YAttr, OM, ORM
 )
-
-meta = YMObject()
+from yurlungur.tool.meta import meta
+from yurlungur.tool.util import trace
 
 
 class YObject(_YObject):
@@ -16,21 +16,10 @@ class YObject(_YObject):
     """
 
     def __init__(self, item):
-        if hasattr(meta, "objExists"):
-            assert meta.objExists(item), "{} not found".format(item)
-            self.item = item
+        self.item = item
 
-        if hasattr(meta, "node"):
-            assert meta.node(item), "{} not found".format(item)
-            self.item = item
-
-        if hasattr(meta, "Actor"):
-            assert meta.Actor(item), "{} not found".format(item)
-            self.item = item
-
-    @property
-    def name(self):
-        return self.item
+    def __repr__(self):
+        return self.name
 
     def __call__(self, *args, **kwargs):
         if hasattr(meta, "rename"):
@@ -40,7 +29,23 @@ class YObject(_YObject):
             return meta.node(self.item).setName(*args, **kwargs)
 
         if hasattr(meta, "Actor"):
+            world = meta.World().get_world()
             return meta.Actor(self.item).rename(*args, **kwargs)
+
+        if hasattr(meta, "data"):
+            meta.data.objects[self.item] = args
+
+    @property
+    def name(self):
+        return self.item
+
+    @property
+    def parent(self):
+        raise YException
+
+    @property
+    def children(self):
+        raise YException
 
     def attr(self, val, *args, **kwargs):
         if hasattr(meta, "getAttr"):
@@ -54,11 +59,16 @@ class YObject(_YObject):
             )
 
         if hasattr(meta, "Actor"):
-            return YAttr
+            return YAttr(
+                self.get_editor_property(val)
+            )
 
         raise YException
 
+    @trace
     def __getattr__(self, item):
+        # something ORM
+
         if hasattr(meta, "getAttr"):
             return YAttr(
                 meta.getAttr(self.name + "." + item), self.name, item
@@ -77,10 +87,12 @@ class YObject(_YObject):
     @property
     def attrs(self, *args, **kwargs):
         if hasattr(meta, "listAttr"):
-            return meta.listAttr(*args, **kwargs)
+            return dict(meta.listAttr(self.name, *args, **kwargs))
 
         if hasattr(meta, "root"):
-            return meta.node(self.item).parms()
+            return dict(
+                p.name() for p in meta.node(self.name).parms()
+            )
 
         if hasattr(meta, "Actor"):
             return meta.Actor(self.name).get_editor_property()
@@ -96,7 +108,10 @@ class YObject(_YObject):
             return meta.node(self.name).sessionId() or 0
 
         if hasattr(meta, "Actor"):
-            return meta.Actor(self.name).tags
+            return meta.Actor(self.name).tags or 0
+
+        if hasattr(meta, "data"):
+            return meta.data.objects[self.name].id_data
 
         raise YException
 
@@ -104,39 +119,49 @@ class YObject(_YObject):
 class YNode(YObject):
     """connect-able object"""
 
-    def __init__(self, item):
+    def __init__(self, item=None):
         super(YNode, self).__init__(item)
         self.item = item
 
-    @classmethod
-    def create(cls, *args, **kwargs):
+    @trace
+    def create(self, *args, **kwargs):
         if hasattr(meta, "createNode"):
-            return cls(meta.createNode(*args, **kwargs))
+            return YObject(meta.createNode(*args, **kwargs))
 
         if hasattr(meta, "root"):
-            return cls(meta.node(cls.item).createNode(*args, **kwargs))
+            return YNode(meta.node(self.name).createNode(*args, **kwargs).path())
 
         raise YException
 
+    @trace
     def delete(self, *args, **kwargs):
         if hasattr(meta, "delete"):
-            meta.delete(self.item, *args, **kwargs)
+            return meta.delete(self.name, *args, **kwargs)
 
         if hasattr(meta, "root"):
-            meta.node(self.item).destroy()
+            return meta.node(self.name).destroy()
 
-    def connect(self, *args, **kwargss):
-        if hasattr(meta, "connectAttr"):
-            return meta.connectAttr(*args, **kwargss)
+        if hasattr(meta, "Actor"):
+            return meta.destroy_actor()
 
-        if hasattr(meta, "root"):
-            return
+        if hasattr(meta, "context"):
+            return meta.context.scene.objects.unlink(meta.data.objects[self.name])
 
         raise YException
 
+    @trace
+    def connect(self, *args, **kwargs):
+        if hasattr(meta, "root"):
+            return partial(
+                meta.node(self.name).setInput, 0)(*args, **kwargs)
+
+        raise YException
+
+    @trace
     def disconnect(self, *args, **kwargs):
-        if hasattr(meta, "disconnectAttr"):
-            return meta.disconnectAttr(*args, **kwargs)
+        if hasattr(meta, "root"):
+            return partial(
+                meta.node(self.name).setInput, 0, None)(*args, **kwargs)
 
         raise YException
 
@@ -149,7 +174,7 @@ class YNode(YObject):
 
         raise YException
 
-    def outputs(self):
+    def outputs(self, *args, **kwargs):
         if hasattr(meta, "listConnections"):
             return partial(meta.listConnections, d=1)(*args, **kwargs)
 
@@ -158,31 +183,93 @@ class YNode(YObject):
 
         raise YException
 
+    @trace
+    def geometry(self):
+        if hasattr(meta, "ls"):
+            dag = OM.MGlobal.getSelectionListByName(self.name).getDagPath(0)
+            return OM.MFnMesh(dag)
 
+        if hasattr(meta, "root"):
+            return meta.node(self.name).geometry()
+
+        if hasattr(meta, "data"):
+            return meta.data.meshes[self.name]
+
+        raise YException
+
+
+@total_ordering
 class YAttr(_YAttr):
     """parametric object"""
 
     def __init__(self, *args, **kwargs):
-        self.vals = args
+        self.values = args
+        assert len(self.values) > 2, "parameter is invalid."
+        self.obj, self.val = self.values[1:]
 
     def __getitem__(self, idx):
-        return self.vals[idx]
+        return self.values[idx]
 
+    def __repr__(self):
+        return str(self.value[0])
+
+    def __eq__(self, other):
+        return self.value[0] == other.value[0]
+
+    def __gt__(self, other):
+        return self.value[0] >= other.value[0]
+
+    @trace
+    def connect(self, val, **kwargs):
+        if hasattr(meta, "connectAttr"):
+            return partial(
+                meta.connectAttr, self.obj +"."+ self.val
+            )(val[1] +"."+ val[2], **kwargs)
+
+        raise YException
+
+    @trace
+    def disconnect(self, val, **kwargs):
+        if hasattr(meta, "disconnectAttr"):
+            return partial(
+                meta.disconnectAttr, self.obj +"."+ self.val
+            )(val[1] +"."+ val[2], **kwargs)
+
+        raise YException
+
+    @trace
     def set(self, *args, **kwargs):
-        assert len(self.vals) > 2, "parameter is invalid."
-        obj, val = self.vals[1:]
-
         if hasattr(meta, "setAttr"):
-            return meta.setAttr(obj + "." + val, *args, **kwargs)
+            return meta.setAttr(self.obj + "." + self.val, *args, **kwargs)
 
         if hasattr(meta, "root"):
-            return meta.node(obj).parm(val).set(*args, **kwargs)
+            return meta.node(self.obj).parm(self.val).set(*args, **kwargs)
+
+        raise YException
+
+    @trace
+    def lock(self, on):
+        if hasattr(meta, "setAttr"):
+            return meta.setAttr(self.obj + "." + self.val, lock=on)
+
+        if hasattr(meta, "root"):
+            return meta.node(self.obj).parm(self.val).lock(on)
+
+        raise YException
+
+    @trace
+    def hide(self, on=True):
+        if hasattr(meta, "setAttr"):
+            return meta.setAttr(self.obj + "." + self.val, keyable=not on, channelBox=not on)
+
+        if hasattr(meta, "root"):
+            return meta.node(self.obj).parm(self.val).hide(on)
 
         raise YException
 
     @property
     def value(self):
-        return self.vals
+        return self.values
 
 
 class YFile(object):

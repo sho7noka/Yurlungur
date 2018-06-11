@@ -1,0 +1,2 @@
+recursive-include yurlungur *.py
+include yurlungur/user/dark.css

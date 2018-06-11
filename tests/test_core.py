@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
 import unittest
 import doctest
-import yurlungur as yr
+
+from yurlungur.core import app
 
 
 class TestCore(unittest.TestSuite):
-    def test_vector(self):
-        assert (yr.YVector() == yr.YVector())
 
     def test_app(self):
-        color = yr.YColor()
-        matrix = yr.YMatrix()
-        vec = yr.YVector()
+        self.assertTrue(app.application == "standalone")
 
-
-class TestPerformance(unittest.TestSuite):
-    def test_coverage(self):
+    def test_builder(self):
         pass
+
+    def test_vector(self):
+        self.assertTrue(yr.YVector() == yr.YVector())
 
 
 if __name__ == '__main__':

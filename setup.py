@@ -1,18 +1,29 @@
-# from setuptools import setup, find_packages
-from distutils.core import setup
+from setuptools import setup
+
+text = """
+DCC tool scripting is almost used Python, but these api isn't similarly anything.
+If you make lightweight tool, need to remember each application manners.
+Yurlungur is common interface which adapted each application for universal wrapper.
+"""
 
 setup(
-    name='Yurlungur',
-    version='0.9',
-    py_modules=['yurlungur'],
-    url='https://github.com/sho7noka/Yurlungur',
+    name='yurlungur',
+    version="0.9.2",
+    url='https://sho7noka.github.io/Yurlungur/',
     license='MIT',
-    author='sumioka-sho',
+    author='sho7noka',
     author_email='shosumioka@gmail.com',
-    description='Universal scripting environment with Python which Maya, Houdini, 3dsMax and more.',
-    # install_requires=[
-    #     'Werkzeug>=0.14',
-    # ],
+    platforms="any",
+    description='universal scripting environment with Python which Maya, Houdini and Unreal.',
+    long_description=text,
+    keywords=['maya', '3d', 'graphics', 'Game', 'VFX', 'CG', 'houdini', "unreal"],
+
+    packages=["yurlungur"],
+    include_package_data=True,
+    test_suite='tests',
+    entry_points={
+        'console_scripts': [
+            'yurl = yurlungur.core.standalone._cli',
+        ],
+    },
 )
-
-

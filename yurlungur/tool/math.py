@@ -1,21 +1,15 @@
 # -*- coding: utf-8 -*-
 import sys
 import inspect
+import cmath
 
-from math import *  # noQA
-from operator import *  # noQA
-from colorsys import *  # noQA
-from functools import *  # noQA
-
-from meta import meta
+from yurlungur.tool.meta import meta
+from yurlungur.core.env import Numpy
 from yurlungur.core.wrapper import (
-    _YVector, _YMatrix, _YColor
+    _YVector, _YMatrix, _YColor, OM
 )
 
-try:
-    import maya.api.OpenMaya as OM
-except ImportError:
-    pass
+__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
 
 
 # @total_ordering
@@ -29,19 +23,19 @@ class YVector(_YVector):
     def identify(self):
         return
 
-    def dot_poduct(a, b, norm=False):
+    def dot_poduct(self, a, b, norm=False):
         if norm:  # 正規化オプション
-            a = normalize(a)
-            b = normalize(b)
+            a = self.normalize(a)
+            b = self.normalize(b)
         dot = (a[0] * b[0]) + (a[1] * b[1])
         return dot
 
-    def normalize(a):
-        length = length(a)
+    def normalize(self, a):
+        length = self.length(a)
         return [a[0] / length, a[1] / length]
 
     def length(self):
-        return sqrt(self.x ** 2 + self.y ** 2)
+        return cmath.sqrt(self.x ** 2 + self.y ** 2)
 
 
 class YMatrix(_YMatrix):
@@ -69,6 +63,3 @@ class YColor(_YColor):
     @property
     def b(self):
         return self.color[2]
-
-
-__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))

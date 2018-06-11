@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 from yurlungur.core.app import application
+from yurlungur.core.proxy import YNode, YAttr
 from yurlungur.tool.math import YVector, YMatrix, YColor
-from yurlungur.core.enviroment import Maya
-
-if Maya():
-    from yurlungur.core.wrapper import OM
+from yurlungur.core.env import Maya, Houdini, Unreal
+from yurlungur.core.wrapper import OM
 
 
 class Builder(object):
-    def data(self):
-        pass
+    """
+    http://help.autodesk.com/view/MAYAUL/2017/JPN/?guid=__py_ref_class_open_maya_1_1_m_fn_mesh_html
+    http://www.sidefx.com/docs/houdini/hom/hou/Geometry.html
+    """
 
     def geometry(self):
         pass
@@ -22,11 +23,11 @@ class Builder(object):
 
 
 class Shader(object):
-    def texture(self):
-        pass
-
     def material(self):
         pass
 
-    def render(self):
+    def texture(self):
+        pass
+
+    def renderer(self):
         pass
