@@ -4,9 +4,8 @@ import sys
 import inspect
 import subprocess
 import tempfile
-
-import yurlungur
-import enviroment as env
+import yurlungur as yr
+from yurlungur.core import env
 
 try:
     from yurlungur.Qt.QtCore import *
@@ -39,7 +38,7 @@ def hython(pystr):
 def maxpy(pystr):
     assert os.path.getsize(env.MaxBin)
     subprocess.call(
-        "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.MaxBin, sys.path.append(yurlungur), pystr)
+        "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.MaxBin, sys.path.append(yr), pystr)
     )
 
 
@@ -65,7 +64,7 @@ class YurPrompt(QDockWidget):
     def __init__(self, parent=None):
         super(YurPrompt, self).__init__(parent)
 
-        self.setWindowTitle("{0} v{2} {1}".format(yurlungur.name, yurlungur.application.__name__, yurlungur.version))
+        self.setWindowTitle("{0} v{2} {1}".format(yr.name, yr.application.__name__, yr.version))
         self.setWindowFlags(Qt.Window)
         self.setAttribute(Qt.WA_DeleteOnClose)
         # print os.path.join(os.path.dirname(sys.executable),
@@ -105,7 +104,7 @@ class YurPrompt(QDockWidget):
         self.setWidget(widget)
 
         self.init_attrs()
-        # yurlungur.__dark_view(self)
+        # yr.__dark_view(self)
 
     def init_attrs(self):
         tmp = []
@@ -130,18 +129,18 @@ def _cli(args):
     try:
         import argparse
     except ImportError:
-        yurlungur.logger.warn("argparse is not found.")
+        yr.logger.warn("argparse is not found.")
         sys.exit(1)
 
     parser = argparse.ArgumentParser(
-        prog='yurlungur cli',
-        usage='Demonstration of argparser',  # プログラムの利用方法
-        description='description',  # 引数のヘルプの前に表示
-        epilog="{0} v.{1} {2}".format(yurlungur.name, yurlungur.version, sys.executable),  # 引数のヘルプの後で表示
+        prog='yr.cli',
+        usage='Demonstration of argparser',
+        description='yurlungur console.',
+        epilog="{0} v.{1} {2}".format(yr.name, yr.version, sys.executable),
         add_help=True,
     )
     parser.add_argument("--dialog", "-d",
-                        help="Launch yurlungur widget if Qt is installed.",
+                        help="Launch yr.widget if Qt is installed.",
                         action="store_true")
     parser.add_argument("--mayapy", "-ma",
                         help="Run Python from mayapy.",
@@ -152,9 +151,6 @@ def _cli(args):
     parser.add_argument("--unrealpy", "-ue",
                         help="Run Python from unreal editor cmd.",
                         nargs=2)
-    parser.add_argument("--tests",
-                        help="Read from stdin instead of file",
-                        action="store_true")
 
     args = parser.parse_args(args)
     if args.dialog:
@@ -170,18 +166,15 @@ def _cli(args):
         project, expr = args.unrealpy
         uepython(project, expr)
 
-    if args.tests:
-        pass
-
 
 def main(args=[]):
-    if env.Qt():
+    if yr.Qt():
         app = QApplication(args)
         widget = YurPrompt()
         widget.show()
         sys.exit(app.exec_())
     else:
-        yurlungur.logger.warn("Qt isn't available")
+        yr.logger.warn("Qt isn't available")
 
 
 if __name__ == '__main__':

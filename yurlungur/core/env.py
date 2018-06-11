@@ -26,9 +26,19 @@ def Qt(func=None):
 def Numpy(func=None):
     try:
         import numpy as nm
-        return True
+        isNpy = True
     except ImportError:
         return False
+
+    if func == None:
+        return isNpy
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if isNpy:
+            return func(*args, **kwargs)
+
+    return wrapper
 
 
 def Windows(func=None):
@@ -91,7 +101,7 @@ def Houdini(func=None):
     return wrapper
 
 
-def Unreal(func=functools.wraps):
+def Unreal(func=None):
     if func == None:
         return "UE4" in sys.executable
 
@@ -103,6 +113,46 @@ def Unreal(func=functools.wraps):
     return wrapper
 
 
+def Blender(func=None):
+    if func == None:
+        return "blender" in sys.executable
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "blender" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def Max(func=None):
+    if func == None:
+        return "3dsmax" in sys.executable
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "3dsmax" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def installed(app):
+    _app = app.lower()
+
+    if _app == "maya":
+        return os.path.exists(_Maya())
+    if _app == "houdini":
+        return os.path.exists(_Houdini())
+    if _app == "unreal":
+        return os.path.exists(_Unreal())
+    if _app == "blender":
+        return os.path.exists(_Blender())
+    if _app == "max":
+        return os.path.exists(_Max())
+    return False
+
+
 def _Maya():
     """find Maya app"""
     d = {
@@ -110,9 +160,7 @@ def _Maya():
         "Windows": "C:/Program Files/Autodesk/Maya2017",
         "Darwin": "/Applications/Autodesk/maya2017/Maya.app/Contents",
     }
-    maya = os.environ.get("MAYA_LOCATION") or d[platform.system()]
-    assert os.path.getsize(maya)
-    return maya
+    return os.environ.get("MAYA_LOCATION") or d[platform.system()]
 
 
 def _Houdini():

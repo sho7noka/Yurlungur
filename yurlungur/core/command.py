@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
-from proxy import *
-import enviroment as env
+from yurlungur.core import env
+from yurlungur.tool.meta import meta
+from yurlungur.core.proxy import YObject, YNode, YFile
+
+file = cmd = object
 
 
 class Command(object):
@@ -9,49 +12,36 @@ class Command(object):
         pass
 
     @staticmethod
-    def remove(func):
+    def unregister(func):
         pass
 
-    @staticmethod
+    @classmethod
     def list(cls):
-        pass
+        return [obj for obj in dir(cls) if not obj.startswith("_")]
 
 
-def _ls(cls):
-    gen = meta.ls() if hasattr(meta, "ls") else meta.root.allItems()
-    return (YNode(obj) for obj in gen)
+def _ls(cls, *args, **kwargs):
+    gen = meta.ls(*args, **kwargs) if hasattr(meta, "ls") else meta.pwd().allItems()
+    return tuple(YNode(obj) for obj in gen)
 
 
-def _rm(cls, item):
-    return YNode(item).delete()
+def _rm(cls, *args):
+    for obj in args:
+        YNode(obj).delete()
 
 
-def _glob(cls):
-    return
+def _glob(cls, *args, **kwargs):
+    gen = meta.ls(*args, **kwargs) if hasattr(meta, "ls") else meta.pwd().glob(*args, **kwargs)
+    return tuple(YNode(obj) for obj in gen)
 
 
-def _cd(cls):
-    return
-
-
-def _root(cls):
-    return
-
-
-def _pwd(cls):
-    return
-
-
-def _parent(cls, *args, **kwargs):
-    return
-
-
-def _children(cls, *args, **kwargs):
-    return
-
-
-def _select(cls, *args):
-    return
+def _select(cls, *args, **kwargs):
+    if hasattr(meta, "select"):
+        meta.select(*args, **kwargs)
+    
+    if hasattr(meta, "root"):
+        for node in meta.nodes(args):
+            node.setSelected(True, **kwargs)
 
 
 def _alembicImporter(cls, *args, **kwargs):
@@ -62,6 +52,12 @@ def _alembicImporter(cls, *args, **kwargs):
     """
     if hasattr(meta, "AbcImport"):
         return cls(meta.AbcImport(*args, **kwargs))
+
+    if hasattr(meta, "root"):
+        geo = yr.YNode("obj").create("geo")
+        abc = geo.create("alembic")
+        abc.fileName.set(*args)
+        return cls(*args)
 
 
 def _alembicExporter(cls, *args, **kwargs):
@@ -82,12 +78,10 @@ def _fbxExporter(cls, *args, **kwargs):
 
 # Monkey-Patch
 if env.Maya():
-    try:
-        import maya.mel
-        for plugin in ["fbxmaya.mll", "AbcImport.mll", "AbcExport.mll"]:
-            meta.loadPlugin(plugin, qt=1)
-    except:
-        pass
+    import maya.mel
+
+    for plugin in ["fbxmaya.mll", "AbcImport.mll", "AbcExport.mll"]:
+        meta.loadPlugin(plugin, qt=1)
 
     file = YFile()
     YFile.abcImporter = _alembicImporter
@@ -97,20 +91,26 @@ if env.Maya():
 
     cmd = Command()
     Command.ls = _ls
-    Command.pwd = _pwd
+    Command.rm = _rm
+    Command.glob = _glob
+    Command.select = _select
 
 if env.Houdini():
     file = YFile()
+    YFile.abcImporter = _alembicImporter
     YFile.fbxImporter = _fbxImporter
 
     cmd = Command()
-    # Command.ls = _ls
+    Command.ls = _ls
+    Command.rm = _rm
+    Command.glob = _glob
+    Command.select = _select
 
 if env.Unreal():
     file = YFile()
     YFile.abcImporter = _alembicImporter
     YFile.fbxImporter = _fbxImporter
-    
+
     cmd = Command()
 
 __all__ = ["file", "cmd", "Command"]

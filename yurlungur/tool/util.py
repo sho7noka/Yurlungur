@@ -5,7 +5,57 @@ import traceback
 import functools
 import time
 import inspect
+import re
 import sqlite3
+import keyword
+import pprint
+import yurlungur
+
+
+def log(obj):
+    return yurlungur.logger.info(pprint.pformat(obj))
+
+
+def cache(func, *args, **kwargs):
+    saved = {}
+
+    @functools.wraps(func)
+    def wrapper(*args):
+        if args in saved:
+            return saved[args]
+        result = func(*args)
+        saved[args] = result
+        return result
+
+    return wrapper if sys.version_info < (3, 2) else functools.lcu_cache(*args, **kwargs)
+
+
+def trace(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except:
+            yurlungur.logger.warn(traceback.format_exc())
+
+    return wrapper
+
+
+def timer(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        yurlungur.logger.info(
+            '{0} start'.format(func.__name__)
+        )
+        start_time = time.clock()
+        ret = func(*args, **kwargs)
+        end_time = time.clock()
+        yurlungur.logger.info(
+            '\n{0}: {1:,f}s'.format("total: ", (end_time - start_time))
+        )
+        return ret
+
+    return wrapper
 
 
 def __db_loader():
@@ -29,8 +79,11 @@ def __db_attr():
     conn = sqlite3.connect(cache)
     c = conn.cursor()
     c.execute('''CREATE TABLE stocks
-                 (date text, trans text, symbol text, qty real, price real)''')
-    c.execute("INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)")
+                 (date text, trans text, symbol text, qty real, price real)'''
+              )
+    c.execute(
+        "INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)"
+    )
     conn.commit()
     conn.close()
 
@@ -69,102 +122,8 @@ def __make_completer(mod):
             if fn.startswith("_"):
                 continue
 
-            f.write("def {0}(*args, **kwargs):\n".format(fn))
+            f.write("def {0}(*args, **kwargsargs):\n".format(fn))
             f.write("   \"\"\"{0}\"\"\"\n".format(inspect.getdoc(fn)))
             f.write("   pass\n\n")
 
     # return inspect.getmembers(__import__(completer))
-
-
-def __dark_view(view):
-    local = os.path.dirname(
-        os.path.dirname(inspect.currentframe().f_code.co_filename)
-    )
-    with open(local + "/user/dark.css") as f:
-        view.setStyleSheet("".join(f.readlines()))
-
-
-def analyze(func):
-    @functools.wraps(func)
-    def Wrapper(*args, **kw):
-        try:
-            ret = func(*args, **kw)
-            return ret
-        except:
-            print(traceback.format_exc())
-        return
-
-    return Wrapper
-
-
-def timer(func):
-    @functools.wraps(func)
-    def Wrapper(*args, **kw):
-        print('{0} start'.format(func.__name__))
-        start_time = time.clock()
-        ret = func(*args, **kw)
-        end_time = time.clock()
-        print('\n{0}: {1:,f}s'.format("total: ", (end_time - start_time)))
-        return ret
-
-    return Wrapper
-
-
-try:
-    from yurlungur.Qt.QtCore import *
-    from yurlungur.Qt.QtGui import *
-    from yurlungur.Qt.QtWidgets import *
-except ImportError:
-    pass
-
-
-class __GCProtector(object):
-    widgets = []
-
-
-def max_protect_window(w):
-    w.setWindowFlags(Qt.WindowStaysOnTopHint)
-    w.show()
-    __GCProtector.widgets.append(w)
-
-
-def qmain_window():
-    import yurlungur.core.app
-    app_name = yurlungur.core.application.__name__
-
-    if app_name == "maya.cmds":
-        from yurlungur.Qt import QtCompat
-        from maya import OpenMayaUI
-        ptr = long(OpenMayaUI.MQtUtil.mainWindow())
-        return QtCompat.wrapInstance(ptr, QWidget)
-
-    if app_name == "pymxs":
-        import MaxPlus
-        return MaxPlus.QtHelpers_GetQmaxMainWindow()
-        # MaxPlus.NotifyQWidgetModalityChange(w, false)
-        # MaxPlus.MakeQWidgetDockable(w, 14)
-
-    if app_name == "hou":
-        import hou
-        return hou.qt.mainWindow()
-
-    return None
-
-
-def show(view):
-    try:
-        view.deleteLater()
-    except:
-        pass
-
-    try:
-        view.show()
-    except:
-        view.deleteLater()
-        traceback.print_exc()
-
-    if not QApplication.instance():
-        app = QApplication(sys.argv)
-        __dark_view(view)
-        view.show()
-        sys.exit(app.exec_())

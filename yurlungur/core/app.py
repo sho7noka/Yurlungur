@@ -5,7 +5,8 @@ application = sys.executable
 
 
 def exApplication(module=""):
-    """NO-Qt application"""
+    application = ""
+
     try:
         import pysbs
         application = pysbs
@@ -13,7 +14,7 @@ def exApplication(module=""):
         pass
 
     if application == "":
-        import standalone
+        from yurlungur.core import standalone
         application = standalone
     return application
 
@@ -37,9 +38,11 @@ elif "max" in application:
     import pymxs
 
     application = pymxs
-    global on, off
-    on = True
-    off = False
+
+elif "blender" in application:
+    import bpy
+
+    application = bpy
 
 else:
     application = exApplication()

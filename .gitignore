@@ -1,5 +1,10 @@
+.DS_Store
 *.vscode
 *.idea
 *.pyc
 *.db
 *.pyi
+dist
+build
+*.egg
+*.egg-info
