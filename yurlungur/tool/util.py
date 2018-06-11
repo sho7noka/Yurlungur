@@ -5,10 +5,9 @@ import traceback
 import functools
 import time
 import inspect
-import re
 import sqlite3
-import keyword
 import pprint
+
 import yurlungur
 
 
