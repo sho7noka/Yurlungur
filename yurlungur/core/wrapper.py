@@ -1,10 +1,36 @@
 # -*- coding: utf-8 -*-
 import inspect
+import logging
 
 import yurlungur
 from yurlungur.core import app, env
 from yurlungur.tool import util
+from yurlungur.tool import meta
 
+
+class GuiLogHandler(logging.Handler):
+    def __init__(self):
+        super(GuiLogHandler, self).__init__()
+        from maya.OpenMaya import MGlobal
+        self.MGlobal = MGlobal
+
+    def emit(self, record):
+        msg = self.format(record)
+        if record.levelno > logging.WARNING:
+            # Error (40) Critical (50)
+            self.MGlobal.displayError(msg)
+            hou.ui.setStatusMessage(msg, severity=hou.severityType.Error)
+            bpy.ops.error.message('INVOKE_DEFAULT', type = "Error", message = msg)
+        elif record.levelno > logging.INFO:
+            # Warning (30)
+            self.MGlobal.displayWarning(msg)
+            hou.ui.setStatusMessage(msg, severity=hou.severityType.Warning)
+            bpy.ops.error.message('INVOKE_DEFAULT', type = "Error", message = msg)
+        else:
+            # Debug (10) and Info (20)
+            self.MGlobal.displayInfo(msg)
+            hou.ui.setStatusMessage(msg, severity=hou.severityType.Message)
+            bpy.ops.error.message('INVOKE_DEFAULT', type = "Error", message = msg)
 
 class YException(NotImplementedError):
     """

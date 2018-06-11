@@ -4,6 +4,8 @@ import sys
 import inspect
 import subprocess
 import tempfile
+import time
+
 import yurlungur as yr
 from yurlungur.core import env
 
@@ -17,6 +19,14 @@ except ImportError:
 
 local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
 
+
+def progress():
+    for i in range(1, 101):
+        sys.stdout.flush()
+        log = "\r%d%% (%d of %d)" % (i, i, 100)
+        sys.stdout.write(log + "")
+        sys.stdout.flush()
+        time.sleep(0.01)
 
 def mayapy(pystr):
     assert os.path.getsize(env.MayaBin)
