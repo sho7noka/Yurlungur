@@ -8,11 +8,12 @@ import inspect
 import re
 import sqlite3
 import keyword
+import pprint
 import yurlungur
 
 
 def log(obj):
-    return yurlungur.logger.info(obj)
+    return yurlungur.logger.info(pprint.pformat(obj))
 
 
 def cache(func, *args, **kwargs):
