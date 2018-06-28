@@ -1,0 +1,4 @@
+
+[submodule "yurlungur/scriptEditor"]
+	path = yurlungur/scriptEditor
+	url = https://github.com/paulwinex/pw_MultiScriptEditor.git
