@@ -7,17 +7,25 @@ import tempfile
 import time
 
 import yurlungur as yr
-from yurlungur.core import env
+# from yurlungur.core import env
+
+local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
+
 
 try:
     from yurlungur.Qt.QtCore import *
     from yurlungur.Qt.QtGui import *
     from yurlungur.Qt.QtWidgets import *
     from yurlungur.Qt import __binding__
-except ImportError:
-    QDockWidget = object
 
-local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
+    # script editor
+    sys.path.append(os.path.join(
+        os.path.dirname(local), "scriptEditor", "pw_multiScriptEditor")
+    )
+    from pw_multiScriptEditor import scriptEditorClass
+
+except ImportError as e:
+    raise RuntimeError
 
 
 def progress():
@@ -70,68 +78,6 @@ def uepython(project, pystr):
     )
 
 
-class YurPrompt(QDockWidget):
-    def __init__(self, parent=None):
-        super(YurPrompt, self).__init__(parent)
-
-        self.setWindowTitle("{0} v{2} {1}".format(yr.name, yr.application.__name__, yr.version))
-        self.setWindowFlags(Qt.Window)
-        self.setAttribute(Qt.WA_DeleteOnClose)
-        # print os.path.join(os.path.dirname(sys.executable),
-        #                    'Lib',
-        #                    'site-packages',
-        #                    __binding__,
-        #                    'plugins',
-        #                    'imageformats')
-        self.init_widget()
-
-    def init_widget(self):
-        self.box_application = QComboBox()
-        self.box_application.currentIndexChanged[str].connect(self.refresh_item)
-
-        self.box_versions = QComboBox()
-        self.btn_python = QPushButton("...")
-        hLayout = QHBoxLayout()
-        for w in [self.box_application, self.box_versions, self.btn_python]:
-            hLayout.addWidget(w)
-
-        self.text_edit = QTextEdit()
-        vLayout = QVBoxLayout()
-        for layout in [self.text_edit]:
-            vLayout.addWidget(layout)
-
-        self.status_bar = QStatusBar()
-        sLayout = QVBoxLayout()
-        self.status_bar.showMessage("Ready...")
-        for layout in [self.status_bar]:
-            sLayout.addWidget(self.status_bar)
-
-        widget = QWidget()
-        Alayout = QVBoxLayout()
-        for layout in [hLayout, vLayout, sLayout]:
-            Alayout.addLayout(layout)
-        widget.setLayout(Alayout)
-        self.setWidget(widget)
-
-        self.init_attrs()
-        # yr.__dark_view(self)
-
-    def init_attrs(self):
-        tmp = []
-        for app in list(set(tmp)):
-            self.box_application.addItem(app)
-
-        self.box_versions.addItem("aaa")
-        # sys.stdout.write("\r%d" % 1)
-        sys.stdout.flush()
-
-    def refresh_item(self):
-        pass
-
-    def reflesh_msg(self):
-        self.status_bar.showMessage("")
-
-
 def _cli(args):
     """
     command line parser
@@ -180,7 +126,7 @@ def _cli(args):
 def main(args=[]):
     if yr.Qt():
         app = QApplication(args)
-        widget = YurPrompt()
+        widget = scriptEditorClass()
         widget.show()
         sys.exit(app.exec_())
     else:
