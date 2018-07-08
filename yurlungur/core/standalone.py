@@ -5,11 +5,14 @@ import inspect
 import subprocess
 import tempfile
 import time
+import multiprocessing
+import multiprocessing.process as process
 
 import yurlungur as yr
-# from yurlungur.core import env
+from yurlungur.core import env
 
 local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
+__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
 
 
 try:
@@ -25,19 +28,23 @@ try:
     from pw_multiScriptEditor import scriptEditorClass
 
 except ImportError as e:
-    raise RuntimeError
+    pass
 
-
-def progress():
-    for i in range(1, 101):
-        sys.stdout.flush()
-        log = "\r%d%% (%d of %d)" % (i, i, 100)
-        sys.stdout.write(log + "")
-        sys.stdout.flush()
-        time.sleep(0.01)
 
 def mayapy(pystr):
     assert os.path.getsize(env.MayaBin)
+
+    exe = sys.executable
+    multiprocessing.set_executable(
+        os.path.join(os.path.dirname(exe), "mayapy")
+    )
+
+    process.ORIGINAL_DIR = os.path.join(
+        os.path.dirname(exe),
+        "../Python/Lib/site-packages"
+    )
+    po = multiprocessing.Pool(4)
+
     subprocess.call(
         "{0}/bin/mayapy -c \"{1};{2};{3}\"".format(
             env.MayaBin, "import maya.standalone;maya.standalone.initialize(name='python')",
@@ -53,19 +60,17 @@ def hython(pystr):
     )
 
 
-def maxpy(pystr):
-    assert os.path.getsize(env.MaxBin)
-    subprocess.call(
-        "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.MaxBin, sys.path.append(yr), pystr)
-    )
-
-
 def bpython(pystr):
     assert sys.version_info > (3, 5, 3), ('blender requires Python 3.5.3') or os.path.getsize(env.BlenderBin)
     subprocess.call(
         "{0}.blender --python-expr {1} -b".format(env.BlenderBin, pystr)
     )
 
+def maxpy(pystr):
+    assert os.path.getsize(env.MaxBin)
+    subprocess.call(
+        "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.MaxBin, sys.path.append(yr), pystr)
+    )
 
 def uepython(project, pystr):
     assert os.path.getsize(env.UnrealBin) or os.path.exists(project)
@@ -135,5 +140,3 @@ def main(args=[]):
 
 if __name__ == '__main__':
     main(sys.argv[1:])
-
-__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))

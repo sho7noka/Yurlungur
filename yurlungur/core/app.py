@@ -20,7 +20,7 @@ def exApplication(module=""):
 
 
 if "maya" in application:
-    from maya import cmds, mel
+    from maya import cmds
 
     application = cmds
 
