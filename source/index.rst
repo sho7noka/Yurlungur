@@ -25,7 +25,6 @@ Chapters:
 	:maxdepth: 1
 
 	api
-    editor
 
 Appendices:
 
