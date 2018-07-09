@@ -21,7 +21,7 @@ environment:
 version: 1.0.{build}
 build: off
 test_script:
-  - cmd: '%PYTHON%\python.exe setup.py test'
+  - cmd: '%PYTHON%\python -m unittest discover'
 
 notifications:
   - provider: GitHubPullRequest
