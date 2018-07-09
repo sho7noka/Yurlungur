@@ -1,7 +1,7 @@
 .. Yurlungur documentation master file, created by
-   sphinx-quickstart on Wed Apr 11 23:48:01 2018.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+sphinx-quickstart on Wed Apr 11 23:48:01 2018.
+You can adapt this file completely to your liking, but it should at least
+contain the root `toctree` directive.
 
 =============================================
 Yurlungur for Universal DCC Scripting API
@@ -25,6 +25,7 @@ Chapters:
 	:maxdepth: 1
 
 	api
+    editor
 
 Appendices:
 
