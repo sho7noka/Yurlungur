@@ -1,5 +1,8 @@
 import doctest
 import unittest
+import sys
+
+sys.path.append('../yurlungur')
 
 from yurlungur.core.env import installed, Unreal
 
