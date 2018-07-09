@@ -3,7 +3,6 @@
 import doctest
 import unittest
 
-import yurlungur as yr
 from yurlungur.core import app
 
 

@@ -1,7 +1,6 @@
 import doctest
 import unittest
 
-from yurlungur.core import standalone
 from yurlungur.core.env import installed, Houdini
 
 @unittest.skipUnless(installed("houdini"), "Houdini is not found")
