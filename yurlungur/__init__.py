@@ -8,16 +8,20 @@ sys.dont_write_bytecode = True
 from yurlungur.core import * # noQA
 from yurlungur.tool import qt
 from yurlungur.tool.meta import meta
-from yurlungur.tool.util import cache, trace, timer, log
-from yurlungur.tool.math import YVector, YMatrix, YColor
+from yurlungur.tool.util import (
+    cache, trace, timer, log
+)
+from yurlungur.tool.math import (
+    YVector, YMatrix, YColor
+)
 
 # info
 __all__ = []
-__version__ = "0.9.2"
+__version__ = "0.9.3"
 name = __name__
 version = __version__
 
 # logger
-from logging import basicConfig, getLogger, DEBUG
-basicConfig(level=DEBUG)
+from logging import getLogger, DEBUG
 logger = getLogger(name)
+logger.setLevel(DEBUG)

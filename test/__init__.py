@@ -1,3 +1,3 @@
 import sys
 
-sys.path.append('yurlungur')
+sys.path.append('../yurlungur')
