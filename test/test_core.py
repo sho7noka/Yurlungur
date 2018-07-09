@@ -2,7 +2,6 @@
 
 import doctest
 import unittest
-
 from yurlungur.core import app
 
 
