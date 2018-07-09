@@ -20,7 +20,7 @@ setup(
 
     packages=["yurlungur"],
     include_package_data=True,
-    test_suite='tests',
+    test_suite='test',
     entry_points={
         'console_scripts': [
             'yurl = yurlungur.core.standalone._cli',
