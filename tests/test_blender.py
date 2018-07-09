@@ -4,18 +4,17 @@ import yurlungur as yr
 from yurlungur.core.env import installed, Blender
 from yurlungur.core import standalone
 
-@unittest.skipUnless(installed("blender"), "Blender is not found")
+@unittest.skipUnless(installed("Blender"), "Blender is not found")
 class TestApp(unittest.TestCase):
     def test_env(self):
-        self.assertTrue(installed("blender"))
+        self.assertTrue(installed("Blender"))
 
     def test_blender(self):
-        pass
-        # standalone.bpython("import yurlungur as yr; print (yr.name)")
+        standalone.bpython("import yurlungur as yr; print (yr.name)")
 
     @unittest.skip("only runtime")
     def test_cmds(self):
-        pass
+        self.assertTrue(yr.YObject("Cube"))
 
 
 if __name__ == '__main__':
