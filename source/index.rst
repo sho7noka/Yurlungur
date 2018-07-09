@@ -22,12 +22,12 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 Chapters:
 
 .. toctree::
-    :maxdepth: 1
+:maxdepth: 1
 
-    api
-    editor
+        api
+        editor
 
-Appendices:
+    Appendices:
 
 Indices and tables
 ==================
