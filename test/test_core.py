@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import sys
+
+sys.path.append('../yurlungur')
+
 import doctest
 import unittest
 from yurlungur.core import app
