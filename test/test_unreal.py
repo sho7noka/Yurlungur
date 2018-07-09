@@ -7,8 +7,7 @@ from yurlungur.core.env import installed, Unreal
 @unittest.skipUnless(installed("unreal"), "Unreal is not found")
 class TestUnreal(unittest.TestCase):
     def test_app(self):
-        pass
-        # self.assertFalse(standalone.uepython("import sys; print sys.path"))
+        self.assertFalse(standalone.uepython("import sys; print sys.path"))
 
 if __name__ == '__main__':
     unittest.main()
