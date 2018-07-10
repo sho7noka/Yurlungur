@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+import sys
+
 from yurlungur.core import env
 from yurlungur.tool.meta import meta
 from yurlungur.core.proxy import YObject, YNode, YFile
 
-file = cmd = object
+file = cmd = om = object
 
 
 class Command(object):
@@ -74,6 +76,22 @@ def _fbxImporter(cls, *args, **kwargs):
 
 def _fbxExporter(cls, *args, **kwargs):
     return cls(mel.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args)))
+            
+
+class UndoGroup(object):
+    def __enter__(self):
+        if env.Maya():
+            meta.undoInfo(ock=1)
+            return self
+        elif env.Blender():
+            self.undo = meta.context.user_preferences.edit.use_global_undo
+            meta.context.user_preferences.edit.use_global_undo = False
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if env.Maya():
+            meta.undoInfo(cck=1)
+        elif env.Blender():
+            meta.context.user_preferences.edit.use_global_undo = self.undo
 
 
 # Monkey-Patch
@@ -106,6 +124,8 @@ if env.Houdini():
     Command.glob = _glob
     Command.select = _select
 
+    UndoGroup = meta.undos.group
+
 if env.Unreal():
     file = YFile()
     YFile.abcImporter = _alembicImporter
@@ -113,4 +133,5 @@ if env.Unreal():
 
     cmd = Command()
 
-__all__ = ["file", "cmd", "Command"]
+
+__all__ = ["file", "cmd", "Command", "UndoGroup"]

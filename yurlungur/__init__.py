@@ -22,6 +22,8 @@ name = __name__
 version = __version__
 
 # logger
-from logging import getLogger, DEBUG
+from logging import getLogger, DEBUG, basicConfig
+# basicConfig(DEBUG)
 logger = getLogger(name)
-logger.setLevel(DEBUG)
+# logger.addHandler(GuiLogHandler)
+# logger.setLevel(DEBUG)

@@ -91,12 +91,20 @@ def Maya(func=None):
 
 def Houdini(func=None):
     if func == None:
-        return "houdini" in sys.executable or "hindie" in sys.executable
+        try:
+            import hou
+            return True
+        except ImportError:
+            return False
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if "houdini" in sys.executable or "hindie" in sys.executable:
+        try:
+            import hou
             return func(*args, **kwargs)
+        except ImportError:
+            return False
+        # if "houdini" in sys.executable or "hindie" in sys.executable:
 
     return wrapper
 
@@ -168,7 +176,7 @@ def _Houdini():
     d = {
         "Linux": "/usr/autodesk/maya2017-x64",
         "Windows": "C:/Program Files/Side Effects Software/Houdini 16.5.323/bin",
-        "Darwin": "/Applications/houdini/Houdini.app/Contents",
+        "Darwin": "/Applications/Houdini/Houdini16.5.473/Houdini.app/Contents",
     }
     return os.environ.get("HIP") or d[platform.system()]
 
@@ -199,10 +207,10 @@ def _Unreal():
 
 MayaBin = _Maya()
 HoudiniBin = _Houdini()
-UnrealBin = _Unreal()
+BlenderBin = _Blender()
 
 __all__ = [
     "Windows", "Linux", "MacOS",
-    "Maya", "Houdini", "Unreal",
-    "MayaBin", "HoudiniBin", "UnrealBin"
+    "Maya", "Houdini", "Blender",
+    "MayaBin", "HoudiniBin", "BlenderBin"
 ]

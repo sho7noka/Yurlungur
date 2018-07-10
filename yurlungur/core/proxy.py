@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
+import inspect
 from functools import partial, total_ordering
 
 from yurlungur.core.wrapper import (
-    YMObject, YException, _YObject, _YNode, _YAttr, OM, ORM
+    YException, _YObject, _YNode, _YAttr, OM
 )
 from yurlungur.tool.meta import meta
 from yurlungur.tool.util import trace
@@ -28,12 +29,8 @@ class YObject(_YObject):
         if hasattr(meta, "root"):
             return meta.node(self.item).setName(*args, **kwargs)
 
-        if hasattr(meta, "Actor"):
-            world = meta.World().get_world()
-            return meta.Actor(self.item).rename(*args, **kwargs)
-
         if hasattr(meta, "data"):
-            meta.data.objects[self.item] = args
+            meta.data.objects[self.item].name = "".join(args)
 
     @property
     def name(self):
@@ -58,10 +55,17 @@ class YObject(_YObject):
                 meta.node(self.name).parm(val).eval(), self.name, val
             )
 
-        if hasattr(meta, "Actor"):
+        if hasattr(meta, "data"):
             return YAttr(
-                self.get_editor_property(val)
+                meta.data.objects[self.name].name, self.name, val
             )
+
+        raise YException
+
+    @trace
+    def hide(self, on=True):
+        if hasattr(meta, "data"):
+            meta.data.objects[self.name].hide = on
 
         raise YException
 
@@ -79,23 +83,25 @@ class YObject(_YObject):
                 meta.node(self.name).parm(item).eval(), self.name, item
             )
 
-        if hasattr(meta, "Actor"):
-            return YAttr
+        if hasattr(meta, "data"):
+            return YAttr(
+                meta.data.objects[self.name].name, self.name, item
+            )
 
         raise YException
 
     @property
     def attrs(self, *args, **kwargs):
         if hasattr(meta, "listAttr"):
-            return dict(meta.listAttr(self.name, *args, **kwargs))
+            return dict(meta.listAttr(self.name, *args, **kwargs))                                 
 
         if hasattr(meta, "root"):
             return dict(
                 p.name() for p in meta.node(self.name).parms()
             )
 
-        if hasattr(meta, "Actor"):
-            return meta.Actor(self.name).get_editor_property()
+        if hasattr(meta, "data"):
+            return inspect.getmembers(meta.data.objects[self.name])
 
         raise YException
 
@@ -107,11 +113,8 @@ class YObject(_YObject):
         if hasattr(meta, "root"):
             return meta.node(self.name).sessionId() or 0
 
-        if hasattr(meta, "Actor"):
-            return meta.Actor(self.name).tags or 0
-
         if hasattr(meta, "data"):
-            return meta.data.objects[self.name].id_data
+            return meta.data.objects[self.name].id_data or 0
 
         raise YException
 
@@ -131,6 +134,12 @@ class YNode(YObject):
         if hasattr(meta, "root"):
             return YNode(meta.node(self.name).createNode(*args, **kwargs).path())
 
+        if hasattr(meta, "ops"):
+            try:
+                getattr(meta.ops.mesh, str(self).lower() + "_add")(*args, **kwargs)
+            except AttributeError:
+                getattr(meta.ops.object, str(self).lower() + "_add")(*args, **kwargs)
+
         raise YException
 
     @trace
@@ -140,9 +149,6 @@ class YNode(YObject):
 
         if hasattr(meta, "root"):
             return meta.node(self.name).destroy()
-
-        if hasattr(meta, "Actor"):
-            return meta.destroy_actor()
 
         if hasattr(meta, "context"):
             return meta.context.scene.objects.unlink(meta.data.objects[self.name])
@@ -165,6 +171,20 @@ class YNode(YObject):
 
         raise YException
 
+    @trace
+    def geometry(self):
+        if hasattr(meta, "ls"):
+            dag = OM.MGlobal.getSelectionListByName(self.name).getDagPath(0)
+            return OM.MFnMesh(dag)
+
+        if hasattr(meta, "root"):
+            return meta.node(self.name).geometry()
+
+        if hasattr(meta, "data"):
+            return meta.data.meshes[self.name]
+
+        raise YException
+    
     def inputs(self, *args, **kwargs):
         if hasattr(meta, "listConnections"):
             return partial(meta.listConnections, s=1)(*args, **kwargs)
@@ -183,28 +203,14 @@ class YNode(YObject):
 
         raise YException
 
-    @trace
-    def geometry(self):
-        if hasattr(meta, "ls"):
-            dag = OM.MGlobal.getSelectionListByName(self.name).getDagPath(0)
-            return OM.MFnMesh(dag)
-
-        if hasattr(meta, "root"):
-            return meta.node(self.name).geometry()
-
-        if hasattr(meta, "data"):
-            return meta.data.meshes[self.name]
-
-        raise YException
-
 
 @total_ordering
 class YAttr(_YAttr):
     """parametric object"""
 
     def __init__(self, *args, **kwargs):
+        assert len(args) > 2, "parameter is invalid."
         self.values = args
-        assert len(self.values) > 2, "parameter is invalid."
         self.obj, self.val = self.values[1:]
 
     def __getitem__(self, idx):
@@ -244,6 +250,10 @@ class YAttr(_YAttr):
 
         if hasattr(meta, "root"):
             return meta.node(self.obj).parm(self.val).set(*args, **kwargs)
+
+        if hasattr(meta, "data"):
+            arg = args[0]
+            return setattr(meta.data.objects[self.obj], self.val, arg)
 
         raise YException
 
@@ -286,6 +296,9 @@ class YFile(object):
         if hasattr(meta, "hipFile"):
             return cls(meta.hipFile.load(*args, **kwargs))
 
+        if hasattr(meta, "ops"):
+            return cls(meta.ops.wm.open_mainfile(*args, **kwargs))
+
         raise YException
 
     @classmethod
@@ -295,6 +308,9 @@ class YFile(object):
 
         if hasattr(meta, "hipFile"):
             return cls(meta.hipFile.save(*args, **kwargs))
+
+        if hasattr(meta, "ops"):
+            return meta.ops.wm.save_mainfile(*args, **kwargs)
 
         raise YException
 
@@ -314,4 +330,8 @@ class YFile(object):
         if hasattr(meta, "hipFile"):
             return cls(meta.hipFile.path())
 
+        if hasattr(meta, "data"):
+            return cls(meta.data.filepath)
+
         raise YException
+

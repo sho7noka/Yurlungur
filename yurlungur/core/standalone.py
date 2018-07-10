@@ -61,7 +61,7 @@ def hython(pystr):
 
 
 def bpython(pystr):
-    assert sys.version_info > (3, 5, 3), ('blender requires Python 3.5.3') or os.path.getsize(env.BlenderBin)
+    assert os.path.getsize(env.BlenderBin)
     subprocess.call(
         "{0}.blender --python-expr {1} -b".format(env.BlenderBin, pystr)
     )
