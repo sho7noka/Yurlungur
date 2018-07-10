@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+from yurlungur.core.env import MacOS
 
 application = sys.executable
 
@@ -24,10 +25,23 @@ if "maya" in application:
 
     application = cmds
 
+elif "blender" in application:
+    import bpy
+
+    application = bpy
+    
 elif "houdini" in application or "hindie" in application:
     import hou
 
     application = hou
+
+elif MacOS():
+    try:
+        import hou
+
+        application = hou
+    except ImportError:
+        pass
 
 elif "UE4Editor" in application:
     import unreal
@@ -38,11 +52,6 @@ elif "max" in application:
     import pymxs
 
     application = pymxs
-
-elif "blender" in application:
-    import bpy
-
-    application = bpy
 
 else:
     application = exApplication()

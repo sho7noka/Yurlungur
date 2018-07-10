@@ -35,7 +35,7 @@ def trace(func):
         try:
             return func(*args, **kwargs)
         except:
-            yurlungur.logger.warn(traceback.format_exc())
+            print(traceback.format_exc())
 
     return wrapper
 
