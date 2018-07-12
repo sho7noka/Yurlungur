@@ -6,24 +6,17 @@ sys.dont_write_bytecode = True
 
 # yurlungur
 from yurlungur.core import * # noQA
-from yurlungur.tool import qt
-from yurlungur.tool.meta import meta
-from yurlungur.tool.util import (
-    cache, trace, timer, log
-)
 from yurlungur.tool.math import (
     YVector, YMatrix, YColor
 )
+from yurlungur.tool.util import (
+    cache, trace, timer
+)
+from yurlungur.tool.meta import meta
+from yurlungur.tool import qt
 
 # info
 __all__ = []
 __version__ = "0.9.3"
 name = __name__
 version = __version__
-
-# logger
-from logging import getLogger, DEBUG, basicConfig
-# basicConfig(DEBUG)
-logger = getLogger(name)
-# logger.addHandler(GuiLogHandler)
-# logger.setLevel(DEBUG)

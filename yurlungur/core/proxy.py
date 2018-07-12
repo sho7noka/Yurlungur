@@ -93,12 +93,12 @@ class YObject(_YObject):
     @property
     def attrs(self, *args, **kwargs):
         if hasattr(meta, "listAttr"):
-            return dict(meta.listAttr(self.name, *args, **kwargs))                                 
+            return {meta.listAttr(self.name, *args, **kwargs)}
 
         if hasattr(meta, "root"):
-            return dict(
+            return {
                 p.name() for p in meta.node(self.name).parms()
-            )
+            }
 
         if hasattr(meta, "data"):
             return inspect.getmembers(meta.data.objects[self.name])

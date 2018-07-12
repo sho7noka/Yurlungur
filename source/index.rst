@@ -27,7 +27,6 @@ Chapters:
         api
         editor
 
-    Appendices:
 
 Indices and tables
 ==================
