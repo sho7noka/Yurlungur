@@ -4,6 +4,8 @@ import sys
 import platform
 import functools
 
+from yurlungur.tool.util import __import__
+
 
 def Qt(func=None):
     try:
@@ -91,20 +93,12 @@ def Maya(func=None):
 
 def Houdini(func=None):
     if func == None:
-        try:
-            import hou
-            return True
-        except ImportError:
-            return False
+        return __import__("hou")
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        try:
-            import hou
+        if __import__("hou"):
             return func(*args, **kwargs)
-        except ImportError:
-            return False
-        # if "houdini" in sys.executable or "hindie" in sys.executable:
 
     return wrapper
 

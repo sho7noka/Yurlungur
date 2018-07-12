@@ -3,7 +3,6 @@ import sys
 import os
 import traceback
 import inspect
-
 import yurlungur
 from yurlungur.core import env
 

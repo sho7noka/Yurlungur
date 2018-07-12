@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 import sys
-import inspect
 import cmath
+import inspect
 
 from yurlungur.tool.meta import meta
-from yurlungur.core.env import Numpy
 from yurlungur.core.wrapper import (
     _YVector, _YMatrix, _YColor, OM
 )
+from yurlungur.core.env import Numpy
 
-__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
+if Numpy():
+    import numpy as nm
+    import requests
 
 
-# @total_ordering
 class YVector(_YVector):
     def __init__(self):
         super(YVector, self).__init__()
@@ -30,6 +31,7 @@ class YVector(_YVector):
         dot = (a[0] * b[0]) + (a[1] * b[1])
         return dot
 
+    @Numpy
     def normalize(self, a):
         length = self.length(a)
         return [a[0] / length, a[1] / length]
@@ -63,3 +65,6 @@ class YColor(_YColor):
     @property
     def b(self):
         return self.color[2]
+
+
+__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
