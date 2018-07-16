@@ -1,18 +1,7 @@
 # -*- coding: utf-8 -*-
-
-import ctypes
 import inspect
-
 import yurlungur
 from yurlungur.core import app, env
-from yurlungur.tool import util
-
-
-class YException(NotImplementedError):
-    """
-    >>> raise NotImplementedError(app.application)
-    """
-    pass
 
 
 class YMObject(object):
@@ -29,45 +18,25 @@ class YMObject(object):
 
         return getattr(yurlungur, "")
 
+    def eval(self, proc):
+        if env.Maya():
+            import maya.mel
+            return mel.eval(proc)
+        if env.Houdini():
+            app.application.hscript(proc)
+
+        raise YException
+
     @property
     def module(self):
-        """current application module"""
         return app.application.__name__
 
 
-class OpenGL(object):
-    """opelGL wrapper"""
-
-    def __getattr__(self, item):
-        def _getGL(mod):
-            for cmd, _ in inspect.getmembers(mod):
-                if cmd == item:
-                    setattr(
-                        self, cmd,
-                        (lambda str: dict(inspect.getmembers(mod))[str])(cmd)
-                    )
-                    return getattr(self, item)
-        _tmp = []
-
-        if env.Maya():
-            from maya import OpenMayaRender as _mgl
-            _tmp.extend(_mgl, _mgl.MHardwareRenderer.theRenderer().glFunctionTable())
-
-        if env.Blender():
-            import bgl
-            _tmp.extend(bgl)
-
-        for gl in _tmp:
-            if _getGL(gl):
-                return _getGL(gl)
-
-        return ctypes.cdll.OpenGL32
-
-
-class ORM(object):
-    def __getattr__(self, item):
-        util.__db_loader()
-        return getattr(self, item)
+class YException(NotImplementedError):
+    """
+    >>> raise NotImplementedError(app.application)
+    """
+    pass
 
 
 class MetaObject(type):
@@ -114,7 +83,7 @@ elif env.Houdini() or env.Unreal():
 
 elif env.Blender():
     import mathutils
-    
+
     _YVector = type('_YVector', (mathutils.Vector,), dict())
     _YMatrix = type('_YMatrix', (mathutils.Matrix,), dict())
     _YColor = type('_YColor', (mathutils.Color,), dict())

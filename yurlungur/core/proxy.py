@@ -4,7 +4,7 @@ import inspect
 from functools import partial, total_ordering
 
 from yurlungur.core.wrapper import (
-    YException, _YObject, _YNode, _YAttr, OM
+    YException, _YObject, _YAttr, OM
 )
 from yurlungur.tool.meta import meta
 from yurlungur.tool.util import trace
@@ -36,13 +36,47 @@ class YObject(_YObject):
     def name(self):
         return self.item
 
-    @property
-    def parent(self):
+    def parent(self, *args, **kwarg):
+        if len(args) > 0:
+            return meta.parent(self.item, *args, **kwarg)
+
+        elif len(args) == 0 and len(kwarg) > 0:
+            return meta.parent(self.item, *args, **kwarg)
+
+        else:
+            if hasattr(meta, "getAttr"):
+                return YObject(
+                    partial(meta.listRelatives, self.item, p=1)(*args, **kwarg)
+                )
+
+            if hasattr(meta, "root"):
+                return YObject(
+                    meta.node(self.item).parent().name()
+                )
+
+    def instance(self, *args, **kwarg):
+        if len(args) > 0:
+            return meta.instance(self.item, lf=1)
+        else:
+            return meta.listRelatives(self.item, ap=1, f=1)[1:] or None
+
+    @trace
+    def delete(self, *args, **kwargs):
+        if hasattr(meta, "delete"):
+            return meta.delete(self.name, *args, **kwargs)
+
+        if hasattr(meta, "root"):
+            return meta.node(self.name).destroy()
+
+        if hasattr(meta, "context"):
+            return meta.context.scene.objects.unlink(meta.data.objects[self.name])
+
         raise YException
 
     @property
-    def children(self):
-        raise YException
+    def children(self, *args, **kwarg):
+        if hasattr(meta, "getAttr"):
+            return partial(meta.listRelatives, self.item, c=1)(*args, **kwarg) or None
 
     def attr(self, val, *args, **kwargs):
         if hasattr(meta, "getAttr"):
@@ -71,8 +105,6 @@ class YObject(_YObject):
 
     @trace
     def __getattr__(self, item):
-        # something ORM
-
         if hasattr(meta, "getAttr"):
             return YAttr(
                 meta.getAttr(self.name + "." + item), self.name, item
@@ -93,15 +125,29 @@ class YObject(_YObject):
     @property
     def attrs(self, *args, **kwargs):
         if hasattr(meta, "listAttr"):
-            return {meta.listAttr(self.name, *args, **kwargs)}
+            return tuple(meta.listAttr(self.name, *args, **kwargs)) or None
 
         if hasattr(meta, "root"):
-            return {
-                p.name() for p in meta.node(self.name).parms()
-            }
+            return tuple(
+                p.name() for p in meta.node(self.name).parms() or None
+            )
 
         if hasattr(meta, "data"):
             return inspect.getmembers(meta.data.objects[self.name])
+
+        raise YException
+
+    @trace
+    def geometry(self):
+        if hasattr(meta, "ls"):
+            dag = OM.MGlobal.getSelectionListByName(self.name).getDagPath(0)
+            return OM.MFnMesh(dag)
+
+        if hasattr(meta, "root"):
+            return meta.node(self.name).geometry()
+
+        if hasattr(meta, "data"):
+            return meta.data.meshes[self.name]
 
         raise YException
 
@@ -143,19 +189,6 @@ class YNode(YObject):
         raise YException
 
     @trace
-    def delete(self, *args, **kwargs):
-        if hasattr(meta, "delete"):
-            return meta.delete(self.name, *args, **kwargs)
-
-        if hasattr(meta, "root"):
-            return meta.node(self.name).destroy()
-
-        if hasattr(meta, "context"):
-            return meta.context.scene.objects.unlink(meta.data.objects[self.name])
-
-        raise YException
-
-    @trace
     def connect(self, *args, **kwargs):
         if hasattr(meta, "root"):
             return partial(
@@ -168,20 +201,6 @@ class YNode(YObject):
         if hasattr(meta, "root"):
             return partial(
                 meta.node(self.name).setInput, 0, None)(*args, **kwargs)
-
-        raise YException
-
-    @trace
-    def geometry(self):
-        if hasattr(meta, "ls"):
-            dag = OM.MGlobal.getSelectionListByName(self.name).getDagPath(0)
-            return OM.MFnMesh(dag)
-
-        if hasattr(meta, "root"):
-            return meta.node(self.name).geometry()
-
-        if hasattr(meta, "data"):
-            return meta.data.meshes[self.name]
 
         raise YException
     

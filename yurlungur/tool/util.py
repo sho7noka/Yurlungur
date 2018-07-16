@@ -7,6 +7,7 @@ import time
 import inspect
 import sqlite3
 import yurlungur
+from yurlungur.core.logger import logger
 
 
 def cache(func, *args, **kwargs):
@@ -29,7 +30,7 @@ def trace(func):
         try:
             return func(*args, **kwargs)
         except:
-            yurlungur.logger.warn(traceback.format_exc())
+            logger.warn(traceback.format_exc())
 
     return wrapper
 
