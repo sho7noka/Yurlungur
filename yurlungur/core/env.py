@@ -3,7 +3,6 @@ import os
 import sys
 import platform
 import functools
-
 from yurlungur.tool.util import __import__
 
 

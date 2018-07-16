@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
-from yurlungur.core.env import MacOS
+from yurlungur.tool.util import __import__
 
 application = sys.executable
 
@@ -8,15 +8,14 @@ application = sys.executable
 def exApplication(module=""):
     application = ""
 
-    try:
+    if __import__("pysbs"):
         import pysbs
         application = pysbs
-    except:
-        pass
 
     if application == "":
         from yurlungur.core import standalone
         application = standalone
+
     return application
 
 
@@ -30,18 +29,10 @@ elif "blender" in application:
 
     application = bpy
     
-elif "houdini" in application or "hindie" in application:
+elif __import__("hou"):
     import hou
 
     application = hou
-
-elif MacOS():
-    try:
-        import hou
-
-        application = hou
-    except ImportError:
-        pass
 
 elif "UE4Editor" in application:
     import unreal

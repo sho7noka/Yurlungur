@@ -14,6 +14,9 @@ from yurlungur.tool.util import (
 )
 from yurlungur.tool.meta import meta
 from yurlungur.tool import qt
+from yurlungur.tool.math import (
+    YVector, YColor, YMatrix
+)
 
 # info
 __all__ = []
