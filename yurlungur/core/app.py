@@ -10,10 +10,12 @@ def exApplication(module=""):
 
     if __import__("pysbs"):
         import pysbs
+
         application = pysbs
 
-    if application == "":
+    elif application == "":
         from yurlungur.core import standalone
+
         application = standalone
 
     return application
@@ -28,7 +30,7 @@ elif "blender" in application:
     import bpy
 
     application = bpy
-    
+
 elif __import__("hou"):
     import hou
 

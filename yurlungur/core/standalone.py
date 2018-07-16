@@ -4,7 +4,6 @@ import sys
 import inspect
 import subprocess
 import tempfile
-import time
 import multiprocessing
 import multiprocessing.process as process
 
