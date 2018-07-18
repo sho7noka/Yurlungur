@@ -15,11 +15,14 @@ if Numpy():
 
 
 class YVector(_YVector):
-    def __init__(self):
-        super(YVector, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(YVector, self).__init__(*args, **kwargs)
 
-    def __eq__(self, other):
-        return True
+    def __getitem__(self, index):
+        return [
+            super(YVector, self).x(),
+            super(YVector, self).y(),
+            super(YVector, self).z()][index]
 
     def identify(self):
         return
@@ -41,30 +44,37 @@ class YVector(_YVector):
 
 
 class YMatrix(_YMatrix):
-    def __init__(self):
-        super(YMatrix, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(YMatrix, self).__init__(*args, **kwargs)
+
+    def __getitem__(self, index):
+        return [
+            super(YMatrix, self).x(),
+            super(YMatrix, self).y(),
+            super(YMatrix, self).z()][index]
 
 
 class YColor(_YColor):
-    def __init__(self):
-        super(YColor, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(YColor, self).__init__(*args, **kwargs)
 
-        if hasattr(meta, "Color"):
-            self.color = meta.Color()
-        else:
-            self.color = OM.MColor()
+    def __getitem__(self, index):
+        return [
+            super(YColor, self).x(),
+            super(YColor, self).y(),
+            super(YColor, self).z()][index]
 
     @property
     def r(self):
-        return self.color[0]
+        pass
 
     @property
     def g(self):
-        return self.color[1]
+        pass
 
     @property
     def b(self):
-        return self.color[2]
+        pass
 
 
 __all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
