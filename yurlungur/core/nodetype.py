@@ -2,6 +2,7 @@
 import ctypes
 import fnmatch
 import inspect
+
 from yurlungur.core import env
 from yurlungur.core.proxy import YNode
 from yurlungur.tool.meta import meta
@@ -16,12 +17,18 @@ class _NodeType(object):
 
         for node in nodes:
             setattr(self, str(item), YNode(node))
-            
+
         return YNode(item)
 
     def findNodes(self, pattern):
         if hasattr(meta, "listNodeTypes"):
-            for category in "geometry", "shader" "texture" "utility":
+            # http://help.autodesk.com/cloudhelp/2016/JPN/Maya-Tech-Docs/CommandsPython/shadingNode.html
+            categories = [
+                "geometry", "camera", "light", "utility",
+                "color", "shader", "texture", "rendering", "postprocess"
+            ]
+            # meta.allNodeTypes(ia=1)
+            for category in categories:
                 yield fnmatch.filter(meta.listNodeTypes(category), pattern)
 
         if hasattr(meta, "nodeTypes"):
@@ -33,7 +40,7 @@ class _NodeType(object):
 
 
 class OpenGL(object):
-    """opelGL wrapper"""
+    """openGL wrapper"""
 
     def __getattr__(self, item):
         def _getGL(mod):
@@ -44,6 +51,7 @@ class OpenGL(object):
                         (lambda str: dict(inspect.getmembers(mod))[str])(cmd)
                     )
                     return getattr(self, item)
+
         _tmp = []
 
         if env.Maya():
