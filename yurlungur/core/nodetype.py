@@ -66,7 +66,11 @@ class OpenGL(object):
             if _getGL(gl):
                 return _getGL(gl)
 
-        return ctypes.cdll.OpenGL32
+        try:
+            from OpenGL import GL as gl
+            return gl
+        except ImportError:
+            return ctypes.cdll.OpenGL32
 
 
 YType = _NodeType()
