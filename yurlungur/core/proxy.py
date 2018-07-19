@@ -6,6 +6,9 @@ from functools import partial, total_ordering
 from yurlungur.core.wrapper import (
     YException, _YObject, _YAttr, OM
 )
+from yurlungur.tool.math import (
+    YVector, YColor, YMatrix
+)
 from yurlungur.tool.meta import meta
 from yurlungur.tool.util import trace
 
@@ -60,6 +63,15 @@ class YObject(_YObject):
         else:
             return meta.listRelatives(self.item, ap=1, f=1)[1:] or None
 
+    def select(self, *args, **kwargs):
+        if 'shape' not in kwargs and 's' not in kwargs:
+            kwargs['s'] = True
+
+        if len(args) == 0 and len(kwargs) == 0:
+            meta.select(*args, **kwargs)
+        else:
+            meta.ls(sl=1)
+
     @trace
     def delete(self, *args, **kwargs):
         if hasattr(meta, "delete"):
@@ -78,6 +90,14 @@ class YObject(_YObject):
         if hasattr(meta, "getAttr"):
             return partial(meta.listRelatives, self.item, c=1)(*args, **kwarg) or None
 
+    @trace
+    def hide(self, on=True):
+        if hasattr(meta, "data"):
+            meta.data.objects[self.name].hide = on
+
+        raise YException
+
+    @trace
     def attr(self, val, *args, **kwargs):
         if hasattr(meta, "getAttr"):
             return YAttr(
@@ -85,8 +105,10 @@ class YObject(_YObject):
             )
 
         if hasattr(meta, "root"):
+            parm = (meta.node(self.name).parm(val)
+                    or meta.node(self.name).parmTuple(val))
             return YAttr(
-                meta.node(self.name).parm(val).eval(), self.name, val
+                parm.eval(), self.name, val
             )
 
         if hasattr(meta, "data"):
@@ -96,14 +118,6 @@ class YObject(_YObject):
 
         raise YException
 
-    @trace
-    def hide(self, on=True):
-        if hasattr(meta, "data"):
-            meta.data.objects[self.name].hide = on
-
-        raise YException
-
-    @trace
     def __getattr__(self, item):
         if hasattr(meta, "getAttr"):
             return YAttr(
@@ -111,8 +125,10 @@ class YObject(_YObject):
             )
 
         if hasattr(meta, "root"):
+            parm = (meta.node(self.name).parm(item)
+                    or meta.node(self.name).parmTuple(item))
             return YAttr(
-                meta.node(self.name).parm(item).eval(), self.name, item
+                parm.eval(), self.name, item
             )
 
         if hasattr(meta, "data"):
@@ -129,7 +145,7 @@ class YObject(_YObject):
 
         if hasattr(meta, "root"):
             return tuple(
-                p.name() for p in meta.node(self.name).parms() or None
+                p.name() for p in meta.node(self.name).parms() or []
             )
 
         if hasattr(meta, "data"):
@@ -178,6 +194,11 @@ class YNode(YObject):
             return YObject(meta.createNode(*args, **kwargs))
 
         if hasattr(meta, "root"):
+            if len(args) == 0 and len(kwargs) == 0:
+                return YNode(
+                    partial(
+                        meta.node(self.name).createNode, self.name
+                    )(*args, **kwargs).path())
             return YNode(meta.node(self.name).createNode(*args, **kwargs).path())
 
         if hasattr(meta, "ops"):
@@ -203,7 +224,7 @@ class YNode(YObject):
                 meta.node(self.name).setInput, 0, None)(*args, **kwargs)
 
         raise YException
-    
+
     def inputs(self, *args, **kwargs):
         if hasattr(meta, "listConnections"):
             return partial(meta.listConnections, s=1)(*args, **kwargs)
@@ -229,11 +250,11 @@ class YAttr(_YAttr):
 
     def __init__(self, *args, **kwargs):
         assert len(args) > 2, "parameter is invalid."
-        self.values = args
-        self.obj, self.val = self.values[1:]
+        self._values = args
+        self.obj, self.val = self._values[1:]
 
     def __getitem__(self, idx):
-        return self.values[idx]
+        return self._values[idx]
 
     def __repr__(self):
         return str(self.value[0])
@@ -244,23 +265,9 @@ class YAttr(_YAttr):
     def __gt__(self, other):
         return self.value[0] >= other.value[0]
 
-    @trace
-    def connect(self, val, **kwargs):
-        if hasattr(meta, "connectAttr"):
-            return partial(
-                meta.connectAttr, self.obj +"."+ self.val
-            )(val[1] +"."+ val[2], **kwargs)
-
-        raise YException
-
-    @trace
-    def disconnect(self, val, **kwargs):
-        if hasattr(meta, "disconnectAttr"):
-            return partial(
-                meta.disconnectAttr, self.obj +"."+ self.val
-            )(val[1] +"."+ val[2], **kwargs)
-
-        raise YException
+    @property
+    def value(self):
+        return self._values[0]
 
     @trace
     def set(self, *args, **kwargs):
@@ -268,7 +275,10 @@ class YAttr(_YAttr):
             return meta.setAttr(self.obj + "." + self.val, *args, **kwargs)
 
         if hasattr(meta, "root"):
-            return meta.node(self.obj).parm(self.val).set(*args, **kwargs)
+            parm = (meta.node(self.obj).parm(self.val) or
+                    meta.node(self.obj).parmTuple(self.val)
+                    )
+            return parm.set(*args, **kwargs)
 
         if hasattr(meta, "data"):
             arg = args[0]
@@ -296,9 +306,44 @@ class YAttr(_YAttr):
 
         raise YException
 
+    @trace
+    def connect(self, val, **kwargs):
+        if hasattr(meta, "connectAttr"):
+            return partial(
+                meta.connectAttr, self.obj + "." + self.val
+            )(val[1] + "." + val[2], **kwargs)
+
+        raise YException
+
+    @trace
+    def disconnect(self, val, **kwargs):
+        if hasattr(meta, "disconnectAttr"):
+            return partial(
+                meta.disconnectAttr, self.obj + "." + self.val
+            )(val[1] + "." + val[2], **kwargs)
+
+        raise YException
+
     @property
-    def value(self):
-        return self.values
+    def asVector(self):
+        try:
+            return YVector(self._values[0])
+        except TypeError:
+            return YVector(*self._values[0])
+
+    @property
+    def asColor(self):
+        try:
+            return YColor(self._values[0])
+        except TypeError:
+            return YColor(*self._values[0])
+
+    @property
+    def asMatrix(self):
+        try:
+            return YMatrix(self._values[0])
+        except TypeError:
+            return YMatrix(*self._values[0])
 
 
 class YFile(object):
@@ -334,14 +379,6 @@ class YFile(object):
         raise YException
 
     @property
-    def name(self):
-        return os.path.basename(self.file)
-
-    @property
-    def path(self):
-        return os.path.dirname(self.file)
-
-    @property
     def current(cls):
         if hasattr(meta, "file"):
             return cls(meta.file(exn=1, q=1))
@@ -354,3 +391,13 @@ class YFile(object):
 
         raise YException
 
+    def reference(cls):
+        raise YException
+
+    @property
+    def name(self):
+        return os.path.basename(self.file)
+
+    @property
+    def path(self):
+        return os.path.dirname(self.file)
