@@ -10,13 +10,19 @@ from yurlungur.core.wrapper import (
 from yurlungur.core.env import Numpy
 
 if Numpy():
-    import numpy as nm
-    import requests
+    import numpy as np
+else:
+    import imath
 
 
 class YVector(_YVector):
     def __init__(self, *args, **kwargs):
         super(YVector, self).__init__(*args, **kwargs)
+        self.vector = args
+
+    @Numpy
+    def array(self):
+        return np.array(self.vector, dtype=np.float16)
 
     def identify(self):
         return
@@ -39,9 +45,11 @@ class YVector(_YVector):
     def length(self):
         return cmath.sqrt(self.x ** 2 + self.y ** 2)
 
+
 class YMatrix(_YMatrix):
     def __init__(self, *args, **kwargs):
         super(YMatrix, self).__init__(*args, **kwargs)
+
 
 class YColor(_YColor):
     def __init__(self, *args, **kwargs):
