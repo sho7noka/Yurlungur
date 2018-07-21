@@ -7,16 +7,13 @@ sys.dont_write_bytecode = True
 # yurlungur
 from yurlungur.core import * # noQA
 from yurlungur.tool.math import (
-    YVector, YMatrix, YColor
+    YVector, YColor, YMatrix
 )
 from yurlungur.tool.util import (
     cache, trace, timer
 )
+from yurlungur.tool import ui
 from yurlungur.tool.meta import meta
-from yurlungur.tool import qt
-from yurlungur.tool.math import (
-    YVector, YColor, YMatrix
-)
 
 # info
 __all__ = []
