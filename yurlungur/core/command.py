@@ -3,7 +3,7 @@ from yurlungur.core import env
 from yurlungur.tool.meta import meta
 from yurlungur.core.proxy import YNode, YFile
 
-__all__ = ["file", "cmd", "Command", "UndoGroup"]
+__all__ = ["file", "cmd", "UndoGroup"]
 
 
 class UndoGroup(object):

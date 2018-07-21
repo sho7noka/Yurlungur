@@ -1,16 +1,58 @@
 # -*- coding: utf-8 -*-
 import sys
 import time
-import pprint
-import logging
-import yurlungur
+from pprint import pformat
+from logging import getLogger, Handler, INFO, WARNING, basicConfig
 
-logger = logging.getLogger(yurlungur.__name__)
-logger.setLevel(logging.INFO)
+import yurlungur
+from yurlungur.core import env
+
+class GuiLogHandler(Handler):
+    def __init__(self, *args, **kwargs):
+        super(GuiLogHandler, self).__init__(*args, **kwargs)
+
+        if env.Maya():
+            from maya.OpenMaya import MGlobal
+            self.MGlobal = MGlobal
+
+    def emit(self, record):
+        from yurlungur.tool.meta import meta
+        
+        msg = self.format(record)
+        if record.levelno > WARNING:
+            if hasattr(meta, "ops"):
+                meta.ops.error.message('INVOKE_DEFAULT', type="Error", message=msg)
+            elif env.Maya():
+                self.MGlobal.displayError(msg)
+            else:
+                meta.ui.setStatusMessage(msg, severity=meta.severityType.Error)
+
+        elif record.levelno > INFO:
+            if hasattr(meta, "ops"):
+                meta.ops.error.message('INVOKE_DEFAULT', type="Error", message=msg)
+            elif env.Maya():
+                self.MGlobal.displayWarning(msg)
+            else:
+                meta.ui.setStatusMessage(msg, severity=meta.severityType.Warning)
+
+        else:
+            if hasattr(meta, "ops"):
+                meta.ops.error.message('INVOKE_DEFAULT', type="Error", message=msg)
+            elif env.Maya():
+                self.MGlobal.displayInfo(msg)
+            else:
+                meta.ui.setStatusMessage(msg, severity=meta.severityType.Message)
+
+
+logger = getLogger(yurlungur.__name__)
+logger.setLevel(INFO)
+handler = GuiLogHandler()
+logger.addHandler(handler)
+basicConfig(level=INFO, stream=sys.stdout)
 
 
 def info(obj):
-    return logger.info(pprint.pformat(obj))
+    logger.info(pformat(obj))
 
 
 def _progress():
@@ -20,47 +62,3 @@ def _progress():
         sys.stdout.write(log + "")
         sys.stdout.flush()
         time.sleep(0.01)
-
-
-class _GuiLogHandler(logging.Handler):
-    def __init__(self):
-        super(_GuiLogHandler, self).__init__()
-
-        if yurlungur.env.Maya():
-            from maya.OpenMaya import MGlobal
-            self.MGlobal = MGlobal
-
-    def emit(self, record):
-        msg = self.format(record)
-        if record > logging.WARNING:
-            if yurlungur.env.Maya():
-                self.MGlobal.displayError(msg)
-
-            if yurlungur.env.Blender():
-                yurlungur.meta.ops.error.message('INVOKE_DEFAULT', type="Error", message=msg)
-
-            if yurlungur.env.Houdini():
-                yurlungur.meta.ui.setStatusMessage(msg, severity=meta.severityType.Error)
-
-        elif record > logging.INFO:
-            if yurlungur.env.Maya():
-                self.MGlobal.displayWarning(msg)
-
-            if yurlungur.env.Blender():
-                yurlungur.meta.ops.error.message('INVOKE_DEFAULT', type="Error", message=msg)
-
-            if yurlungur.env.Houdini():
-                yurlungur.meta.ui.setStatusMessage(msg, severity=meta.severityType.Warning)
-
-        else:
-            if yurlungur.env.Maya():
-                self.MGlobal.displayInfo(msg)
-
-            if yurlungur.env.Blender():
-                yurlungur.meta.ops.error.message('INVOKE_DEFAULT', type="Error", message=msg)
-
-            if yurlungur.env.Houdini():
-                yurlungur.meta.ui.setStatusMessage(msg, severity=meta.severityType.Message)
-
-
-# logger.addHandler(_GuiLogHandler)
