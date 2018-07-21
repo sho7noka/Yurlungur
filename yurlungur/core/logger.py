@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import sys
 import time
-from pprint import pformat
 from logging import getLogger, Handler, INFO, WARNING, basicConfig
+from pprint import pformat
 
 import yurlungur
 from yurlungur.core import env
+
 
 class GuiLogHandler(Handler):
     def __init__(self, *args, **kwargs):
@@ -17,37 +18,35 @@ class GuiLogHandler(Handler):
 
     def emit(self, record):
         from yurlungur.tool.meta import meta
-        
+
         msg = self.format(record)
         if record.levelno > WARNING:
-            if hasattr(meta, "ops"):
-                meta.ops.error.message('INVOKE_DEFAULT', type="Error", message=msg)
-            elif env.Maya():
+            if env.Maya():
                 self.MGlobal.displayError(msg)
             else:
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Error)
 
         elif record.levelno > INFO:
-            if hasattr(meta, "ops"):
-                meta.ops.error.message('INVOKE_DEFAULT', type="Error", message=msg)
-            elif env.Maya():
+            if env.Maya():
                 self.MGlobal.displayWarning(msg)
             else:
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Warning)
 
         else:
-            if hasattr(meta, "ops"):
-                meta.ops.error.message('INVOKE_DEFAULT', type="Error", message=msg)
-            elif env.Maya():
+            if env.Maya():
                 self.MGlobal.displayInfo(msg)
             else:
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Message)
 
 
+# logger
 logger = getLogger(yurlungur.__name__)
 logger.setLevel(INFO)
-handler = GuiLogHandler()
-logger.addHandler(handler)
+
+# TODO: https://code.blender.org/2016/05/logging-from-python-code-in-blender/
+if not env.Blender():
+    handler = GuiLogHandler()
+    logger.addHandler(handler)
 basicConfig(level=INFO, stream=sys.stdout)
 
 

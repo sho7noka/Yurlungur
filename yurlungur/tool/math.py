@@ -1,24 +1,27 @@
 # -*- coding: utf-8 -*-
-import sys
 import cmath
 import inspect
+import sys
 
-from yurlungur.tool.meta import meta
+from yurlungur.core.env import Numpy, Blender
 from yurlungur.core.wrapper import (
-    _YVector, _YMatrix, _YColor, OM
+    _YVector, _YMatrix, _YColor
 )
-from yurlungur.core.env import Numpy
 
 if Numpy():
     import numpy as np
 else:
-    import imath
+    pass
 
 
 class YVector(_YVector):
     def __init__(self, *args, **kwargs):
-        super(YVector, self).__init__(*args, **kwargs)
-        self.vector = args
+        if Blender():
+            super(YVector, self).__init__()
+            self.vector = [self.x, self.y, self.z]
+        else:
+            super(YVector, self).__init__(*args, **kwargs)
+            self.vector = args
 
     @Numpy
     def array(self):

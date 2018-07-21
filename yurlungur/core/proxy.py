@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import os
 import inspect
+import os
 from functools import partial, total_ordering
 
 from yurlungur.core.wrapper import (
@@ -58,19 +58,25 @@ class YObject(_YObject):
                 )
 
     def instance(self, *args, **kwarg):
-        if len(args) > 0:
-            return meta.instance(self.item, lf=1)
-        else:
-            return meta.listRelatives(self.item, ap=1, f=1)[1:] or None
+        if hasattr(meta, "instance"):
+            if len(args) > 0:
+                return meta.instance(self.item, lf=1)
+            else:
+                return meta.listRelatives(self.item, ap=1, f=1)[1:] or None
+
+        raise YException
 
     def select(self, *args, **kwargs):
         if 'shape' not in kwargs and 's' not in kwargs:
             kwargs['s'] = True
 
-        if len(args) == 0 and len(kwargs) == 0:
-            meta.select(*args, **kwargs)
-        else:
-            meta.ls(sl=1)
+        if hasattr(meta, "select"):
+            if len(args) == 0 and len(kwargs) == 0:
+                meta.select(*args, **kwargs)
+            else:
+                meta.ls(sl=1)
+
+        raise YException
 
     @trace
     def delete(self, *args, **kwargs):
@@ -89,6 +95,8 @@ class YObject(_YObject):
     def children(self, *args, **kwarg):
         if hasattr(meta, "getAttr"):
             return partial(meta.listRelatives, self.item, c=1)(*args, **kwarg) or None
+
+        raise YException
 
     @trace
     def hide(self, on=True):
