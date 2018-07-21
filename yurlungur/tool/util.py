@@ -7,7 +7,7 @@ import time
 import inspect
 import sqlite3
 import yurlungur
-from yurlungur.core.logger import logger
+from yurlungur.core import logger
 
 
 def cache(func, *args, **kwargs):
@@ -30,7 +30,7 @@ def trace(func):
         try:
             return func(*args, **kwargs)
         except:
-            logger.warn(traceback.format_exc())
+            logger.logger.warn(traceback.format_exc())
 
     return wrapper
 
@@ -80,28 +80,6 @@ def __db_attr():
     )
     conn.commit()
     conn.close()
-
-
-def __import__(name, globals=None, locals=None, fromlist=None):
-    # Fast path: see if the module has already been imported.
-    try:
-        return sys.modules[name]
-    except KeyError:
-        pass
-
-    try:
-        import imp
-    except:
-        from importlib import import_module
-        return import_module(name)
-
-    try:
-        fp, pathname, description = imp.find_module(name)
-        return imp.load_module(name, fp, pathname, description)
-    except ImportError:
-        # if fp:
-        #     fp.close()
-        return False
 
 
 def __make_completer(mod):

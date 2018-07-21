@@ -3,7 +3,26 @@ import os
 import sys
 import platform
 import functools
-from yurlungur.tool.util import __import__
+
+
+def __import__(name, globals=None, locals=None, fromlist=None):
+    # Fast path: see if the module has already been imported.
+    try:
+        return sys.modules[name]
+    except KeyError:
+        pass
+
+    try:
+        import imp
+    except ImportError:
+        from importlib import import_module
+        return import_module(name)
+
+    try:
+        fp, pathname, description = imp.find_module(name)
+        return imp.load_module(name, fp, pathname, description)
+    except ImportError:
+        return False
 
 
 def Qt(func=None):

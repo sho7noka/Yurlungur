@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
-from yurlungur.tool.util import __import__
+from yurlungur.core.env import __import__
 
 application = sys.executable
 
