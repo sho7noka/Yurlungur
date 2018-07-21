@@ -125,8 +125,8 @@ class YObject(_YObject):
             )
 
         if hasattr(meta, "root"):
-            parm = (meta.node(self.name).parm(item)
-                    or meta.node(self.name).parmTuple(item))
+            parm = (meta.node(self.name).parm(item) or
+                    meta.node(self.name).parmTuple(item))
             return YAttr(
                 parm.eval(), self.name, item
             )
