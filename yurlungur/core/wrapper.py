@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import inspect
+
 import yurlungur
 from yurlungur.core import app, env
+
+"""internal module"""
 
 
 class YMObject(object):
@@ -16,14 +19,14 @@ class YMObject(object):
                 )
                 return getattr(yurlungur, item)
 
-        return getattr(yurlungur, "")
+        return None
 
-    def eval(self, proc):
+    def eval(self, script):
         if env.Maya():
-            import maya.mel
-            return mel.eval(proc)
+            import maya.mel as mel
+            return mel.eval(script)
         if env.Houdini():
-            app.application.hscript(proc)
+            app.application.hscript(script)
 
         raise YException
 
@@ -60,8 +63,6 @@ _YObject = MetaObject("YObject", (object,), {"__doc__": MetaObject.__doc__})
 _YNode = MetaNode("YNode", (object,), {"__doc__": MetaNode.__doc__})
 _YAttr = MetaAttr("YAttr", (object,), {"__doc__": MetaAttr.__doc__})
 
-meta = YMObject()
-
 if env.Maya():
     import maya.api.OpenMaya as OM
 
@@ -70,6 +71,7 @@ if env.Maya():
     _YColor = type('_YColor', (OM.MColor,), dict())
 
 elif env.Houdini() or env.Unreal():
+    meta = YMObject()
 
     _YVector = type('_YVector', (
         meta.Vector if hasattr(meta, "Vector") else meta.Vector3,
