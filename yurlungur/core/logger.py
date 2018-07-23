@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import sys
 import time
-from logging import getLogger, Handler, INFO, WARNING, basicConfig
+from logging import (
+    getLogger, Handler, INFO, WARNING, basicConfig
+)
 from pprint import pformat
 
 import yurlungur
@@ -13,8 +15,8 @@ class GuiLogHandler(Handler):
         super(GuiLogHandler, self).__init__(*args, **kwargs)
 
         if env.Maya():
-            from maya.OpenMaya import MGlobal
-            self.MGlobal = MGlobal
+            import maya.OpenMaya as om
+            self.MGlobal = om.MGlobal
 
     def emit(self, record):
         from yurlungur.tool.meta import meta
@@ -50,9 +52,8 @@ if not env.Blender():
 basicConfig(level=INFO, stream=sys.stdout)
 
 
-def info(obj):
+def log(obj):
     logger.info(pformat(obj))
-
 
 def _progress():
     for i in range(1, 101):

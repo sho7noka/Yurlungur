@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
-import traceback
 import functools
-import time
 import inspect
+import os
 import sqlite3
+import sys
+import time
+import traceback
+
 import yurlungur
 from yurlungur.core import logger
 
@@ -38,13 +39,13 @@ def trace(func):
 def timer(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        yurlungur.logger.info(
+        yurlungur.logger.log(
             '{0} start'.format(func.__name__)
         )
         start_time = time.clock()
         ret = func(*args, **kwargs)
         end_time = time.clock()
-        yurlungur.logger.info(
+        yurlungur.logger.log(
             '\n{0}: {1:,f}s'.format("total: ", (end_time - start_time))
         )
         return ret
