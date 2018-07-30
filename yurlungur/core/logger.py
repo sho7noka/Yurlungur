@@ -55,6 +55,7 @@ basicConfig(level=INFO, stream=sys.stdout)
 def log(obj):
     logger.info(pformat(obj))
 
+
 def _progress():
     for i in range(1, 101):
         sys.stdout.flush()

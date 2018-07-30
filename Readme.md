@@ -20,11 +20,13 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 * Useful py-snippet for Game&Film technical artist.
 
 ### availables
-|       | Node | Attr | Builder |
+|       | Node | Attribute | Geom |
 | ---- | --- | --- | --- |
-| Maya | ○ | ○ | --- |
-| Houdini | ○ | ○ | --- |
-| Blender | △ | ○ | --- |
+| Maya | ○ | ○ | - |
+| Houdini | ○ | ○ | - |
+| Blender | △ | ○ | - |
+| Substance | - | - | - |
+| [Unreal](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python) | - | - | - |
 
 
 
@@ -42,12 +44,12 @@ pip install pyside
 
 ### semantics
 
-```lua
--- MXS
-$.value = 1
+```python
+# Blender
+bpy.data.objects["foo"].bar = 1
 ```
 
-```bash
+```mel
 // MEL
 setAttr "foo.bar" 1;
 ```

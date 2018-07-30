@@ -211,7 +211,7 @@ def _Blender():
 def _Unreal():
     d = {
         "Linux": "",
-        "Windows": "C:/Program Files/Epic Games/UE_4.19/Engine/Binaries/Win64",
+        "Windows": "C:/Program Files/Epic Games/UE_4.20/Engine/Binaries/Win64",
         "Darwin": ""
     }
     return d[platform.system()]
