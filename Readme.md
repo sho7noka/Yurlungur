@@ -24,7 +24,7 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 | ---- | --- | --- | --- |
 | Maya | ○ | ○ | - |
 | Houdini | ○ | ○ | - |
-| Blender | △ | ○ | - |
+| Blender | ○ | ○ | - |
 | Substance | - | - | - |
 | [Unreal](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python) | - | - | - |
 
@@ -32,14 +32,14 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 
 ### Installing
 ```bash
-pip install yurlungur
+pipenv install yurlungur
 ```
 
 #### optional
 If you use Unreal or Standalone for full supports, Yurlungur require `PySide` module.
 
 ```bash
-pip install pyside
+pipenv install pyside
 ```
 
 ### semantics
