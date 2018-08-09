@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import platform
 import sys
 
 from yurlungur.core.env import __import__
@@ -51,6 +52,14 @@ elif "max" in application:
     application = pymxs
 
 else:
-    application = exApplication()
+    if platform.python_implementation() == 'IronPython':
+        import clr
+
+        clr.AddReferenceByPartialName('UnityEngine')
+        import UnityEngine as unity
+
+        application = unity
+    else:
+        application = exApplication()
 
 __all__ = ["application", "exApplication"]

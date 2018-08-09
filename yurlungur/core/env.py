@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
-import platform
 import functools
+import os
+import platform
+import sys
 
 
 def __import__(name, globals=None, locals=None, fromlist=None):
@@ -131,6 +131,19 @@ def Unreal(func=None):
             return func(*args, **kwargs)
 
     return wrapper
+
+
+def Unity(func=None):
+    if func == None:
+        return
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "UE4" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
+
 
 
 def Blender(func=None):

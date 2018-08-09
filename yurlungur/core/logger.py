@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
+import __builtin__
 import sys
 import time
 from logging import (
