@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from yurlungur.core import env
-from yurlungur.tool.meta import meta
 from yurlungur.core.proxy import YNode, YFile
+from yurlungur.tool.meta import meta
 
 __all__ = ["file", "cmd", "UndoGroup"]
 
@@ -127,3 +127,6 @@ if env.Houdini():
 if env.Blender():
     YFile.abcImporter = _alembicImporter
     YFile.fbxImporter = _fbxImporter
+
+if env.Unreal():
+    UndoGroup = meta.ScopedEditorTransaction
