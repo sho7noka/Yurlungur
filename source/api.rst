@@ -52,6 +52,13 @@ Qt.py
 
 .. code-block:: python
 
-    widget = QWidget()
-    yr.qt.show(widget)
+    yurlungur.file
 
+
+
+Alembic や FBX など汎用ファイルフォーマットのサポートは
+アプリケーションに依存します。staticベースによる実装が
+yurlungur.command モジュールにまとめられています。
+
+
+基本となるAPIはここで終わりです。

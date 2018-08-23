@@ -1,0 +1,48 @@
+===================================
+Script Editor
+===================================
+yurlungur script editor edition.
+
+print is not available in Python3.
+Also IronPython is not bind with __future__ module.
+
+
+Log
+-------------------------------
+LogHandler をそれぞれのアプリケーションから継承し、
+
+
+.. code-block:: python
+
+    yurlungur.log(*args)
+
+print 文は Python3 ではエラーになり、それを回避するための
+__future__ モジュールも Unity Asset 内の IronPython ではサポートされないため、
+`yurlungur.log(*args)` の使用を勧めます。
+
+内部処理に pformat を使っているため、ログが見切れるような
+長いリストでも視認性は損なわれません。
+
+
+
+UndoGroup
+-------------------------------
+contextManager で制御されたUndoGroup で
+アプリケーション側のUndoで操作を巻き戻すことが出来ます。
+
+.. code-block:: python
+
+    with yr.UndoGroup:
+        yr.YNode("hoge").delete()
+
+
+GUI
+--------------------------------
+Qt.py をラッピングしているので
+
+
+.. code-block:: python
+
+    widget = QWidget()
+    yr.qt.show(widget)
+
