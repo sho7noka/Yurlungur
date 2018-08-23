@@ -28,20 +28,32 @@ class GuiLogHandler(Handler):
         if record.levelno > WARNING:
             if env.Maya():
                 self.MGlobal.displayError(msg)
-            else:
+            elif env.Houdini():
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Error)
+            elif env.Unreal():
+                meta.log_error(msg)
+            elif env.Unity():
+                env.Debug.LogError(msg)
 
         elif record.levelno > INFO:
             if env.Maya():
                 self.MGlobal.displayWarning(msg)
-            else:
+            elif env.Houdini():
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Warning)
+            elif env.Unreal():
+                meta.log_warning(msg)
+            elif env.Unity():
+                env.Debug.LogWarning(msg)
 
         else:
             if env.Maya():
                 self.MGlobal.displayInfo(msg)
-            else:
+            elif env.Houdini():
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Message)
+            elif env.Unreal():
+                meta.log(msg)
+            elif env.Unity():
+                env.Debug.Log(msg)
 
 
 # logger
@@ -55,8 +67,12 @@ if not env.Blender():
 basicConfig(level=INFO, stream=sys.stdout)
 
 
-def log(obj):
-    logger.info(pformat(obj))
+def log(*msg):
+    logger.info(pformat(*msg))
+
+
+def print(args):
+    __builtin__.print(pformat(args))
 
 
 def _progress():
