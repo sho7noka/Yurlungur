@@ -16,13 +16,15 @@ if EGG not in sys.path:
     sys.path.append(YUR)
 
 import yurlungur as yr
+yr.YNode("Camera").location.set(yr.YVector(1, 1, 1).array())
+
 import pydevd
 try:
     # import hrpyc
     # hrpyc.start_server(port=PORT, use_thread=False)
 
     pydevd.settrace(HOST, port=PORT, stdoutToServer=True, stderrToServer=True)
-    yr.info(yr.name)
+    yr.log(yr.name)
 except:
     pydevd.stoptrace()
 

@@ -1454,8 +1454,7 @@ orting, this will affect objects along the entire swept volume.
 
 import sys; sys.path.append("/Users/shosumioka/Documents/Yurlungur"); import yurlungur as yr;
 
-yr.info("aaa")
-
+yr.log("aaa")
 
 def maya_useNewAPI():
     """
