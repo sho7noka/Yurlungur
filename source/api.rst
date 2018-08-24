@@ -35,12 +35,17 @@ Object based container.
 .. code-block:: python
 
     width = obj.attr("width") # object YAttr
+    yurlungur.log(width.value)
 
-    # or
+
+
+__getitem__ によるアクセスもサポートしているため、
+ユーザー側が今操作しているオブジェクトの状態を気にすることなく
+はじめからそのプロパティを持っていたかのように振る舞います。
+
+.. code-block:: python
 
     width = obj.width
-
-
     yr.log(width.value)
 
     width.set(700)
@@ -52,13 +57,15 @@ Qt.py
 
 .. code-block:: python
 
-    yurlungur.file
+    yurlungur.YFile.load()
+
+    yurlungur.YFile.save()
 
 
 
 Alembic や FBX など汎用ファイルフォーマットのサポートは
-アプリケーションに依存します。staticベースによる実装が
-yurlungur.command モジュールにまとめられています。
+アプリケーションに依存します。(例えばゲームエンジンでは、一般的なファイルエクスポート機能はサポートされません)
+staticベースによる実装がyurlungur.command モジュールにまとめられています。
 
 
 基本となるAPIはここで終わりです。
