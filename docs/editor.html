@@ -8,11 +8,13 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Script Editor &mdash; Yurlungur 1.0 documentation</title>
+    <title>tool conf &mdash; Yurlungur 1.0 documentation</title>
 
 
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css"/>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css"/>
+    <link rel="next" title="Debug info" href="howto.html"/>
+    <link rel="prev" title="yurlungur.user package" href="yurlungur.user.html"/>
 
 
     <script src="_static/js/modernizr.min.js"></script>
@@ -50,7 +52,16 @@
             <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
 
 
-                <ul class="simple">
+                <ul class="current">
+                    <li class="toctree-l1"><a class="reference internal" href="api.html">API Foundation</a></li>
+                    <li class="toctree-l1 current"><a class="current reference internal" href="#">tool conf</a>
+                        <ul>
+                            <li class="toctree-l2"><a class="reference internal" href="#log">Log</a></li>
+                            <li class="toctree-l2"><a class="reference internal" href="#undogroup">UndoGroup</a></li>
+                            <li class="toctree-l2"><a class="reference internal" href="#gui">GUI</a></li>
+                        </ul>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="howto.html">Debug info</a></li>
                 </ul>
 
 
@@ -80,7 +91,7 @@
 
                         <li><a href="index.html">Docs</a> &raquo;</li>
 
-                        <li>Script Editor</li>
+                        <li>tool conf</li>
 
 
                         <li class="wy-breadcrumbs-aside">
@@ -99,15 +110,17 @@
                 <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
                     <div itemprop="articleBody">
 
-                        <div class="section" id="script-editor">
-                            <h1>Script Editor<a class="headerlink" href="#script-editor"
-                                                title="Permalink to this headline">¶</a></h1>
-                            <p>yurlungur script editor edition.</p>
-                            <p>print is not available in Python3.
-                                Also IronPython is not bind with __future__ module.</p>
+                        <div class="section" id="tool-conf">
+                            <h1>tool conf<a class="headerlink" href="#tool-conf"
+                                            title="Permalink to this headline">¶</a></h1>
+                            <p>yurlungur tool scripting tips.</p>
                             <div class="section" id="log">
                                 <h2>Log<a class="headerlink" href="#log" title="Permalink to this headline">¶</a></h2>
-                                <p>LogHandler をそれぞれのアプリケーションから継承し、</p>
+                                <p>print statement is not available in Python3.
+                                    Also IronPython is not bind with __future__ modules.</p>
+                                <p>print 文は Python3 ではエラーになり、それを回避するための
+                                    __future__ モジュールも Unity Asset 内の IronPython ではサポートされないため、
+                                    <cite>yurlungur.log(*args)</cite> の使用をお勧めします。</p>
                                 <div class="highlight-python">
                                     <div class="highlight"><pre><span></span><span class="n">yurlungur</span><span
                                             class="o">.</span><span class="n">log</span><span class="p">(</span><span
@@ -115,11 +128,10 @@
 </pre>
                                     </div>
                                 </div>
-                                <p>print 文は Python3 ではエラーになり、それを回避するための
-                                    __future__ モジュールも Unity Asset 内の IronPython ではサポートされないため、
-                                    <cite>yurlungur.log(*args)</cite> の使用を勧めます。</p>
                                 <p>内部処理に pformat を使っているため、ログが見切れるような
                                     長いリストでも視認性は損なわれません。</p>
+                                <p>LogHandler をそれぞれのアプリケーションから継承し、一貫したインターフェースで
+                                    出力レベルの制御をします。</p>
                             </div>
                             <div class="section" id="undogroup">
                                 <h2>UndoGroup<a class="headerlink" href="#undogroup" title="Permalink to this headline">¶</a>
@@ -136,10 +148,14 @@
 </pre>
                                     </div>
                                 </div>
+                                <p>もしUndoGroupでインデントを囲わないスクリプト処理をした場合、
+                                    ひとつひとつ undo で戻さなければなりません。</p>
                             </div>
                             <div class="section" id="gui">
                                 <h2>GUI<a class="headerlink" href="#gui" title="Permalink to this headline">¶</a></h2>
-                                <p>Qt.py をラッピングしているので</p>
+                                <p>Qt.py をラッピングしているので、Maya/Houdini といった
+                                    大型スタジオで使われるアプリケーションのバージョンを気にすることなく
+                                    Python から Qt を使うことが出来ます。</p>
                                 <div class="highlight-python">
                                     <div class="highlight"><pre><span></span><span class="n">widget</span> <span
                                             class="o">=</span> <span class="n">QWidget</span><span class="p">()</span>
@@ -149,6 +165,9 @@
 </pre>
                                     </div>
                                 </div>
+                                <p>ゲームエンジンはQtライブラリを内蔵しません。
+                                    別途 pip インストールするか、env モジュールでアプリケーションを切り分けて、
+                                    meta モジュールからネイティブの各 ui モジュールを参照して下さい。</p>
                             </div>
                         </div>
 
@@ -157,6 +176,17 @@
 
                 </div>
                 <footer>
+
+                    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+
+                        <a href="howto.html" class="btn btn-neutral float-right" title="Debug info" accesskey="n"
+                           rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+
+
+                        <a href="yurlungur.user.html" class="btn btn-neutral" title="yurlungur.user package"
+                           accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+
+                    </div>
 
 
                     <hr/>

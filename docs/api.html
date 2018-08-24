@@ -13,7 +13,7 @@
 
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css"/>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css"/>
-    <link rel="next" title="yurlungur package" href="yurlungur.html"/>
+    <link rel="next" title="yurlungur" href="modules.html"/>
     <link rel="prev" title="Yurlungur for Universal DCC Scripting API" href="index.html"/>
 
 
@@ -55,15 +55,14 @@
                 <ul class="current">
                     <li class="toctree-l1 current"><a class="current reference internal" href="#">API Foundation</a>
                         <ul>
-                            <li class="toctree-l2"><a class="reference internal" href="yurlungur.html">yurlungur
-                                package</a></li>
+                            <li class="toctree-l2"><a class="reference internal" href="modules.html">yurlungur</a></li>
                             <li class="toctree-l2"><a class="reference internal" href="#object-node">Object &amp;
                                 Node</a></li>
                             <li class="toctree-l2"><a class="reference internal" href="#attribute">Attribute</a></li>
                             <li class="toctree-l2"><a class="reference internal" href="#file">File</a></li>
                         </ul>
                     </li>
-                    <li class="toctree-l1"><a class="reference internal" href="editor.html">Script Editor</a></li>
+                    <li class="toctree-l1"><a class="reference internal" href="editor.html">tool conf</a></li>
                     <li class="toctree-l1"><a class="reference internal" href="howto.html">Debug info</a></li>
                 </ul>
 
@@ -117,30 +116,17 @@
                             <h1>API Foundation<a class="headerlink" href="#api-foundation"
                                                  title="Permalink to this headline">¶</a></h1>
                             <p>Yurlungur foundations.</p>
-                            <p>基本となるコンセプトはPythonAPIによるシュガーシンタックスのインターフェースです。
-                                Object(Node) クラス、Attribute クラス、File クラスを知れば
-                                基本的な操作は全てできる設計になっています。</p>
-                            <p>Chapters:</p>
+                            <p>基本となるコンセプトは、Pythonインターフェースによるシュガーシンタックスです。
+                                Object(Node) クラス、Attribute クラス、File クラスの基本を知れば、
+                                汎用的な操作ができる設計になっています。</p>
+                            <p>modules:</p>
                             <div class="toctree-wrapper compound">
                                 <ul>
-                                    <li class="toctree-l1"><a class="reference internal" href="yurlungur.html">yurlungur
-                                        package</a>
+                                    <li class="toctree-l1"><a class="reference internal"
+                                                              href="modules.html">yurlungur</a>
                                         <ul>
-                                            <li class="toctree-l2"><a class="reference internal"
-                                                                      href="yurlungur.html#subpackages">Subpackages</a>
-                                            </li>
-                                            <li class="toctree-l2"><a class="reference internal"
-                                                                      href="yurlungur.html#submodules">Submodules</a>
-                                            </li>
-                                            <li class="toctree-l2"><a class="reference internal"
-                                                                      href="yurlungur.html#yurlungur-qt-module">yurlungur.Qt
-                                                module</a></li>
-                                            <li class="toctree-l2"><a class="reference internal"
-                                                                      href="yurlungur.html#yurlungur-conf-module">yurlungur.conf
-                                                module</a></li>
-                                            <li class="toctree-l2"><a class="reference internal"
-                                                                      href="yurlungur.html#module-contents">Module
-                                                contents</a></li>
+                                            <li class="toctree-l2"><a class="reference internal" href="yurlungur.html">yurlungur
+                                                package</a></li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -148,12 +134,15 @@
                             <div class="section" id="object-node">
                                 <h2>Object &amp; Node<a class="headerlink" href="#object-node"
                                                         title="Permalink to this headline">¶</a></h2>
-                                <p>APIのレベルでは、ノードベースとスタックベースに分けます。
-                                    スタックベースのアプリケーションを使う際には YObject
-                                    ノードというのはつなぐものであり、あと</p>
-                                <p>UnityはComponent BlenderはModifierでオブジェクトの振る舞いを制御しますが、
-                                    Maya や Houdini といったノードベースのアプリケーションでは、接続する同士の相互作用によって</p>
-                                <p>アプリケーションが持つ性質を意識して Node か Object を使ってプログラミングすると良いでしょう。</p>
+                                <p>数多くの3Dアプリケーションも、APIのレベルではノードベースとスタックベースに分けることができます。</p>
+                                <p>UnityはComponent、BlenderはModifierでオブジェクトの振る舞いを制御しますが、
+                                    Maya や Houdini といったノードベースのアプリケーションでは、接続する同士の相互作用によって
+                                    全体の振る舞いを制御します。</p>
+                                <p>前者のスタックベースのアプリケーションを使う際には YObject、
+                                    後者のノードベースのアプリケーションを使う際には YNode　がインターフェースの
+                                    デザインとして違和感なく使うことが出来ます。</p>
+                                <p>アプリケーションが持つ性質を意識して、
+                                    Node と Object をそれぞれ使いわけてプログラミングすると良いでしょう。</p>
                                 <div class="highlight-python">
                                     <div class="highlight"><pre><span></span><span class="c1"># 標準ではPython</span>
 <span class="kn">import</span> <span class="nn">yurlungur</span> <span class="kn">as</span> <span class="nn">yr</span>
@@ -187,21 +176,29 @@
                                 <h2>Attribute<a class="headerlink" href="#attribute" title="Permalink to this headline">¶</a>
                                 </h2>
                                 <p>Object based container.
-                                    これはPyMEL をベースにした柔軟なAttributeクラスです。</p>
-                                <p>getter / setter のインターフェースは、アプリケーション間ですべて違います。
-                                    attr(&#8220;str&#8221;) は文字列ベースのアクセスになるので、予め文字列要素で構成した
+                                    これはPyMELをベースにした柔軟なAttributeクラスです。
+                                    すべてオブジェクトで扱えるようにアプリケーション間の戻値をラップしています。
+                                    これは、getter / setter のインターフェースは、アプリケーション間で異なるためです・</p>
+                                <p>attr(&#8220;str&#8221;) は文字列ベースのアクセスになるので、予め文字列要素で構成した
                                     リストを準備すれば短く書くことができるでしょう。</p>
                                 <div class="highlight-python">
                                     <div class="highlight"><pre><span></span><span class="n">width</span> <span
                                             class="o">=</span> <span class="n">obj</span><span class="o">.</span><span
                                             class="n">attr</span><span class="p">(</span><span class="s2">&quot;width&quot;</span><span
                                             class="p">)</span> <span class="c1"># object YAttr</span>
-
-<span class="c1"># or</span>
-
-<span class="n">width</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">width</span>
-
-
+<span class="n">yurlungur</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span
+                                                class="n">width</span><span class="o">.</span><span
+                                                class="n">value</span><span class="p">)</span>
+</pre>
+                                    </div>
+                                </div>
+                                <p>__getitem__ によるアクセスもサポートしているため、
+                                    ユーザー側が今操作しているオブジェクトの状態を気にすることなく
+                                    はじめからそのプロパティを持っていたかのように振る舞います。</p>
+                                <div class="highlight-python">
+                                    <div class="highlight"><pre><span></span><span class="n">width</span> <span
+                                            class="o">=</span> <span class="n">obj</span><span class="o">.</span><span
+                                            class="n">width</span>
 <span class="n">yr</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span
                                                 class="n">width</span><span class="o">.</span><span
                                                 class="n">value</span><span class="p">)</span>
@@ -211,24 +208,28 @@
 </pre>
                                     </div>
                                 </div>
-                                <p>__getitem__ によるアクセスもサポートしているため、
-                                    ユーザー側が今操作しているオブジェクトの状態を気にすることなく
-                                    はじめからそのプロパティを持っていたかのように振る舞います。</p>
+                                <p>Attribute クラスをわざわざ別設計したように、戻り値はすべてオブジェクトです。
+                                    引数に渡したり set するためには、value プロパティを使って、基本データ型に変更する
+                                    必要があります。</p>
                             </div>
                             <div class="section" id="file">
                                 <h2>File<a class="headerlink" href="#file" title="Permalink to this headline">¶</a></h2>
-                                <p>今のスタンダードはストリームですが、
+                                <p>現在のスタンダードはアプリケーション間のデータストリームですが、
                                     ファイルIOを一つのインターフェースでまとめておくことは、
-                                    どのアプリケーションを使う上でも役に立つものでしょう。</p>
+                                    今後どのアプリケーションを使う上でも役に立つものでしょう。</p>
                                 <div class="highlight-python">
                                     <div class="highlight"><pre><span></span><span class="n">yurlungur</span><span
-                                            class="o">.</span><span class="n">file</span>
+                                            class="o">.</span><span class="n">YFile</span><span class="o">.</span><span
+                                            class="n">load</span><span class="p">()</span>
+
+<span class="n">yurlungur</span><span class="o">.</span><span class="n">YFile</span><span class="o">.</span><span
+                                                class="n">save</span><span class="p">()</span>
 </pre>
                                     </div>
                                 </div>
                                 <p>Alembic や FBX など汎用ファイルフォーマットのサポートは
-                                    アプリケーションに依存します。staticベースによる実装が
-                                    yurlungur.command モジュールにまとめられています。</p>
+                                    アプリケーションに依存します。(例えばゲームエンジンでは、一般的なファイルエクスポート機能はサポートされません)
+                                    staticベースによる実装がyurlungur.command モジュールにまとめられています。</p>
                                 <p>基本となるAPIはここで終わりです。</p>
                             </div>
                         </div>
@@ -241,8 +242,8 @@
 
                     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
 
-                        <a href="yurlungur.html" class="btn btn-neutral float-right" title="yurlungur package"
-                           accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+                        <a href="modules.html" class="btn btn-neutral float-right" title="yurlungur" accesskey="n"
+                           rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
 
 
                         <a href="index.html" class="btn btn-neutral" title="Yurlungur for Universal DCC Scripting API"
