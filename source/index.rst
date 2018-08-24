@@ -19,11 +19,14 @@ features
 * PySide & PyQt shorten accessor.
 * Useful py-snippets for technical artist.
 
+Yurlungur is inspired by `PyMEL. <https://github.com/LumaPictures/pymel>`_
+The Quick guide is `here. <https://translate.google.com/translate?sl=ja&tl=en&u=https://qiita.com/sho7noka/items/d01a02a8835ab4c14fc9>`_
+
 
 Chapters:
 
 .. toctree::
-:maxdepth: 1
+    :maxdepth: 2
 
     api
     editor

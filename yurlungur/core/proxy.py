@@ -286,11 +286,12 @@ class YAttr(_YAttr):
             parm = (meta.node(self.obj).parm(self.val) or
                     meta.node(self.obj).parmTuple(self.val)
                     )
-            return parm.set(*args, **kwargs)
+            return parm.set(
+                args[0].tolist() if hasattr(args[0], "T") else args[0], **kwargs)
 
         if hasattr(meta, "data"):
-            arg = args[0]
-            return setattr(meta.data.objects[self.obj], self.val, arg)
+            return setattr(meta.data.objects[self.obj],
+                           self.val, args[0].tolist() if hasattr(args[0], "T") else args[0])
 
         raise YException
 
