@@ -1,19 +1,14 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
-import traceback
 import functools
-import time
 import inspect
-import re
+import os
 import sqlite3
-import keyword
-import pprint
+import sys
+import time
+import traceback
+
 import yurlungur
-
-
-def log(obj):
-    return yurlungur.logger.info(pprint.pformat(obj))
+from yurlungur.core import logger
 
 
 def cache(func, *args, **kwargs):
@@ -36,7 +31,7 @@ def trace(func):
         try:
             return func(*args, **kwargs)
         except:
-            yurlungur.logger.warn(traceback.format_exc())
+            logger.logger.warn(traceback.format_exc())
 
     return wrapper
 
@@ -44,13 +39,13 @@ def trace(func):
 def timer(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        yurlungur.logger.info(
+        yurlungur.logger.log(
             '{0} start'.format(func.__name__)
         )
         start_time = time.clock()
         ret = func(*args, **kwargs)
         end_time = time.clock()
-        yurlungur.logger.info(
+        yurlungur.logger.log(
             '\n{0}: {1:,f}s'.format("total: ", (end_time - start_time))
         )
         return ret
@@ -86,27 +81,6 @@ def __db_attr():
     )
     conn.commit()
     conn.close()
-
-
-def __import__(name, globals=None, locals=None, fromlist=None):
-    # Fast path: see if the module has already been imported.
-    try:
-        return sys.modules[name]
-    except KeyError:
-        pass
-
-    try:
-        import imp
-    except:
-        from importlib import import_module
-        return import_module(name)
-
-    fp, pathname, description = imp.find_module(name)
-    try:
-        return imp.load_module(name, fp, pathname, description)
-    finally:
-        if fp:
-            fp.close()
 
 
 def __make_completer(mod):

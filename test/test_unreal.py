@@ -1,14 +1,15 @@
 import doctest
 import unittest
+import sys
 
-from yurlungur.core import standalone
+sys.path.append('../yurlungur')
+
 from yurlungur.core.env import installed, Unreal
 
 @unittest.skipUnless(installed("unreal"), "Unreal is not found")
-class TestApp(unittest.TestCase):
+class TestUnreal(unittest.TestCase):
     def test_app(self):
-        pass
-        # self.assertFalse(standalone.uepython("import sys; print sys.path"))
+        return True
 
 if __name__ == '__main__':
     unittest.main()

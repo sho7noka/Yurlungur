@@ -8,19 +8,19 @@ Yurlungur is common interface which adapted each application for universal wrapp
 
 setup(
     name='yurlungur',
-    version="0.9.2",
+    version="0.9.4",
     url='https://sho7noka.github.io/Yurlungur/',
     license='MIT',
     author='sho7noka',
     author_email='shosumioka@gmail.com',
     platforms="any",
-    description='universal scripting environment with Python which Maya, Houdini and Unreal.',
+    description='universal scripting environment with Python which Maya, Houdini and Blender.',
     long_description=text,
     keywords=['maya', '3d', 'graphics', 'Game', 'VFX', 'CG', 'houdini', "unreal"],
 
     packages=["yurlungur"],
     include_package_data=True,
-    test_suite='tests',
+    test_suite='test',
     entry_points={
         'console_scripts': [
             'yurl = yurlungur.core.standalone._cli',

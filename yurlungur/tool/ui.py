@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
-import traceback
 import inspect
+import os
+import sys
+import traceback
 
 import yurlungur
 from yurlungur.core import env
@@ -43,7 +43,7 @@ def show(view):
     try:
         view.deleteLater()
     except:
-        yurlungur.logger.info(view)
+        yurlungur.logger.log(view)
 
     try:
         __dark_view(view)

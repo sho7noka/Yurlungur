@@ -1,8 +1,28 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
-import platform
 import functools
+import os
+import platform
+import sys
+
+
+def __import__(name, globals=None, locals=None, fromlist=None):
+    # Fast path: see if the module has already been imported.
+    try:
+        return sys.modules[name]
+    except KeyError:
+        pass
+
+    try:
+        import imp
+    except ImportError:
+        from importlib import import_module
+        return import_module(name)
+
+    try:
+        fp, pathname, description = imp.find_module(name)
+        return imp.load_module(name, fp, pathname, description)
+    except ImportError:
+        return False
 
 
 def Qt(func=None):
@@ -91,11 +111,11 @@ def Maya(func=None):
 
 def Houdini(func=None):
     if func == None:
-        return "houdini" in sys.executable or "hindie" in sys.executable
+        return __import__("hou")
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if "houdini" in sys.executable or "hindie" in sys.executable:
+        if __import__("hou"):
             return func(*args, **kwargs)
 
     return wrapper
@@ -111,6 +131,19 @@ def Unreal(func=None):
             return func(*args, **kwargs)
 
     return wrapper
+
+
+def Unity(func=None):
+    if func == None:
+        return
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "UE4" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
+
 
 
 def Blender(func=None):
@@ -168,7 +201,7 @@ def _Houdini():
     d = {
         "Linux": "/usr/autodesk/maya2017-x64",
         "Windows": "C:/Program Files/Side Effects Software/Houdini 16.5.323/bin",
-        "Darwin": "/Applications/houdini/Houdini.app/Contents",
+        "Darwin": "/Applications/Houdini/Houdini16.5.473/Houdini.app/Contents",
     }
     return os.environ.get("HIP") or d[platform.system()]
 
@@ -191,7 +224,7 @@ def _Blender():
 def _Unreal():
     d = {
         "Linux": "",
-        "Windows": "C:/Program Files/Epic Games/UE_4.19/Engine/Binaries/Win64",
+        "Windows": "C:/Program Files/Epic Games/UE_4.20/Engine/Binaries/Win64",
         "Darwin": ""
     }
     return d[platform.system()]
@@ -199,10 +232,10 @@ def _Unreal():
 
 MayaBin = _Maya()
 HoudiniBin = _Houdini()
-UnrealBin = _Unreal()
+BlenderBin = _Blender()
 
 __all__ = [
     "Windows", "Linux", "MacOS",
-    "Maya", "Houdini", "Unreal",
-    "MayaBin", "HoudiniBin", "UnrealBin"
+    "Maya", "Houdini", "Blender",
+    "MayaBin", "HoudiniBin", "BlenderBin"
 ]

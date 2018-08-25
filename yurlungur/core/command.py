@@ -1,9 +1,28 @@
 # -*- coding: utf-8 -*-
 from yurlungur.core import env
+from yurlungur.core.proxy import YNode, YFile
 from yurlungur.tool.meta import meta
-from yurlungur.core.proxy import YObject, YNode, YFile
 
-file = cmd = object
+__all__ = ["file", "cmd", "UndoGroup"]
+
+
+class UndoGroup(object):
+    def __init__(self, label):
+        self.label = label
+
+    def __enter__(self):
+        if env.Maya():
+            meta.undoInfo(ock=1)
+            return self
+        elif env.Blender():
+            self.undo = meta.context.user_preferences.edit.use_global_undo
+            meta.context.user_preferences.edit.use_global_undo = False
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if env.Maya():
+            meta.undoInfo(cck=1)
+        elif env.Blender():
+            meta.context.user_preferences.edit.use_global_undo = self.undo
 
 
 class Command(object):
@@ -38,7 +57,7 @@ def _glob(cls, *args, **kwargs):
 def _select(cls, *args, **kwargs):
     if hasattr(meta, "select"):
         meta.select(*args, **kwargs)
-    
+
     if hasattr(meta, "root"):
         for node in meta.nodes(args):
             node.setSelected(True, **kwargs)
@@ -69,48 +88,45 @@ def _fbxImporter(cls, *args, **kwargs):
     if hasattr(meta, "importFBX"):
         return meta.importFBX(*args, **kwargs)
     else:
-        return cls(mel.eval("FBXImport -file {0};".format(*args)))
+        return cls(meta.eval("FBXImport -file {0};".format(*args)))
 
 
 def _fbxExporter(cls, *args, **kwargs):
-    return cls(mel.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args)))
+    return cls(meta.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args)))
 
+
+file = YFile()
+cmd = Command()
 
 # Monkey-Patch
 if env.Maya():
-    import maya.mel
-
-    for plugin in ["fbxmaya.mll", "AbcImport.mll", "AbcExport.mll"]:
+    for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
         meta.loadPlugin(plugin, qt=1)
 
-    file = YFile()
     YFile.abcImporter = _alembicImporter
     YFile.abcExporter = _alembicExporter
     YFile.fbxImporter = _fbxImporter
     YFile.fbxExporter = _fbxExporter
 
-    cmd = Command()
     Command.ls = _ls
     Command.rm = _rm
     Command.glob = _glob
     Command.select = _select
 
 if env.Houdini():
-    file = YFile()
+    UndoGroup = meta.undos.group
+
     YFile.abcImporter = _alembicImporter
     YFile.fbxImporter = _fbxImporter
 
-    cmd = Command()
     Command.ls = _ls
     Command.rm = _rm
     Command.glob = _glob
     Command.select = _select
 
-if env.Unreal():
-    file = YFile()
+if env.Blender():
     YFile.abcImporter = _alembicImporter
     YFile.fbxImporter = _fbxImporter
 
-    cmd = Command()
-
-__all__ = ["file", "cmd", "Command"]
+if env.Unreal():
+    UndoGroup = meta.ScopedEditorTransaction
