@@ -6,6 +6,7 @@ from yurlungur.core.env import __import__
 
 application = sys.executable
 
+__doc__ = "app modules"
 
 def exApplication(module=""):
     application = ""

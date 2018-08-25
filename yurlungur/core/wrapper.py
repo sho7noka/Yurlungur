@@ -7,6 +7,13 @@ from yurlungur.core import app, env
 """internal module"""
 
 
+class YException(NotImplementedError):
+    """
+    >>> raise NotImplementedError(app.application)
+    """
+    pass
+
+
 class YMObject(object):
     """command wrapper for any application"""
 
@@ -35,13 +42,6 @@ class YMObject(object):
         return app.application.__name__
 
 
-class YException(NotImplementedError):
-    """
-    >>> raise NotImplementedError(app.application)
-    """
-    pass
-
-
 class MetaObject(type):
     def __new__(cls, name, bases, attrs):
         return super(MetaObject, cls).__new__(cls, name, bases, attrs)
@@ -58,10 +58,10 @@ class MetaNode(type):
 
 
 # Dynamic Class
-_YVector = _YMatrix = _YColor = OM = object
 _YObject = MetaObject("YObject", (object,), {"__doc__": MetaObject.__doc__})
 _YNode = MetaNode("YNode", (object,), {"__doc__": MetaNode.__doc__})
 _YAttr = MetaAttr("YAttr", (object,), {"__doc__": MetaAttr.__doc__})
+_YVector = _YMatrix = _YColor = OM = object
 
 if env.Maya():
     import maya.api.OpenMaya as OM
