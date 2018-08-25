@@ -62,7 +62,7 @@ yr.YNode("foo").bar.set(1)
 
 ## TODO
 - [x] basic api
-- [ ] github.io
+- [x] github.io
 - [ ] unreal
 
 ## contribution
