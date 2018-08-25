@@ -3,14 +3,8 @@ import inspect
 
 import yurlungur
 from yurlungur.core import app, env
-from yurlungur.tool import util
 
-
-class YException(NotImplementedError):
-    """
-    >>> raise NotImplementedError(app.application)
-    """
-    pass
+"""internal module"""
 
 
 class YMObject(object):
@@ -25,18 +19,27 @@ class YMObject(object):
                 )
                 return getattr(yurlungur, item)
 
-        return getattr(yurlungur, "")
+        return None
+
+    def eval(self, script):
+        if env.Maya():
+            import maya.mel as mel
+            return mel.eval(script)
+        if env.Houdini():
+            app.application.hscript(script)
+
+        raise YException
 
     @property
     def module(self):
-        """current application module"""
         return app.application.__name__
 
 
-class ORM(object):
-    def __getattr__(self, item):
-        util.__db_loader()
-        return getattr(self, item)
+class YException(NotImplementedError):
+    """
+    >>> raise NotImplementedError(app.application)
+    """
+    pass
 
 
 class MetaObject(type):
@@ -79,3 +82,10 @@ elif env.Houdini() or env.Unreal():
     ), dict())
 
     _YColor = type('_YColor', (meta.Color,), dict())
+
+elif env.Blender():
+    import mathutils
+
+    _YVector = type('_YVector', (mathutils.Vector,), dict())
+    _YMatrix = type('_YMatrix', (mathutils.Matrix,), dict())
+    _YColor = type('_YColor', (mathutils.Color,), dict())

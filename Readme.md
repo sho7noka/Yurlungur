@@ -5,7 +5,7 @@
 | OS | [![Build status](https://ci.appveyor.com/api/projects/status/46vinb8jd1jbbhdg?svg=true)](https://ci.appveyor.com/project/sho7noka/yurlungur) | [![Build Status](https://travis-ci.org/sho7noka/Yurlungur.svg?branch=dev)](https://travis-ci.org/sho7noka/Yurlungur) | [![codecov](https://codecov.io/gh/sho7noka/Yurlungur/branch/dev/graph/badge.svg)](https://codecov.io/gh/sho7noka/Yurlungur) |
 
 
-universal scripting environment with Python which Maya, Houdini and Unreal.
+universal scripting environment with Python which Maya, Houdini and Blender.
 
 ## summary
 DCC tool scripting is almost used Python, but these api isn't similarly anything.
@@ -20,34 +20,36 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 * Useful py-snippet for Game&Film technical artist.
 
 ### availables
-|       | Node | Attr | Builder |
+|       | Node | Attribute | Geom |
 | ---- | --- | --- | --- |
-| Maya | ○ | ○ | --- |
-| Houdini | ○ | ○ | --- |
-| Unreal | --- | --- | --- |
+| Maya | ○ | ○ | - |
+| Houdini | ○ | ○ | - |
+| Blender | ○ | ○ | - |
+| Substance | - | - | - |
+| [Unreal](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python) | - | - | - |
 
 
 
 ### Installing
 ```bash
-pip install yurlungur
+pipenv install yurlungur
 ```
 
 #### optional
 If you use Unreal or Standalone for full supports, Yurlungur require `PySide` module.
 
 ```bash
-pip install pyside
+pipenv install pyside
 ```
 
 ### semantics
 
-```lua
--- MXS
-$.value = 1
+```python
+# Blender
+bpy.data.objects["foo"].bar = 1
 ```
 
-```bash
+```mel
 // MEL
 setAttr "foo.bar" 1;
 ```
@@ -60,7 +62,7 @@ yr.YNode("foo").bar.set(1)
 
 ## TODO
 - [x] basic api
-- [ ] github.io
+- [x] github.io
 - [ ] unreal
 
 ## contribution

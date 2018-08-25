@@ -1,11 +1,14 @@
 import doctest
 import unittest
 
-from yurlungur.core import standalone
+import sys
+
+sys.path.append('../yurlungur')
+
 from yurlungur.core.env import installed, Houdini
 
 @unittest.skipUnless(installed("houdini"), "Houdini is not found")
-class TestApp(unittest.TestCase):
+class TestHoudini(unittest.TestCase):
     def test_env(self):
         self.assertTrue(installed("houdini"))
 

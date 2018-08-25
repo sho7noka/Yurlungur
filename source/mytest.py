@@ -1451,3 +1451,105 @@ orting, this will affect objects along the entire swept volume.
  'user_construction_script',
  'was_recently_rendered'
  ]
+
+import sys; sys.path.append("/Users/shosumioka/Documents/Yurlungur"); import yurlungur as yr;
+
+yr.log("aaa")
+
+def maya_useNewAPI():
+    """
+    The presence of this function tells Maya that the plugin produces, and
+    expects to be passed, objects created using the Maya Python API 2.0.
+    """
+    pass
+
+
+# command
+# class PyHelloWorldCmd(om.MPxCommand):
+#     kPluginCmdName = "pyHelloWorld"
+#
+#     def __init__(self):
+#         om.MPxCommand.__init__(self)
+#
+#     @staticmethod
+#     def cmdCreator():
+#         return PyHelloWorldCmd()
+#
+#     def doIt(self, args):
+#         print ("Hello World!")
+
+
+# Initialize the plug-in
+def initializePlugin(plugin):
+    pluginFn = om.MFnPlugin(plugin)
+    try:
+        pluginFn.registerCommand(
+            PyHelloWorldCmd.kPluginCmdName, PyHelloWorldCmd.cmdCreator
+        )
+    except:
+        sys.stderr.write(
+            "Failed to register command: %s\n" % PyHelloWorldCmd.kPluginCmdName
+        )
+        raise
+
+
+# Uninitialize the plug-in
+def uninitializePlugin(plugin):
+    pluginFn = om.MFnPlugin(plugin)
+    try:
+        pluginFn.deregisterCommand(PyHelloWorldCmd.kPluginCmdName)
+    except:
+        sys.stderr.write(
+            "Failed to unregister command: %s\n" % PyHelloWorldCmd.kPluginCmdName
+        )
+        raise
+
+
+# import maya.cmds as cmds
+#
+# cmds.loadPlugin("C:/Users/sumiosho/Desktop/tools/test.py")
+# cmds.pyHelloWorld()
+
+# blender
+
+plugin_info = {
+    "name": "sample: add-onTest",
+    "author": "ssss",
+    "version": (2, 0),
+    "blender": (2, 79, 0),
+    "location": "",
+    "description": "sample",
+    "warning": "",
+    "support": "TESTING",
+    "wiki_url": "",
+    "tracker_url": "",
+    "category": "Object"
+}
+
+
+def register():
+    print("sample: add-onTest ON")
+
+
+def unregister():
+    print("sample: add-onTest OFF")
+
+
+if __name__ == "__main__":
+    register()
+
+
+EGG_FILENAME = "/Users/shosumioka/Library/Application Support/JetBrains/Toolbox/apps/PyCharm-P/ch-0/181.5087.37/PyCharm.app/Contents/debug-eggs/pycharm-debug.egg"
+PYD = "/Users/shosumioka/Library/Application/ Support/JetBrains/Toolbox/apps/PyCharm-P/ch-0/181.5087.37/PyCharm.app/Contents/helpers/pydev"
+HOST = 'localhost'
+PORT = 9999
+
+# PyCharm付属のeggファイルにパスを通す
+import sys
+if EGG_FILENAME not in sys.path:
+    sys.path.append(EGG_FILENAME)
+    sys.path.append(PYD)
+
+# 起動
+import pydevd
+pydevd.settrace(HOST, port=PORT, stdoutToServer=True, stderrToServer=True)

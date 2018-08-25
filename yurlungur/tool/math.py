@@ -1,35 +1,46 @@
 # -*- coding: utf-8 -*-
-import sys
-import inspect
 import cmath
+import inspect
+import sys
 
-from yurlungur.tool.meta import meta
-from yurlungur.core.env import Numpy
+from yurlungur.core.env import Numpy, Blender
 from yurlungur.core.wrapper import (
-    _YVector, _YMatrix, _YColor, OM
+    _YVector, _YMatrix, _YColor
 )
 
-__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
+if Numpy():
+    import numpy as np
+else:
+    pass
 
 
-# @total_ordering
 class YVector(_YVector):
-    def __init__(self):
-        super(YVector, self).__init__()
+    def __init__(self, *args, **kwargs):
+        if Blender():
+            super(YVector, self).__init__()
+            self.vector = [self.x, self.y, self.z]
+        else:
+            super(YVector, self).__init__(*args, **kwargs)
+            self.vector = args
 
-    def __eq__(self, other):
-        return True
+    @Numpy
+    def array(self):
+        return np.array(self.vector, dtype=np.float16)
 
     def identify(self):
         return
 
-    def dot_poduct(self, a, b, norm=False):
+    def dot(self, a, b, norm=False):
         if norm:  # 正規化オプション
             a = self.normalize(a)
             b = self.normalize(b)
         dot = (a[0] * b[0]) + (a[1] * b[1])
         return dot
 
+    def cross(self, a, b):
+        return
+
+    @Numpy
     def normalize(self, a):
         length = self.length(a)
         return [a[0] / length, a[1] / length]
@@ -39,27 +50,13 @@ class YVector(_YVector):
 
 
 class YMatrix(_YMatrix):
-    def __init__(self):
-        super(YMatrix, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(YMatrix, self).__init__(*args, **kwargs)
 
 
 class YColor(_YColor):
-    def __init__(self):
-        super(YColor, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(YColor, self).__init__(*args, **kwargs)
 
-        if hasattr(meta, "Color"):
-            self.color = meta.Color()
-        else:
-            self.color = OM.MColor()
 
-    @property
-    def r(self):
-        return self.color[0]
-
-    @property
-    def g(self):
-        return self.color[1]
-
-    @property
-    def b(self):
-        return self.color[2]
+__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
