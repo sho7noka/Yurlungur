@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 
-import __builtin__
+try:
+    import __builtin__
+except ImportError:
+    import builtins as __builtins__
+
 import sys
 import time
 from logging import (
@@ -33,7 +37,7 @@ class GuiLogHandler(Handler):
             elif env.Unreal():
                 meta.log_error(msg)
             elif env.Unity():
-                env.Debug.LogError(msg)
+                meta.Debug.LogError(msg)
 
         elif record.levelno > INFO:
             if env.Maya():
@@ -43,7 +47,7 @@ class GuiLogHandler(Handler):
             elif env.Unreal():
                 meta.log_warning(msg)
             elif env.Unity():
-                env.Debug.LogWarning(msg)
+                meta.Debug.LogWarning(msg)
 
         else:
             if env.Maya():
@@ -53,7 +57,7 @@ class GuiLogHandler(Handler):
             elif env.Unreal():
                 meta.log(msg)
             elif env.Unity():
-                env.Debug.Log(msg)
+                meta.Debug.Log(msg)
 
 
 # logger
@@ -67,12 +71,12 @@ if not env.Blender():
 basicConfig(level=INFO, stream=sys.stdout)
 
 
-def log(*msg):
-    logger.info(pformat(*msg))
+def log(*msgs):
+    logger.info(pformat(*msgs))
 
 
-def print(args):
-    __builtin__.print(pformat(args))
+def print(*args):
+    __builtin__.print(pformat(*args))
 
 
 def _progress():

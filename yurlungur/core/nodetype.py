@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-import ctypes
 import fnmatch
-import inspect
-
-from yurlungur.core import env
 from yurlungur.core.proxy import YNode
 from yurlungur.tool.meta import meta
 
@@ -37,40 +33,6 @@ class _NodeType(object):
                     meta.nodeTypeCategories()[category].nodeTypes().keys(),
                     pattern
                 )
-
-
-class OpenGL(object):
-    """openGL wrapper"""
-
-    def __getattr__(self, item):
-        def _getGL(mod):
-            for cmd, _ in inspect.getmembers(mod):
-                if fnmatch.fnmatch(item, "".join(["*", cmd])):
-                    setattr(
-                        self, cmd,
-                        (lambda str: dict(inspect.getmembers(mod))[str])(cmd)
-                    )
-                    return getattr(self, item)
-
-        _tmp = []
-
-        if env.Maya():
-            from maya import OpenMayaRender as _mgl
-            _tmp.extend(_mgl, _mgl.MHardwareRenderer.theRenderer().glFunctionTable())
-
-        if env.Blender():
-            import bgl
-            _tmp.extend(bgl)
-
-        for gl in _tmp:
-            if _getGL(gl):
-                return _getGL(gl)
-
-        try:
-            from OpenGL import GL as gl
-            return gl
-        except ImportError:
-            return ctypes.cdll.OpenGL32
 
 
 YType = _NodeType()

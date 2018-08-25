@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import cmath
-import inspect
 import sys
+import inspect
+import cmath
 
-from yurlungur.core.env import Numpy, Blender
 from yurlungur.core.wrapper import (
     _YVector, _YMatrix, _YColor
 )
+from yurlungur.core.env import Numpy, Blender
 
 if Numpy():
     import numpy as np
