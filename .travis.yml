@@ -1,14 +1,14 @@
 language: python
 python:
-- '3.4'
+- '2.7'
 install:
 - pip install sphinx travis-sphinx sphinxcontrib-napoleon sphinx_rtd_theme codecov
 script:
 - python -m unittest discover
-- travis-sphinx --outdir docs build --source=source
+#- travis-sphinx --outdir docs build --source=source
 after_success:
-- travis-sphinx deploy --branches "master" --message "doc Update Sphinx pages"
 - codecov
+#- travis-sphinx deploy --branches "master" --message "doc Update Sphinx pages"
 deploy:
   provider: pypi
   user: sho7noka
