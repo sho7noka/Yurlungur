@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-import inspect
-import os
 import sys
+import os
+import inspect
+import fnmatch
 import traceback
 
 import yurlungur
@@ -12,6 +13,41 @@ if env.Qt():
     from yurlungur.Qt.QtGui import *
     from yurlungur.Qt.QtWidgets import *
     from yurlungur.Qt.QtOpenGL import *
+
+
+class OpenGL(object):
+    """openGL wrapper"""
+
+    def __getattr__(self, item):
+        def _getGL(mod):
+            for cmd, _ in inspect.getmembers(mod):
+                if fnmatch.fnmatch(item, "".join(["*", cmd])):
+                    setattr(
+                        self, cmd,
+                        (lambda str: dict(inspect.getmembers(mod))[str])(cmd)
+                    )
+                    return getattr(self, item)
+
+        _tmp = []
+
+        if env.Maya():
+            from maya import OpenMayaRender as _mgl
+            _tmp.extend(_mgl, _mgl.MHardwareRenderer.theRenderer().glFunctionTable())
+
+        if env.Blender():
+            import bgl
+            _tmp.extend(bgl)
+
+        for gl in _tmp:
+            if _getGL(gl):
+                return _getGL(gl)
+
+        try:
+            from OpenGL import GL as gl
+            return gl
+        except ImportError:
+            import ctypes
+            return ctypes.cdll.OpenGL32
 
 
 @env.Qt
