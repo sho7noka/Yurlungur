@@ -6,7 +6,6 @@ from yurlungur.core import app, env
 
 """internal module"""
 
-
 class YException(NotImplementedError):
     """
     >>> raise NotImplementedError(app.application)
@@ -16,6 +15,13 @@ class YException(NotImplementedError):
 
 class YMObject(object):
     """command wrapper for any application"""
+    if env.Substance():
+        import sd
+        from sd.api.sdproperty import SDPropertyCategory
+        context = sd.getContext()
+        sd_app = context.getSDApplication()
+        manager = sd_app.getPackageMgr()
+        graph = manager.getUserPackages()[0].getChildrenResources(True)[0]
 
     def __getattr__(self, item):
         for cmd, _ in inspect.getmembers(app.application):
@@ -26,7 +32,7 @@ class YMObject(object):
                 )
                 return getattr(yurlungur, item)
 
-        return None
+        raise YException
 
     def eval(self, script):
         if env.Maya():
@@ -89,3 +95,10 @@ elif env.Blender():
     _YVector = type('_YVector', (mathutils.Vector,), dict())
     _YMatrix = type('_YMatrix', (mathutils.Matrix,), dict())
     _YColor = type('_YColor', (mathutils.Color,), dict())
+
+elif env.Substance():
+    meta = YMObject()
+
+    _YVector = type('_YVector', (meta.SDValueVector,), dict())
+    _YMatrix = type('_YMatrix', (meta.SDValueMatrix,), dict())
+    _YColor = type('_YColor', (meta.SDValueColorRGBA,), dict())

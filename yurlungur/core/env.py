@@ -25,6 +25,14 @@ def __import__(name, globals=None, locals=None, fromlist=None):
         return False
 
 
+def __serialize():
+    """
+    serialize .env file
+    :return:
+    """
+    "Users/shosumioka/Documents/Allegorithmic/Substance Designer/python"
+    pass
+
 def Qt(func=None):
     try:
         import yurlungur.Qt as Qt
@@ -170,6 +178,17 @@ def Max(func=None):
     return wrapper
 
 
+def Substance(func=None):
+    if func == None:
+        return "Substance" in sys.executable
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "Substance" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
+
 def installed(app):
     _app = app.lower()
 
@@ -183,6 +202,8 @@ def installed(app):
         return os.path.exists(_Blender())
     if _app == "max":
         return os.path.exists(_Max())
+    if _app == "Substance":
+        return os.path.exists(_Substance())
     return False
 
 
@@ -205,6 +226,14 @@ def _Houdini():
     }
     return os.environ.get("HIP") or d[platform.system()]
 
+
+def _Substance():
+    d = {
+        "Linux": "/usr/autodesk/maya2017-x64",
+        "Windows": "C:/Program Files/Side Effects Software/Houdini 16.5.323/bin",
+        "Darwin": "/Applications/Substance Designer.app/Contents",
+    }
+    return d[platform.system()]
 
 def _Max():
     """find 3dsMax app"""

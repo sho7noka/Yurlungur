@@ -25,7 +25,7 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 | Maya | ○ | ○ | - |
 | Houdini | ○ | ○ | - |
 | Blender | ○ | ○ | - |
-| Substance | - | - | - |
+| Substance | ○ | ○ | - |
 | [Unreal](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python) | - | - | - |
 
 
