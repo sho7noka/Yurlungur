@@ -38,9 +38,9 @@ elif "blender" in application:
     application = bpy
 
 elif "Substance" in application:
-    import sd
+    import sd.api as sdapi
 
-    application = sd
+    application = sdapi
 
 elif "UE4Editor" in application:
     import unreal
