@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import platform
 import sys
-
 from yurlungur.core.env import __import__
 
 application = sys.executable
-
 __doc__ = "app modules"
+
 
 def exApplication(module=""):
     application = ""
@@ -41,6 +40,11 @@ elif "Substance" in application:
     import sd.api as sdapi
 
     application = sdapi
+
+elif __import__("Gaffer"):
+    import GafferScene
+
+    application = GafferScene
 
 elif "UE4Editor" in application:
     import unreal
