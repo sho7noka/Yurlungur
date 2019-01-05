@@ -31,6 +31,8 @@ class GuiLogHandler(Handler):
                 meta.log_error(msg)
             elif env.Unity():
                 meta.Debug.LogError(msg)
+            elif env.Gaffer():
+                pass
 
         elif record.levelno > INFO:
             if env.Maya():
@@ -41,6 +43,8 @@ class GuiLogHandler(Handler):
                 meta.log_warning(msg)
             elif env.Unity():
                 meta.Debug.LogWarning(msg)
+            elif env.Gaffer():
+                pass
 
         else:
             if env.Maya():
@@ -51,6 +55,8 @@ class GuiLogHandler(Handler):
                 meta.log(msg)
             elif env.Unity():
                 meta.Debug.Log(msg)
+            elif env.Gaffer():
+                pass
 
 
 if env.Substance():
@@ -62,6 +68,7 @@ if env.Substance():
 
 elif env.Blender():
     pass  # TODO: https://code.blender.org/2016/05/logging-from-python-code-in-blender/
+
 else:
     logger = getLogger(yurlungur.__name__)
     logger.setLevel(INFO)

@@ -6,6 +6,7 @@ from yurlungur.core import app, env
 
 """internal module"""
 
+
 class YException(NotImplementedError):
     """
     >>> raise NotImplementedError(app.application)
@@ -15,6 +16,7 @@ class YException(NotImplementedError):
 
 class YMObject(object):
     """command wrapper for any application"""
+
     if env.Substance():
         import sd
         from sd.api.sdproperty import SDPropertyCategory
@@ -22,6 +24,11 @@ class YMObject(object):
         sd_app = context.getSDApplication()
         manager = sd_app.getPackageMgr()
         graph = manager.getUserPackages()[0].getChildrenResources(True)[0]
+
+    if env.Gaffer():
+        global script
+        global IECore
+        # ['Gaffer', 'GafferUI', 'IECore', 'imath', 'parent', 'script']
 
     def __getattr__(self, item):
         for cmd, _ in inspect.getmembers(app.application):

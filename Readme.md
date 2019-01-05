@@ -22,10 +22,11 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 ### availables
 |       | Node | Attribute | Geom |
 | ---- | --- | --- | --- |
-| Maya | ○ | ○ | - |
-| Houdini | ○ | ○ | - |
-| Blender | ○ | ○ | - |
+| Maya | ○ | ○ | ☓ |
+| Houdini | ○ | ○ | ☓ |
+| Blender | ○ | ○ | ☓ |
 | Substance | ○ | ○ | - |
+| [Gaffer](http://www.gafferhq.org/documentation/0.50.0.0/Reference/ScriptingReference/CommonOperations/index.html) | - | - | - |
 | [Unreal](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python) | - | - | - |
 
 

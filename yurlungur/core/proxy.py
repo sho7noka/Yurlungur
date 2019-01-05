@@ -72,6 +72,9 @@ class YObject(_YObject):
         if hasattr(meta, "data"):
             meta.data.objects[self.item].name = "".join(args)
 
+        if hasattr(meta, "script"):
+            return meta.script[self.name].setName(args[0])
+
     @trace
     def __getattr__(self, val):
         if hasattr(meta, "SDNode"):
@@ -87,6 +90,10 @@ class YObject(_YObject):
 
         if hasattr(meta, "data"):
             return YAttr(meta.data.objects[self.name].name, self.name, val)
+
+        if hasattr(meta, "script"):
+            value = meta.script[self.name][val].getValue()
+            return YAttr(meta.script[self.name], self.name, val)
 
         raise YException
 
@@ -106,6 +113,10 @@ class YObject(_YObject):
         if hasattr(meta, "data"):
             return YAttr(meta.data.objects[self.name].name, self.name, val)
 
+        if hasattr(meta, "script"):
+            value = meta.script[self.name][val].getValue()
+            return YAttr(meta.script[self.name], self.name, val)
+
         raise YException
 
     @property
@@ -124,6 +135,9 @@ class YObject(_YObject):
 
         if hasattr(meta, "data"):
             return inspect.getmembers(meta.data.objects[self.name])
+
+        if hasattr(meta, "script"):
+            return meta.script[self.name].values()
 
         raise YException
 
@@ -149,6 +163,10 @@ class YObject(_YObject):
                 getattr(meta.ops.mesh, str(self).lower() + "_add")(*args, **kwargs)
             except AttributeError:
                 getattr(meta.ops.object, str(self).lower() + "_add")(*args, **kwargs)
+
+        if hasattr(meta, "script"):
+            node = getattr(meta, self.name)(*args, **kwargs)
+            meta.script.addChild(node)
 
         raise YException
 
@@ -192,6 +210,11 @@ class YObject(_YObject):
                 return meta.select(*args, **kwargs)
             else:
                 return meta.ls(sl=1)
+
+        if hasattr(meta, "script"):
+            meta.script.selection().clear()
+            for arg in args:
+                meta.script.selection().add(meta.script[arg])
 
         raise YException
 
@@ -269,19 +292,25 @@ class YNode(YObject):
         if hasattr(meta, "root"):
             return YNode(meta.node(self.item).children())
 
+        if hasattr(meta, ""):
+            return YNode(script.children(Gaffer.Node))
+
         raise YException
 
     @trace
     def connect(self, *args, **kwargs):
         if hasattr(meta, "SDNode"):
             args = (args[0], meta.graph.getNodeFromId(args[1].id), args[2])
-            return meta.graph.getNodeFromId(self.name).newPropertyConnectionFromId(*args)
+            return meta.graph.getNodeFromId(self.name).newPropertyConnectionFromId(*args).getClassName()
 
         if hasattr(meta, "connectAttr"):
             return partial(meta.connectAttr, self.name + "." + args[0])(args[1:], **kwargs)
 
         if hasattr(meta, "root"):
             return partial(meta.node(self.name).setInput, 0)(*args, **kwargs)
+
+        if hasattr(meta, ""):
+            return destinationNode["destinationPlugName"].setInput(sourceNode["sourceNode"])
 
         raise YException
 
@@ -302,6 +331,9 @@ class YNode(YObject):
 
         if hasattr(meta, "root"):
             return partial(meta.node(self.name).setInput, 0, None)(*args, **kwargs)
+
+        if hasattr(meta, ""):
+            node["plugName"].setInput(None)
 
         raise YException
 
@@ -384,6 +416,10 @@ class YAttr(_YAttr):
         if hasattr(meta, "data"):
             return setattr(meta.data.objects[self.obj],
                            self.val, args[0].tolist() if hasattr(args[0], "T") else args[0])
+
+        if hasattr(meta, "script"):
+            return node["plugName"].setValue(*args, **kwargs)
+
         raise YException
 
     @trace
@@ -429,7 +465,7 @@ class YAttr(_YAttr):
 
 
 class YFile(_YObject):
-    """save, load and export"""
+    """save, open and export"""
 
     def __init__(self, file=""):
         self.file = file
@@ -443,7 +479,7 @@ class YFile(_YObject):
         return os.path.dirname(self.file)
 
     @classmethod
-    def load(cls, *args, **kwargs):
+    def open(cls, *args, **kwargs):
         if hasattr(meta, "sbs"):
             return cls(meta.manager.loadUserPackage(*args, **kwargs))
 
@@ -455,6 +491,9 @@ class YFile(_YObject):
 
         if hasattr(meta, "ops"):
             return cls(meta.ops.wm.open_mainfile(*args, **kwargs))
+
+        if hasattr(meta, "script"):
+            return cls(meta.script.importFile(*args, **kwargs))
 
         raise YException
 
@@ -472,21 +511,27 @@ class YFile(_YObject):
         if hasattr(meta, "ops"):
             return meta.ops.wm.save_mainfile(*args, **kwargs)
 
+        if hasattr(meta, "script"):
+            return meta.script.serialiseToFile(*args, **kwargs)
+
         raise YException
 
     @property
-    def current(cls):
+    def current(self):
         if hasattr(meta, "sbs"):
-            return cls(meta.manager.getUserPackageFromFilePath())
+            return self(meta.manager.getUserPackageFromFilePath())
 
         if hasattr(meta, "file"):
-            return cls(meta.file(exn=1, q=1))
+            return self(meta.file(exn=1, q=1))
 
         if hasattr(meta, "hipFile"):
-            return cls(meta.hipFile.path())
+            return self(meta.hipFile.path())
 
         if hasattr(meta, "data"):
-            return cls(meta.data.filepath)
+            return self(meta.data.filepath)
+
+        if hasattr(meta, "script"):
+            return self(meta.script["fileName"].getValue())
 
         raise YException
 
