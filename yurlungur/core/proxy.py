@@ -24,7 +24,10 @@ class YObject(_YObject):
         self.item = item
 
     def __repr__(self):
-        return self.name
+        if hasattr(meta, "SDNode"):
+            return "id: " + self.name
+        else:
+            return self.name
 
     @property
     def name(self):
@@ -39,13 +42,7 @@ class YObject(_YObject):
             id = ""
             for node in meta.graph.getNodes():
                 d = node.getDefinition()
-                if d.getId() == self.item:
-                    id = node.getIdentifier()
-                    break
-                if d.getLabel() == self.item:
-                    id = node.getIdentifier()
-                    break
-                if node.getIdentifier() == self.item:
+                if d.getId() == self.item or d.getLabel() == self.item or node.getIdentifier() == self.item:
                     id = node.getIdentifier()
                     break
             return id if id else meta.graph.getIdentifier()
