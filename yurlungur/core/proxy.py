@@ -421,6 +421,12 @@ class YAttr(_YAttr):
             return node["plugName"].setValue(*args, **kwargs)
 
         raise YException
+        
+    def add(self, *args, **kwargs):
+        pass
+        
+    def delete(self, *args, **kwargs):
+        pass
 
     @trace
     def lock(self, on):
