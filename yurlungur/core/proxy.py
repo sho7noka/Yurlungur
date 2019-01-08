@@ -388,6 +388,12 @@ class YAttr(_YAttr):
             return setattr(meta.data.objects[self.obj],
                            self.val, args[0].tolist() if hasattr(args[0], "T") else args[0])
         raise YException
+        
+    def add(self, *args, **kwargs):
+        pass
+        
+    def delete(self, *args, **kwargs):
+        pass
 
     @trace
     def lock(self, on):
