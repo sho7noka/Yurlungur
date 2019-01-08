@@ -47,6 +47,8 @@ class YMObject(object):
             return mel.eval(script)
         if env.Houdini():
             app.application.hscript(script)
+        if env.Max():
+            pass
 
         raise YException
 
