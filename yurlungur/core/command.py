@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from functools import partial
+
 from yurlungur.core import env
 from yurlungur.core.proxy import YNode, YFile
 from yurlungur.tool.meta import meta
@@ -132,3 +134,6 @@ if env.Blender():
 
 if env.Unreal():
     UndoGroup = meta.ScopedEditorTransaction
+
+if env.Max():
+    UndoGroup = partial(meta.undo, True)

@@ -7,8 +7,8 @@ script:
 - python -m unittest discover
 #- travis-sphinx --outdir docs build --source=source
 after_success:
-- codecov
 #- travis-sphinx deploy --branches "master" --message "doc Update Sphinx pages"
+
 deploy:
   provider: pypi
   user: sho7noka
