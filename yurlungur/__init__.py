@@ -12,7 +12,7 @@ from yurlungur.core import * # noQA
 from yurlungur.tool.math import (
     YVector, YColor, YMatrix
 )
-from yurlungur.tool.util import (
+from yurlungur.core.util import (
     cache, trace, timer
 )
 from yurlungur.tool import ui
