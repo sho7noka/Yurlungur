@@ -14,7 +14,7 @@ def exApplication(module=""):
         application = __import__(module)
 
     elif application == "":
-        from yurlungur.core import standalone
+        from yurlungur.tool import standalone
 
         application = standalone
 
