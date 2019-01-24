@@ -103,37 +103,12 @@ file = YFile()
 cmd = Command()
 
 # Monkey-Patch
-if env.Maya():
-    for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
-        meta.loadPlugin(plugin, qt=1)
+YFile.abcImporter = _alembicImporter
+YFile.abcExporter = _alembicExporter
+YFile.fbxImporter = _fbxImporter
+YFile.fbxExporter = _fbxExporter
 
-    YFile.abcImporter = _alembicImporter
-    YFile.abcExporter = _alembicExporter
-    YFile.fbxImporter = _fbxImporter
-    YFile.fbxExporter = _fbxExporter
-
-    Command.ls = _ls
-    Command.rm = _rm
-    Command.glob = _glob
-    Command.select = _select
-
-if env.Houdini():
-    UndoGroup = meta.undos.group
-
-    YFile.abcImporter = _alembicImporter
-    YFile.fbxImporter = _fbxImporter
-
-    Command.ls = _ls
-    Command.rm = _rm
-    Command.glob = _glob
-    Command.select = _select
-
-if env.Blender():
-    YFile.abcImporter = _alembicImporter
-    YFile.fbxImporter = _fbxImporter
-
-if env.Unreal():
-    UndoGroup = meta.ScopedEditorTransaction
-
-if env.Max():
-    UndoGroup = partial(meta.undo, True)
+Command.ls = _ls
+Command.rm = _rm
+Command.glob = _glob
+Command.select = _select

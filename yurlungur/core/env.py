@@ -25,14 +25,6 @@ def __import__(name, globals=None, locals=None, fromlist=None):
         return False
 
 
-def __serialize():
-    """
-    serialize .env file
-    :return:
-    """
-    "Users/shosumioka/Documents/Allegorithmic/Substance Designer/python"
-    pass
-
 def Qt(func=None):
     try:
         import yurlungur.Qt as Qt
