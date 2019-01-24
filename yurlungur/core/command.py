@@ -1,32 +1,8 @@
 # -*- coding: utf-8 -*-
-from functools import partial
-
-from yurlungur.core import env
 from yurlungur.core.proxy import YNode, YFile
 from yurlungur.tool.meta import meta
 
-__all__ = ["file", "cmd", "UndoGroup"]
-
-
-class UndoGroup(object):
-    def __init__(self, label):
-        self.label = label
-
-    def __enter__(self):
-        if env.Maya():
-            meta.undoInfo(ock=1)
-            return self
-        elif env.Max():
-            pass
-        elif env.Blender():
-            self.undo = meta.context.user_preferences.edit.use_global_undo
-            meta.context.user_preferences.edit.use_global_undo = False
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        if env.Maya():
-            meta.undoInfo(cck=1)
-        elif env.Blender():
-            meta.context.user_preferences.edit.use_global_undo = self.undo
+__all__ = ["file", "cmd"]
 
 
 class Command(object):
