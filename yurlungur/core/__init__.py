@@ -1,7 +1,7 @@
 from yurlungur.core.app import application
 from yurlungur.core.builder import Builder
 from yurlungur.core.command import cmd, file
-from yurlungur.tool.util import UndoGroup
+from yurlungur.core.deco import UndoGroup
 from yurlungur.core.env import Maya, Houdini, Blender
 from yurlungur.core.logger import log
 from yurlungur.core.nodetype import YType
