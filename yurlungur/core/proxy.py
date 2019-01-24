@@ -12,6 +12,7 @@ from yurlungur.tool.math import (
 )
 from yurlungur.tool.meta import meta
 from yurlungur.tool.util import trace
+from yurlungur.core.command import file
 
 
 class YObject(_YObject):
@@ -421,10 +422,10 @@ class YAttr(_YAttr):
             return node["plugName"].setValue(*args, **kwargs)
 
         raise YException
-        
+
     def add(self, *args, **kwargs):
         pass
-        
+
     def delete(self, *args, **kwargs):
         pass
 
@@ -476,6 +477,10 @@ class YFile(_YObject):
     def __init__(self, file=""):
         self.file = file
 
+        if hasattr(meta, "loadPlugin"):
+            for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
+                meta.loadPlugin(plugin, qt=1)
+
     @property
     def name(self):
         return os.path.basename(self.file)
@@ -486,6 +491,11 @@ class YFile(_YObject):
 
     @classmethod
     def open(cls, *args, **kwargs):
+        if args[0].endswith("abc"):
+            return cls(file.abcImporter(*args, **kwargs))
+        if args[0].endswith("fbx"):
+            return cls(file.fbxImporter(*args, **kwargs))
+
         if hasattr(meta, "sbs"):
             return cls(meta.manager.loadUserPackage(*args, **kwargs))
 
@@ -505,6 +515,11 @@ class YFile(_YObject):
 
     @classmethod
     def save(cls, *args, **kwargs):
+        if args[0].endswith("abc"):
+            return cls(file.abcExporter(*args, **kwargs))
+        if args[0].endswith("fbx"):
+            return cls(file.fbxExporter(*args, **kwargs))
+
         if hasattr(meta, "sbs"):
             return cls(meta.manager.savePackageAs(*args, **kwargs))
 
