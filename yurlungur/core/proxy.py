@@ -12,7 +12,6 @@ from yurlungur.tool.math import (
 )
 from yurlungur.tool.meta import meta
 from yurlungur.tool.util import trace
-from yurlungur.core.command import file
 
 
 class YObject(_YObject):
@@ -491,6 +490,7 @@ class YFile(_YObject):
 
     @classmethod
     def open(cls, *args, **kwargs):
+        from yurlungur.core.command import file
         if args[0].endswith("abc"):
             return cls(file.abcImporter(*args, **kwargs))
         if args[0].endswith("fbx"):
@@ -515,6 +515,7 @@ class YFile(_YObject):
 
     @classmethod
     def save(cls, *args, **kwargs):
+        from yurlungur.core.command import file
         if args[0].endswith("abc"):
             return cls(file.abcExporter(*args, **kwargs))
         if args[0].endswith("fbx"):
