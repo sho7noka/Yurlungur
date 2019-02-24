@@ -51,7 +51,7 @@ elif "UE4Editor" in application:
 
     application = unreal
 
-elif "max" in application:
+elif "3dsmax" in application:
     import pymxs
 
     application = pymxs

@@ -4,6 +4,7 @@ import inspect
 import yurlungur
 from yurlungur.core import app, env
 
+
 """internal module"""
 
 
@@ -16,7 +17,7 @@ class YException(NotImplementedError):
 
 class YMObject(object):
     """command wrapper for any application"""
-
+    
     if env.Substance():
         import sd
         from sd.api.sdproperty import SDPropertyCategory
@@ -25,12 +26,8 @@ class YMObject(object):
         manager = sd_app.getPackageMgr()
         graph = manager.getUserPackages()[0].getChildrenResources(True)[0]
 
-    if env.Gaffer():
-        global script
-        global IECore
-        # ['Gaffer', 'GafferUI', 'IECore', 'imath', 'parent', 'script']
-
     def __getattr__(self, item):
+        # yr.meta.runtime.Name('export')
         for cmd, _ in inspect.getmembers(app.application):
             if cmd == item:
                 setattr(
@@ -46,9 +43,10 @@ class YMObject(object):
             import maya.mel as mel
             return mel.eval(script)
         if env.Houdini():
-            app.application.hscript(script)
+            return app.application.hscript(script)
         if env.Max():
-            pass
+            import MaxPlus
+            return MaxPlus.Core.EvalMAXScript(script)
 
         raise YException
 
@@ -111,3 +109,10 @@ elif env.Substance():
     _YVector = type('_YVector', (meta.SDValueVector,), dict())
     _YMatrix = type('_YMatrix', (meta.SDValueMatrix,), dict())
     _YColor = type('_YColor', (meta.SDValueColorRGBA,), dict())
+
+elif env.Max():
+    import MaxPlus
+
+    _YVector = type('_YVector', (MaxPlus.Point3,), dict())
+    _YMatrix = type('_YMatrix', (MaxPlus.Matrix3,), dict())
+    _YColor = type('_YColor', (MaxPlus.Color,), dict())

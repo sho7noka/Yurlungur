@@ -66,6 +66,7 @@ def bpython(pystr):
     )
 
 def maxpy(pystr):
+    # http://help.autodesk.com/view/3DSMAX/2019/ENU/?guid=GUID-96D3ABE3-32CA-491D-9CAD-0A0576346E54
     assert os.path.getsize(env.MaxBin)
     subprocess.call(
         "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.MaxBin, sys.path.append(yr), pystr)
@@ -111,6 +112,9 @@ def _cli(args):
     parser.add_argument("--unrealpy", "-ue",
                         help="Run Python from unreal editor cmd.",
                         nargs=2)
+    parser.add_argument("--maxpy", "-max",
+                        help="Run Python from 3dsmaxpy.",
+                        nargs=2)
 
     args = parser.parse_args(args)
     if args.dialog:
@@ -125,6 +129,9 @@ def _cli(args):
     if args.unrealpy:
         project, expr = args.unrealpy
         uepython(project, expr)
+
+    if args.maxpy:
+        maxpy(args.maxpy[0])
 
 
 def main(args=[]):

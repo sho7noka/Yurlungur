@@ -2,7 +2,6 @@
 import functools
 
 from yurlungur.tool.meta import meta
-
 from yurlungur.core import env
 
 
@@ -14,8 +13,6 @@ class UndoGroup(object):
         if env.Maya():
             meta.undoInfo(ock=1)
             return self
-        elif env.Max():
-            pass
         elif env.Blender():
             self.undo = meta.context.user_preferences.edit.use_global_undo
             meta.context.user_preferences.edit.use_global_undo = False

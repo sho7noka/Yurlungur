@@ -242,7 +242,7 @@ def _Substance():
 
 def _Max():
     """find 3dsMax app"""
-    return os.environ.get("ADSK_3DSMAX_X64_2018") or "C:/Program Files/Autodesk/3ds Max 2018"
+    return os.environ.get("ADSK_3DSMAX_X64_2019") or "C:/Program Files/Autodesk/3ds Max 2019"
 
 
 def _Blender():
@@ -267,9 +267,11 @@ def _Unreal():
 MayaBin = _Maya()
 HoudiniBin = _Houdini()
 BlenderBin = _Blender()
+MaxBin = _Max()
 
 __all__ = [
     "Windows", "Linux", "MacOS",
     "Maya", "Houdini", "Blender",
-    "MayaBin", "HoudiniBin", "BlenderBin"
+    "MayaBin", "HoudiniBin", "BlenderBin",
+    "MaxBin"
 ]
