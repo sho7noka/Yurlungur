@@ -97,14 +97,18 @@ class YObject(_YObject):
             return YAttr(parm.eval(), self.name, val)
         
         if hasattr(meta, "runtime"):
-            return YAttr(getattr(meta.runtime.getnodebyname(self.name), val), self.name, val)
+            if '.' in self.name:
+                node, prop = self.name.split('.')
+                return YAttr(getattr(meta.runtime.getnodebyname(node), prop), meta.runtime.getnodebyname(node).name, val)
+            else:
+                return YAttr(getattr(meta.runtime.getnodebyname(self.name), val), self.name, val)
             
         if hasattr(meta, "data"):
             return YAttr(meta.data.objects[self.name].name, self.name, val)
 
         if hasattr(meta, "script"):
             value = meta.script[self.name][val].getValue()
-            return YAttr(meta.script[self.name], self.name, val)
+            return YAttr(meta.script[self.name], self.name, val) 
 
         raise YException
 
@@ -178,13 +182,15 @@ class YObject(_YObject):
         if hasattr(meta, "runtime"):
             obj = getattr(meta.runtime, args[0])
             msx_class = meta.runtime.classOf(obj)
-
             _obj = obj(**kwargs)
+
             if str(msx_class) == 'modifier':
                 meta.runtime.addModifier(meta.runtime.getnodebyname(self.name), _obj)
-                return YNode(getattr(meta.runtime.getnodebyname(self.name), str(_obj)))
+                return YNode(meta.runtime.getnodebyname(self.name).name + "." + _obj.name)
+
             elif str(msx_class) == 'material':
                 meta.runtime.material = _obj
+
             return YNode(_obj.name)
 
         if hasattr(meta, "ops"):
@@ -434,7 +440,10 @@ class YAttr(_YAttr):
 
     @property
     def value(self):
-        return self._values[0]
+        if ':' in str(self._values[0]):
+            return getattr(self._values[0], self.val)
+        else:
+            return self._values[0]
 
     def __getitem__(self, idx):
         return self._values[idx]
@@ -473,7 +482,10 @@ class YAttr(_YAttr):
                 args[0].tolist() if hasattr(args[0], "T") else args[0], **kwargs)
 
         if hasattr(meta, "runtime"):
-            return setattr(meta.runtime.getnodebyname(self.obj), self.val, args[0])
+            if ':' in str(self._values[0]):
+                return setattr(self._values[0], self.val, args[0])
+            else:
+                return setattr(meta.runtime.getnodebyname(self.obj), self.val, args[0])
 
         if hasattr(meta, "data"):
             return setattr(meta.data.objects[self.obj],
