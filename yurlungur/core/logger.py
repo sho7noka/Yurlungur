@@ -31,6 +31,8 @@ class GuiLogHandler(Handler):
                 meta.log_error(msg)
             elif env.Unity():
                 meta.Debug.LogError(msg)
+            elif env.Max():
+                meta.print_(msg, True, False)
             elif env.Gaffer():
                 pass
 
@@ -43,6 +45,8 @@ class GuiLogHandler(Handler):
                 meta.log_warning(msg)
             elif env.Unity():
                 meta.Debug.LogWarning(msg)
+            elif env.Max():
+                meta.print_(msg, True, False)
             elif env.Gaffer():
                 pass
 
@@ -55,6 +59,8 @@ class GuiLogHandler(Handler):
                 meta.log(msg)
             elif env.Unity():
                 meta.Debug.Log(msg)
+            elif env.Max():
+                meta.print_(msg, False, True)
             elif env.Gaffer():
                 pass
 

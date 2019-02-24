@@ -53,6 +53,9 @@ class YObject(_YObject):
         if hasattr(meta, "root"):
             return meta.node(self.name).sessionId() or 0
 
+        if hasattr(meta, "runtime"):
+            return meta.runtime.getnodebyname(self.name).gbufferChannel or 0
+
         if hasattr(meta, "data"):
             return meta.data.objects[self.name].id_data or 0
 
@@ -69,8 +72,13 @@ class YObject(_YObject):
         if hasattr(meta, "root"):
             return meta.node(self.item).setName(*args, **kwargs)
 
+        if hasattr(meta, "runtime"):
+            meta.runtime.getnodebyname(self.name).name = args[0]
+            return YNode(args[0])
+
         if hasattr(meta, "data"):
             meta.data.objects[self.item].name = "".join(args)
+            return "".join(args)
 
         if hasattr(meta, "script"):
             return meta.script[self.name].setName(args[0])
@@ -87,7 +95,10 @@ class YObject(_YObject):
         if hasattr(meta, "root"):
             parm = (meta.node(self.name).parm(val) or meta.node(self.name).parmTuple(val))
             return YAttr(parm.eval(), self.name, val)
-
+        
+        if hasattr(meta, "runtime"):
+            return YAttr(getattr(meta.runtime.getnodebyname(self.name), val), self.name, val)
+            
         if hasattr(meta, "data"):
             return YAttr(meta.data.objects[self.name].name, self.name, val)
 
@@ -109,6 +120,9 @@ class YObject(_YObject):
         if hasattr(meta, "root"):
             parm = (meta.node(self.name).parm(val) or meta.node(self.name).parmTuple(val))
             return YAttr(parm.eval(), self.name, val)
+
+        if hasattr(meta, "runtime"):
+            return YAttr(getattr(meta.runtime.getnodebyname(self.name), val), self.name, val)
 
         if hasattr(meta, "data"):
             return YAttr(meta.data.objects[self.name].name, self.name, val)
@@ -132,6 +146,9 @@ class YObject(_YObject):
 
         if hasattr(meta, "root"):
             return tuple(p.name() for p in meta.node(self.name).parms() or [])
+
+        if hasattr(meta, "runtime"):
+            return inspect.getmembers(meta.runtime.getnodebyname(self.name))
 
         if hasattr(meta, "data"):
             return inspect.getmembers(meta.data.objects[self.name])
@@ -157,6 +174,18 @@ class YObject(_YObject):
                         meta.node(self.name).createNode, self.name
                     )(*args, **kwargs).path())
             return YNode(meta.node(self.name).createNode(*args, **kwargs).path())
+        
+        if hasattr(meta, "runtime"):
+            obj = getattr(meta.runtime, args[0])
+            msx_class = meta.runtime.classOf(obj)
+
+            _obj = obj(**kwargs)
+            if str(msx_class) == 'modifier':
+                meta.runtime.addModifier(meta.runtime.getnodebyname(self.name), _obj)
+                return YNode(getattr(meta.runtime.getnodebyname(self.name), str(_obj)))
+            elif str(msx_class) == 'material':
+                meta.runtime.material = _obj
+            return YNode(_obj.name)
 
         if hasattr(meta, "ops"):
             try:
@@ -181,6 +210,9 @@ class YObject(_YObject):
         if hasattr(meta, "root"):
             return meta.node(self.name).destroy()
 
+        if hasattr(meta, "runtime"):
+            return meta.runtime.delete(meta.runtime.getnodebyname(self.name))
+
         if hasattr(meta, "context"):
             return meta.context.scene.objects.unlink(meta.data.objects[self.name])
 
@@ -195,6 +227,9 @@ class YObject(_YObject):
                 return meta.instance(self.name, lf=1)
             else:
                 return meta.listRelatives(self.name, ap=1, f=1)[1:] or None
+        
+        if hasattr(meta, "runtime"):
+            return YNode(meta.runtime.instance(meta.runtime.getnodebyname(self.name)).name)
 
         raise YException
 
@@ -211,6 +246,15 @@ class YObject(_YObject):
             else:
                 return meta.ls(sl=1)
 
+        if hasattr(meta, "runtime"):
+            if len(args) == 0 and len(kwargs) == 0:
+                return meta.runtime.select(meta.runtime.getnodebyname(self.name))
+            else:
+                if meta.runtime.execute('$') == meta.runtime.execute('$selection'):
+                    return meta.runtime.execute('$ as array')
+                else:
+                    return meta.runtime.execute('$')
+
         if hasattr(meta, "script"):
             meta.script.selection().clear()
             for arg in args:
@@ -222,6 +266,9 @@ class YObject(_YObject):
     def hide(self, on=True):
         if hasattr(meta, "data"):
             meta.data.objects[self.name].hide = on
+        
+        if hasattr(meta, "runtime"):
+            return getattr(meta.runtime, "hide" if on else "unhide")(meta.runtime.getnodebyname(self.name))
 
         raise YException
 
@@ -236,6 +283,9 @@ class YObject(_YObject):
 
         if hasattr(meta, "data"):
             return meta.data.meshes[self.name]
+
+        if hasattr(meta, "runtime"):
+            return meta.runtime.getnodebyname(self.name).mesh
 
         raise YException
 
@@ -255,26 +305,33 @@ class YNode(YObject):
             self._outputs = meta.graph.getNodeFromId(self.name).getProperties(meta.SDPropertyCategory.Output)
 
     def parent(self, *args, **kwarg):
-        if len(args) > 0:
-            return meta.parent(self.item, *args, **kwarg)
+        if hasattr(meta, "SDNode"):
+            nodes = []
+            for prop in self._inputs:
+                for connect in meta.graph.getNodeFromId(self.name).getPropertyConnections(prop):
+                    nodes.append(YNode(connect.getInputPropertyNode().getIdentifier()))
+            return nodes
 
-        elif len(args) == 0 and len(kwarg) > 0:
-            return meta.parent(self.item, *args, **kwarg)
+        if hasattr(meta, "parent"):
+            if len(args) == 0 and len(kwarg) > 0:
+                return meta.parent(self.item, *args, **kwarg)
+            else:
+                return meta.parent(self.item, *args, **kwarg)
 
-        else:
-            if hasattr(meta, "SDNode"):
-                nodes = []
-                for prop in self._inputs:
-                    for connect in meta.graph.getNodeFromId(self.name).getPropertyConnections(prop):
-                        nodes.append(YNode(connect.getInputPropertyNode().getIdentifier()))
-                return nodes
+        if hasattr(meta, "runtime"):
+            if len(args) > 0:
+                meta.runtime.getnodebyname(self.item).parent = args[0]
+                return YNode(args[0])
+            else:
+                _parent = meta.runtime.getnodebyname(self.item).parent
+                return YNode(parent.name) if _parent else None
 
-            if hasattr(meta, "getAttr"):
-                return YNode(
-                    partial(meta.listRelatives, self.item, p=1)(*args, **kwarg))
+        if hasattr(meta, "getAttr"):
+            return YNode(
+                partial(meta.listRelatives, self.item, p=1)(*args, **kwarg))
 
-            if hasattr(meta, "root"):
-                return YNode(meta.node(self.item).parent().name())
+        if hasattr(meta, "root"):
+            return YNode(meta.node(self.item).parent().name())
 
         raise YException
 
@@ -286,14 +343,22 @@ class YNode(YObject):
                     nodes.append(YNode(connect.getOutputPropertyNode().getIdentifier()))
             return nodes
 
+        if hasattr(meta, "runtime"):
+            if len(args) > 0:
+                meta.runtime.execute('append $%s.children $%s' %(self.item, args[0]))
+                return YNode(args[0])
+            else:
+                nodes = []
+                children = meta.runtime.getnodebyname(self.item).children
+                for i in range(children.count):
+                    nodes.append(children[i].name)
+                return nodes
+
         if hasattr(meta, "getAttr"):
             return partial(meta.listRelatives, self.item, c=1)(*args, **kwarg) or None
 
         if hasattr(meta, "root"):
             return YNode(meta.node(self.item).children())
-
-        if hasattr(meta, ""):
-            return YNode(script.children(Gaffer.Node))
 
         raise YException
 
@@ -308,9 +373,6 @@ class YNode(YObject):
 
         if hasattr(meta, "root"):
             return partial(meta.node(self.name).setInput, 0)(*args, **kwargs)
-
-        if hasattr(meta, ""):
-            return destinationNode["destinationPlugName"].setInput(sourceNode["sourceNode"])
 
         raise YException
 
@@ -331,9 +393,6 @@ class YNode(YObject):
 
         if hasattr(meta, "root"):
             return partial(meta.node(self.name).setInput, 0, None)(*args, **kwargs)
-
-        if hasattr(meta, ""):
-            node["plugName"].setInput(None)
 
         raise YException
 
@@ -413,6 +472,9 @@ class YAttr(_YAttr):
             return parm.set(
                 args[0].tolist() if hasattr(args[0], "T") else args[0], **kwargs)
 
+        if hasattr(meta, "runtime"):
+            return setattr(meta.runtime.getnodebyname(self.obj), self.val, args[0])
+
         if hasattr(meta, "data"):
             return setattr(meta.data.objects[self.obj],
                            self.val, args[0].tolist() if hasattr(args[0], "T") else args[0])
@@ -422,9 +484,11 @@ class YAttr(_YAttr):
 
         raise YException
 
-    def add(self, *args, **kwargs):
+    @trace
+    def create(self, *args, **kwargs):
         pass
 
+    @trace
     def delete(self, *args, **kwargs):
         pass
 
@@ -491,8 +555,10 @@ class YFile(_YObject):
     @classmethod
     def open(cls, *args, **kwargs):
         from yurlungur.core.command import file
+
         if args[0].endswith("abc"):
             return cls(file.abcImporter(*args, **kwargs))
+
         if args[0].endswith("fbx"):
             return cls(file.fbxImporter(*args, **kwargs))
 
@@ -505,6 +571,10 @@ class YFile(_YObject):
         if hasattr(meta, "hipFile"):
             return cls(meta.hipFile.load(*args, **kwargs))
 
+        if hasattr(meta, "runtime"):
+            if meta.runtime.loadMaxFile(*args, **kwargs):
+                return cls(args[0])
+
         if hasattr(meta, "ops"):
             return cls(meta.ops.wm.open_mainfile(*args, **kwargs))
 
@@ -516,8 +586,10 @@ class YFile(_YObject):
     @classmethod
     def save(cls, *args, **kwargs):
         from yurlungur.core.command import file
+
         if args[0].endswith("abc"):
             return cls(file.abcExporter(*args, **kwargs))
+
         if args[0].endswith("fbx"):
             return cls(file.fbxExporter(*args, **kwargs))
 
@@ -529,6 +601,10 @@ class YFile(_YObject):
 
         if hasattr(meta, "hipFile"):
             return cls(meta.hipFile.save(*args, **kwargs))
+        
+        if hasattr(meta, "runtime"):
+            if meta.runtime.saveMaxFile(*args, **kwargs):
+                return cls(args[0])
 
         if hasattr(meta, "ops"):
             return meta.ops.wm.save_mainfile(*args, **kwargs)
@@ -548,6 +624,9 @@ class YFile(_YObject):
 
         if hasattr(meta, "hipFile"):
             return self(meta.hipFile.path())
+
+        if hasattr(meta, "runtime"):
+            return meta.runtime.maxFilePath + meta.runtime.maxFileName
 
         if hasattr(meta, "data"):
             return self(meta.data.filepath)
