@@ -59,6 +59,9 @@ class YObject(_YObject):
         if hasattr(meta, "data"):
             return meta.data.objects[self.name].id_data or 0
 
+        if hasattr(meta, 'uclass'):
+            return meta.EditorAssetLibrary
+
         raise YException
 
     @trace
@@ -79,6 +82,10 @@ class YObject(_YObject):
         if hasattr(meta, "data"):
             meta.data.objects[self.item].name = "".join(args)
             return "".join(args)
+
+        if hasattr(meta, 'uclass'):
+            if meta.assets.rename_asset(self.name, args[0]):
+                return YNode(args[0])
 
         if hasattr(meta, "script"):
             return meta.script[self.name].setName(args[0])
@@ -106,6 +113,11 @@ class YObject(_YObject):
         if hasattr(meta, "data"):
             return YAttr(meta.data.objects[self.name].name, self.name, val)
 
+        if hasattr(meta, 'uclass'):
+            return YAttr(
+                meta.assets.find_asset_data(self.name).get_asset().get_editor_property(val),
+                self.name, val)
+
         if hasattr(meta, "script"):
             value = meta.script[self.name][val].getValue()
             return YAttr(meta.script[self.name], self.name, val) 
@@ -130,6 +142,11 @@ class YObject(_YObject):
 
         if hasattr(meta, "data"):
             return YAttr(meta.data.objects[self.name].name, self.name, val)
+
+        if hasattr(meta, 'uclass'):
+            return YAttr(
+                meta.assets.find_asset_data(self.name).get_asset().get_editor_property(val),
+                self.name, val)
 
         if hasattr(meta, "script"):
             value = meta.script[self.name][val].getValue()
@@ -156,6 +173,9 @@ class YObject(_YObject):
 
         if hasattr(meta, "data"):
             return inspect.getmembers(meta.data.objects[self.name])
+
+        if hasattr(meta, 'uclass'):
+            return meta.assets.find_asset_data(self.name).get_asset()
 
         if hasattr(meta, "script"):
             return meta.script[self.name].values()
@@ -199,6 +219,10 @@ class YObject(_YObject):
             except AttributeError:
                 getattr(meta.ops.object, str(self).lower() + "_add")(*args, **kwargs)
 
+        if hasattr(meta, 'uclass'):
+            tool = meta.AssetToolsHelpers.get_asset_tools()
+            tool.create_asset(newAssetName %("inst", x+1), createdAssetsPath, None, factory)
+
         if hasattr(meta, "script"):
             node = getattr(meta, self.name)(*args, **kwargs)
             meta.script.addChild(node)
@@ -221,6 +245,9 @@ class YObject(_YObject):
 
         if hasattr(meta, "context"):
             return meta.context.scene.objects.unlink(meta.data.objects[self.name])
+
+        if hasattr(meta, 'uclass'):
+            return meta.assets.delete_asset(self.name)
 
         raise YException
 
@@ -260,6 +287,9 @@ class YObject(_YObject):
                     return meta.runtime.execute('$ as array')
                 else:
                     return meta.runtime.execute('$')
+
+        if hasattr(meta, 'uclass'):
+            return meta.editor.get_selected_assets()
 
         if hasattr(meta, "script"):
             meta.script.selection().clear()
@@ -490,6 +520,9 @@ class YAttr(_YAttr):
         if hasattr(meta, "data"):
             return setattr(meta.data.objects[self.obj],
                            self.val, args[0].tolist() if hasattr(args[0], "T") else args[0])
+
+        if hasattr(meta, 'uclass'):
+            return meta.assets.find_asset_data(self.obj).get_asset().set_editor_property(self.obj, self.val)
 
         if hasattr(meta, "script"):
             return node["plugName"].setValue(*args, **kwargs)

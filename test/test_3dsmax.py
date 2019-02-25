@@ -31,7 +31,7 @@ class TestMax(unittest.TestCase):
         box2 = box.instance()
         print box2.geometry()
 
-         yr.meta.eval('$%s.width = 20' % box.name)
+        yr.meta.eval('$%s.width = 20' % box.name)
 
 
 if __name__ == '__main__':
