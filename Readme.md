@@ -27,7 +27,7 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 | Blender | ○ | ○ | ☓ |
 | Substance(2018.1.2~) | ○ | ○ | - |
 | 3dsMax(2017~) | ○ | ○ | - |
-| [Unreal](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python) | - | - | - |
+| [Unreal](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python)(4.20~) | - | - | - |
 | [Gaffer](http://www.gafferhq.org/documentation/0.50.0.0/Reference/ScriptingReference/CommonOperations/index.html) | - | - | - |
 
 
@@ -38,10 +38,10 @@ pipenv install yurlungur
 ```
 
 #### optional
-If you use Unreal or Standalone for full supports, Yurlungur require `PySide` module.
+If you use Unreal or Standalone for full supports, Yurlungur require `PySide2` module.
 
 ```bash
-pipenv install pyside
+pipenv install PySide2
 ```
 
 ### semantics

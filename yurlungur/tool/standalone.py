@@ -79,8 +79,9 @@ def uepython(project, pystr):
     with tempfile.NamedTemporaryFile(delete=False) as tf:
         tf.write(pystr)
     subprocess.call(
-        "{0}/UE4Editor-Cmd {1} ExecutePythonScript = {2}".format(env.UnrealBin, project, pyfile)
+        "{0}/UE4Editor-Cmd -run=pythonscript -script={1}".format(env.UnrealBin, pyfile)
     )
+
 
 
 def _cli(args):

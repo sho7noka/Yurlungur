@@ -88,6 +88,9 @@ def _fbxImporter(cls, *args, **kwargs):
         if importer(**kwargs):
             return args[0]
 
+    if hasattr(meta, 'AssetImportTask'):
+        meta.AssetToolsHelpers.get_asset_tools().import_asset_task()
+
     if hasattr(meta, 'eval'):
         return cls(meta.eval("FBXImport -file {0};".format(*args)))
 

@@ -14,6 +14,24 @@ class YException(NotImplementedError):
     """
     pass
 
+if env.Unreal():
+    import unreal
+    
+    @unreal.uclass()
+    class EditorUtil(unreal.GlobalEditorUtilityBase):
+        pass
+
+    @unreal.uclass()
+    class GetEditorAssetLibrary(unreal.EditorAssetLibrary):
+        pass
+
+    @unreal.uclass()
+    class MaterialEditingLib(unreal.MaterialEditingLibrary):
+        pass    
+
+    @unreal.uclass()
+    class GetAnimationLibrary(unreal.AnimationLibrary):
+        pass
 
 class YMObject(object):
     """command wrapper for any application"""
@@ -25,6 +43,12 @@ class YMObject(object):
         sd_app = context.getSDApplication()
         manager = sd_app.getPackageMgr()
         graph = manager.getUserPackages()[0].getChildrenResources(True)[0]
+
+    if env.Unreal():        
+        editor = EditorUtil()
+        assets = GetEditorAssetLibrary()
+        materials = MaterialEditingLib()
+        anims = GetAnimationLibrary()
 
     def __getattr__(self, item):
         # yr.meta.runtime.Name('export')
