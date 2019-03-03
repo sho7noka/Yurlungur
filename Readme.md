@@ -19,16 +19,17 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 * PySide & PyQt shorten accessor.
 * Useful py-snippet for Game&Film technical artist.
 
-### availables
+### available
 |       | Node | Attribute | Geom |
 | ---- | --- | --- | --- |
 | Maya | ○ | ○ | ☓ |
 | Houdini | ○ | ○ | ☓ |
-| Substance | ○ | ○ | - |
+| 3dsMax(2017~) | ○ | ○ | - |
+| Substance(2018.1.2~) | ○ | ○ | - |
 | Blender | ○ | ○ | ☓ |
-| [Unreal](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python) | - | - | - |
+| [Unreal Engine](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python)(4.20~) | - | - | - |
 | Nuke | ○ | ○ | - |
-| Davinci | ○ | ○ | - |
+| Davinci Resolve(15~) | ○ | ○ | - |
 
 
 ### Installing
@@ -37,10 +38,10 @@ pipenv install yurlungur
 ```
 
 #### optional
-If you use Unreal or Standalone for full supports, Yurlungur require `PySide` module.
+If you use Unreal or Standalone for full supports, Yurlungur require `PySide2` module.
 
 ```bash
-pipenv install pyside
+pipenv install PySide2
 ```
 
 ### semantics

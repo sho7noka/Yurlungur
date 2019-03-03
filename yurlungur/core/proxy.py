@@ -39,19 +39,22 @@ class YObject(_YObject):
     @property
     def id(self):
         if hasattr(meta, "SDNode"):
-            id = ""
+            node_id = ""
             for node in meta.graph.getNodes():
                 d = node.getDefinition()
                 if d.getId() == self.item or d.getLabel() == self.item or node.getIdentifier() == self.item:
-                    id = node.getIdentifier()
+                    node_id = node.getIdentifier()
                     break
-            return id if id else meta.graph.getIdentifier()
+            return node_id if node_id else meta.graph.getIdentifier()
 
         if hasattr(meta, "ls"):
             return meta.ls(self.name, uuid=1)[0] or 0
 
         if hasattr(meta, "hda"):
             return meta.node(self.name).sessionId() or 0
+
+        if hasattr(meta, "runtime"):
+            return meta.runtime.getnodebyname(self.name).gbufferChannel or 0
 
         if hasattr(meta, "data"):
             return meta.data.objects[self.name].id_data or 0
@@ -72,8 +75,17 @@ class YObject(_YObject):
         if hasattr(meta, "hda"):
             return meta.node(self.item).setName(*args, **kwargs)
 
+        if hasattr(meta, "runtime"):
+            meta.runtime.getnodebyname(self.name).name = args[0]
+            return YNode(args[0])
+
         if hasattr(meta, "data"):
             meta.data.objects[self.item].name = "".join(args)
+            return "".join(args)
+
+        if hasattr(meta, 'uclass'):
+            if meta.assets.rename_asset(self.name, args[0]):
+                return YNode(args[0])
 
         if hasattr(meta, "knob"):
             meta.toNode(self.item).setName(args[0], **kwargs)
@@ -94,6 +106,14 @@ class YObject(_YObject):
             parm = (meta.node(self.name).parm(val) or meta.node(self.name).parmTuple(val))
             return YAttr(parm.eval(), self.name, val)
 
+        if hasattr(meta, "runtime"):
+            if '.' in self.name:
+                node, prop = self.name.split('.')
+                return YAttr(getattr(meta.runtime.getnodebyname(node), prop), meta.runtime.getnodebyname(node).name,
+                             val)
+            else:
+                return YAttr(getattr(meta.runtime.getnodebyname(self.name), val), self.name, val)
+
         if hasattr(meta, "data"):
             return YAttr(meta.data.objects[self.name].name, self.name, val)
 
@@ -102,6 +122,10 @@ class YObject(_YObject):
 
         if hasattr(meta, "fusion"):
             return YAttr(meta.manager.GetCurrentProject().GetSetting(val), self.name, val)
+
+        if hasattr(meta, 'uclass'):
+            return YAttr(
+                meta.editor.get_actor_reference(self.name).get_editor_property(val), self.name, val)
 
         raise YException
 
@@ -118,6 +142,9 @@ class YObject(_YObject):
             parm = (meta.node(self.name).parm(val) or meta.node(self.name).parmTuple(val))
             return YAttr(parm.eval(), self.name, val)
 
+        if hasattr(meta, "runtime"):
+            return YAttr(getattr(meta.runtime.getnodebyname(self.name), val), self.name, val)
+
         if hasattr(meta, "data"):
             return YAttr(meta.data.objects[self.name].name, self.name, val)
 
@@ -126,6 +153,10 @@ class YObject(_YObject):
 
         if hasattr(meta, "fusion"):
             return YAttr(meta.manager.GetCurrentProject().GetSetting(val), self.name, val)
+
+        if hasattr(meta, 'uclass'):
+            return YAttr(
+                meta.editor.get_actor_reference(self.name).get_editor_property(val), self.name, val)
 
         raise YException
 
@@ -143,6 +174,9 @@ class YObject(_YObject):
         if hasattr(meta, "hda"):
             return tuple(p.name() for p in meta.node(self.name).parms() or [])
 
+        if hasattr(meta, "runtime"):
+            return inspect.getmembers(meta.runtime.getnodebyname(self.name))
+
         if hasattr(meta, "data"):
             return tuple(inspect.getmembers(meta.data.objects[self.name]))
 
@@ -151,6 +185,9 @@ class YObject(_YObject):
 
         if hasattr(meta, "fusion"):
             return tuple(meta.manager.GetCurrentProject().GetSetting().keys())
+
+        if hasattr(meta, 'uclass'):
+            return meta.assets.find_asset_data(self.name).get_asset()
 
         raise YException
 
@@ -171,6 +208,20 @@ class YObject(_YObject):
                     )(*args, **kwargs).path())
             return YNode(meta.node(self.name).createNode(*args, **kwargs).path())
 
+        if hasattr(meta, "runtime"):
+            obj = getattr(meta.runtime, args[0])
+            msx_class = meta.runtime.classOf(obj)
+            _obj = obj(**kwargs)
+
+            if str(msx_class) == 'modifier':
+                meta.runtime.addModifier(meta.runtime.getnodebyname(self.name), _obj)
+                return YNode(meta.runtime.getnodebyname(self.name).name + "." + _obj.name)
+
+            elif str(msx_class) == 'material':
+                meta.runtime.material = _obj
+
+            return YNode(_obj.name)
+
         if hasattr(meta, "data"):
             try:
                 getattr(meta.ops.mesh, str(self).lower() + "_add")(*args, **kwargs)
@@ -179,6 +230,15 @@ class YObject(_YObject):
 
         if hasattr(meta, "fusion"):
             return
+
+        if hasattr(meta, 'uclass'):
+            if not 'FactoryNew' in args[0]:
+                return None
+            # factory = getattr(meta, args[0])()
+            # tool = meta.AssetToolsHelpers.get_asset_tools()
+            # Name, Path, None
+            # fargs = args[1:].append(factory)
+            # tool.create_asset(*fargs)
 
         raise YException
 
@@ -194,11 +254,18 @@ class YObject(_YObject):
         if hasattr(meta, "hda"):
             return meta.node(self.name).destroy()
 
+        if hasattr(meta, "runtime"):
+            return meta.runtime.delete(meta.runtime.getnodebyname(self.name))
+
         if hasattr(meta, "context"):
             return meta.context.scene.objects.unlink(meta.data.objects[self.name])
 
         if hasattr(meta, "fusion"):
             return
+
+        if hasattr(meta, 'uclass'):
+            # return meta.assets.delete_asset(self.name)
+            return meta.editor.get_actor_reference(self.name).destroy_actor()
 
         raise YException
 
@@ -211,6 +278,9 @@ class YObject(_YObject):
                 return meta.instance(self.name, lf=1)
             else:
                 return meta.listRelatives(self.name, ap=1, f=1)[1:] or None
+
+        if hasattr(meta, "runtime"):
+            return YNode(meta.runtime.instance(meta.runtime.getnodebyname(self.name)).name)
 
         if hasattr(meta, "hda"):
             return meta.node(self.name).copyTo(*args, **kwarg)
@@ -249,12 +319,41 @@ class YObject(_YObject):
             else:
                 return meta.toNode(self.name).setSelected()
 
+        if hasattr(meta, "runtime"):
+            if len(args) == 0 and len(kwargs) == 0:
+                return meta.runtime.select(meta.runtime.getnodebyname(self.name))
+            else:
+                if meta.runtime.execute('$') == meta.runtime.execute('$selection'):
+                    return meta.runtime.execute('$ as array')
+                else:
+                    return meta.runtime.execute('$')
+
+        if hasattr(meta, 'uclass'):
+            # return meta.editor.get_selected_assets()
+            if len(args) == 0 and len(kwargs) == 0:
+                return meta.editor.get_actor_reference(self.name, True)
+            else:
+                return meta.editor.get_selection_set()
+
+        if hasattr(meta, "script"):
+            meta.script.selection().clear()
+            for arg in args:
+                meta.script.selection().add(meta.script[arg])
+
         raise YException
 
     @trace
     def hide(self, on=True):
         if hasattr(meta, "data"):
             meta.data.objects[self.name].hide = on
+            return
+
+        if hasattr(meta, "runtime"):
+            return getattr(meta.runtime, "hide" if on else "unhide")(meta.runtime.getnodebyname(self.name))
+
+        if hasattr(meta, 'uclass'):
+            # set_actor_hidden_in_game
+            return meta.editor.get_actor_reference(self.name).set_editor_property('hidden', on)
 
         raise YException
 
@@ -269,6 +368,15 @@ class YObject(_YObject):
 
         if hasattr(meta, "data"):
             return meta.data.meshes[self.name]
+
+        if hasattr(meta, "runtime"):
+            return meta.runtime.getnodebyname(self.name).mesh
+
+        if hasattr(meta, 'uclass'):
+            actor = meta.editor.get_actor_reference(self.name).get_class().get_name()
+            if actor == 'StaticMeshActor' or actor == 'SkeletalMeshActor':
+                return meta.editor.get_actor_reference(self.name)
+            return
 
         raise YException
 
@@ -288,30 +396,41 @@ class YNode(YObject):
             self._outputs = meta.graph.getNodeFromId(self.name).getProperties(meta.SDPropertyCategory.Output)
 
     def parent(self, *args, **kwarg):
-        if len(args) > 0:
-            return meta.parent(self.item, *args, **kwarg)
+        if hasattr(meta, "SDNode"):
+            nodes = []
+            for prop in self._inputs:
+                for connect in meta.graph.getNodeFromId(self.name).getPropertyConnections(prop):
+                    nodes.append(YNode(connect.getInputPropertyNode().getIdentifier()))
+            return nodes
 
-        elif len(args) == 0 and len(kwarg) > 0:
-            return meta.parent(self.item, *args, **kwarg)
-
-        else:
-            if hasattr(meta, "SDNode"):
-                nodes = []
-                for prop in self._inputs:
-                    for connect in meta.graph.getNodeFromId(self.name).getPropertyConnections(prop):
-                        nodes.append(YNode(connect.getInputPropertyNode().getIdentifier()))
-                return nodes
-
-            if hasattr(meta, "getAttr"):
+        if hasattr(meta, "parent"):
+            if len(args) == 0 and len(kwarg) > 0:
+                return meta.parent(self.item, *args, **kwarg)
+            else:
                 return YNode(
                     partial(meta.listRelatives, self.item, p=1)(*args, **kwarg))
 
-            if hasattr(meta, "hda"):
-                return YNode(meta.node(self.name).parent().name())
+        if hasattr(meta, "root"):
+            return YNode(meta.node(self.item).parent().name())
 
-            if hasattr(meta, "knob"):
-                index = meta.toNode(self.name).inputs() - 1
-                return YNode(meta.toNode(self.name).input(index).name())
+        if hasattr(meta, "runtime"):
+            if len(args) > 0:
+                meta.runtime.getnodebyname(self.item).parent = args[0]
+                return YNode(args[0])
+            else:
+                _parent = meta.runtime.getnodebyname(self.item).parent
+                return YNode(_parent.name) if _parent else None
+
+        if hasattr(meta, "hda"):
+            return YNode(meta.node(self.name).parent().name())
+
+        if hasattr(meta, "knob"):
+            index = meta.toNode(self.name).inputs() - 1
+            return YNode(meta.toNode(self.name).input(index).name())
+
+        if hasattr(meta, 'uclass'):
+            return YNode(
+                meta.editor.get_actor_reference(self.name).get_parent_actor().get_name())
 
         raise YException
 
@@ -322,6 +441,17 @@ class YNode(YObject):
                 for connect in meta.graph.getNodeFromId(self.name).getPropertyConnections(prop):
                     nodes.append(YNode(connect.getOutputPropertyNode().getIdentifier()))
             return nodes
+
+        if hasattr(meta, "runtime"):
+            if len(args) > 0:
+                meta.runtime.execute('append $%s.children $%s' % (self.item, args[0]))
+                return YNode(args[0])
+            else:
+                nodes = []
+                children = meta.runtime.getnodebyname(self.item).children
+                for i in range(children.count):
+                    nodes.append(children[i].name)
+                return nodes
 
         if hasattr(meta, "getAttr"):
             return partial(meta.listRelatives, self.item, c=1)(*args, **kwarg) or None
@@ -411,14 +541,17 @@ class YNode(YObject):
 class YAttr(_YAttr):
     """parametric object"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args):
         assert len(args) > 2, "parameter is invalid."
         self._values = args
         self.obj, self.val = self._values[1:]
 
     @property
     def value(self):
-        return self._values[0]
+        if ':' in str(self._values[0]):
+            return getattr(self._values[0], self.val)
+        else:
+            return self._values[0]
 
     def __getitem__(self, idx):
         return self._values[idx]
@@ -435,8 +568,8 @@ class YAttr(_YAttr):
     @trace
     def set(self, *args, **kwargs):
         if hasattr(meta, "SDNode"):
-            if type(self.value) == int:
-                sd_value = meta.SDValueInt.sNew(args[0])
+            sd_value = meta.SDValueInt.sNew(args[0])
+
             if type(self.value) == bool:
                 sd_value = meta.SDValueBool.sNew(args[0])
             if type(self.value) == float:
@@ -456,6 +589,12 @@ class YAttr(_YAttr):
             return parm.set(
                 args[0].tolist() if hasattr(args[0], "T") else args[0], **kwargs)
 
+        if hasattr(meta, "runtime"):
+            if ':' in str(self._values[0]):
+                return setattr(self._values[0], self.val, args[0])
+            else:
+                return setattr(meta.runtime.getnodebyname(self.obj), self.val, args[0])
+
         if hasattr(meta, "data"):
             return setattr(meta.data.objects[self.obj],
                            self.val, args[0].tolist() if hasattr(args[0], "T") else args[0])
@@ -464,16 +603,15 @@ class YAttr(_YAttr):
             return meta.toNode(self.obj)[self.val].setValue(args[0], **kwargs)
 
         if hasattr(meta, "fusion"):
-            YFile.current
-            return YAttr(meta.manager.GetCurrentProject().GetSetting(val), self.name, val)
+            return meta.manager.GetCurrentProject().SetSetting(self.obj, self.val)
+
+        if hasattr(meta, 'uclass'):
+            return meta.assets.find_asset_data(self.obj).get_asset().set_editor_property(self.obj, self.val)
 
         raise YException
 
     def create(self, *args, **kwargs):
-        if hasattr(meta, "knob"):
-            b = nuke.toNode("aaa")
-            k = nuke.Array_Knob("name", "label")
-            b.addKnob(k)
+        pass
 
     def delete(self, *args, **kwargs):
         pass
@@ -529,11 +667,11 @@ class YAttr(_YAttr):
 class YFile(_YObject):
     """save, open and export"""
 
-    def __init__(self, file=""):
-        self.file = file
+    def __init__(self, path=""):
+        self.file = path
 
-        if hasattr(meta, "fusion") and file:
-            self.file = meta.manager.CreateProject(file)
+        if hasattr(meta, "fusion") and path:
+            self.file = meta.manager.CreateProject(path)
 
     @property
     def name(self):
@@ -561,6 +699,10 @@ class YFile(_YObject):
 
         if hasattr(meta, "hipFile"):
             return cls(meta.hipFile.load(*args, **kwargs))
+
+        if hasattr(meta, "runtime"):
+            if meta.runtime.loadMaxFile(*args, **kwargs):
+                return cls(args[0])
 
         if hasattr(meta, "data"):
             return cls(meta.ops.wm.open_mainfile(*args, **kwargs))
@@ -592,6 +734,10 @@ class YFile(_YObject):
         if hasattr(meta, "hipFile"):
             return cls(meta.hipFile.save(*args, **kwargs))
 
+        if hasattr(meta, "runtime"):
+            if meta.runtime.saveMaxFile(*args, **kwargs):
+                return cls(args[0])
+
         if hasattr(meta, "data"):
             return meta.ops.wm.save_mainfile(*args, **kwargs)
 
@@ -606,24 +752,27 @@ class YFile(_YObject):
     @property
     def current(self):
         if hasattr(meta, "sbs"):
-            return self(meta.manager.getUserPackageFromFilePath())
+            return meta.manager.getUserPackageFromFilePath()
 
         if hasattr(meta, "file"):
-            return self(meta.file(exn=1, q=1))
+            return meta.file(exn=1, q=1)
 
         if hasattr(meta, "hipFile"):
-            return self(meta.hipFile.path())
+            return meta.hipFile.path()
+
+        if hasattr(meta, "runtime"):
+            return meta.runtime.maxFilePath + meta.runtime.maxFileName
 
         if hasattr(meta, "data"):
-            return self(meta.data.filepath)
+            return meta.data.filepath
 
         if hasattr(meta, "knob"):
-            return self(meta.scriptName())
+            return meta.scriptName()
 
         if hasattr(meta, "fusion"):
-            return self(meta.manager.GetCurrentProject())
+            return meta.manager.GetCurrentProject()
 
         raise YException
 
-    def reference(cls):
+    def reference(self):
         raise YException

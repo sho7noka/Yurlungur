@@ -33,6 +33,8 @@ class GuiLogHandler(Handler):
                 meta.Debug.LogError(msg)
             elif env.Nuke():
                 meta.error(msg)
+            elif env.Max():
+                meta.print_(msg, True, False)
 
         elif record.levelno > INFO:
             if env.Maya():
@@ -45,6 +47,8 @@ class GuiLogHandler(Handler):
                 meta.Debug.LogWarning(msg)
             elif env.Nuke():
                 meta.warning(msg)
+            elif env.Max():
+                meta.print_(msg, True, False)
 
         else:
             if env.Maya():
@@ -57,6 +61,8 @@ class GuiLogHandler(Handler):
                 meta.Debug.Log(msg)
             elif env.Nuke():
                 meta.debug(msg)
+            elif env.Max():
+                meta.print_(msg, False, True)
 
 
 if env.Substance():

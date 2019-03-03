@@ -15,6 +15,30 @@ class YException(NotImplementedError):
     pass
 
 
+if env.Unreal():
+    import unreal
+
+
+    @unreal.uclass()
+    class EditorUtil(unreal.GlobalEditorUtilityBase):
+        pass
+
+
+    @unreal.uclass()
+    class GetEditorAssetLibrary(unreal.EditorAssetLibrary):
+        pass
+
+
+    @unreal.uclass()
+    class MaterialEditingLib(unreal.MaterialEditingLibrary):
+        pass
+
+
+    @unreal.uclass()
+    class GetAnimationLibrary(unreal.AnimationLibrary):
+        pass
+
+
 class YMObject(object):
     """command wrapper for any application"""
 
@@ -27,14 +51,21 @@ class YMObject(object):
         graph = manager.getUserPackages()[0].getChildrenResources(True)[0]
 
     if env.Davinci():
-        resolve = __import__("DaVinciResolveScript").scriptapp("Resolve")
+        resolve = env.__import__("DaVinciResolveScript").scriptapp("Resolve")
         if not resolve:
             raise RuntimeError
 
         manager = resolve.GetProjectManager()
         fusion = resolve.Fusion()
 
+    if env.Unreal():
+        editor = EditorUtil()
+        assets = GetEditorAssetLibrary()
+        materials = MaterialEditingLib()
+        anim = GetAnimationLibrary()
+
     def __getattr__(self, item):
+        # yr.meta.runtime.Name('export')
         for cmd, _ in inspect.getmembers(app.application):
             if cmd == item:
                 setattr(
@@ -50,9 +81,10 @@ class YMObject(object):
             import maya.mel as mel
             return mel.eval(script)
         if env.Houdini():
-            app.application.hscript(script)
+            return app.application.hscript(script)
         if env.Max():
-            pass
+            import MaxPlus
+            return MaxPlus.Core.EvalMAXScript(script)
 
         raise YException
 
@@ -126,3 +158,10 @@ elif env.Nuke():
 
     _YVector = type('_YVector', (_nukemath.Vector3,), dict())
     _YMatrix = type('_YMatrix', (_nukemath.Matrix4,), dict())
+
+elif env.Max():
+    import MaxPlus
+
+    _YVector = type('_YVector', (MaxPlus.Point3,), dict())
+    _YMatrix = type('_YMatrix', (MaxPlus.Matrix3,), dict())
+    _YColor = type('_YColor', (MaxPlus.Color,), dict())
