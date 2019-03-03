@@ -115,7 +115,7 @@ class YObject(_YObject):
 
         if hasattr(meta, 'uclass'):
             return YAttr(
-                meta.assets.find_asset_data(self.name).get_asset().get_editor_property(val),
+                meta.editor.get_actor_reference(self.name).get_editor_property(val),
                 self.name, val)
 
         if hasattr(meta, "script"):
@@ -145,7 +145,7 @@ class YObject(_YObject):
 
         if hasattr(meta, 'uclass'):
             return YAttr(
-                meta.assets.find_asset_data(self.name).get_asset().get_editor_property(val),
+                meta.editor.get_actor_reference(self.name).get_editor_property(val),
                 self.name, val)
 
         if hasattr(meta, "script"):
@@ -220,8 +220,13 @@ class YObject(_YObject):
                 getattr(meta.ops.object, str(self).lower() + "_add")(*args, **kwargs)
 
         if hasattr(meta, 'uclass'):
+            if not 'FactoryNew' in args[0]:
+                return None
+            factory = getattr(meta, args[0])()
             tool = meta.AssetToolsHelpers.get_asset_tools()
-            tool.create_asset(newAssetName %("inst", x+1), createdAssetsPath, None, factory)
+            # Name, Path, None
+            fargs = args[1:].append(factory)
+            tool.create_asset(*fargs)
 
         if hasattr(meta, "script"):
             node = getattr(meta, self.name)(*args, **kwargs)
@@ -247,6 +252,7 @@ class YObject(_YObject):
             return meta.context.scene.objects.unlink(meta.data.objects[self.name])
 
         if hasattr(meta, 'uclass'):
+            return meta.editor.get_actor_reference(self.name).destroy_actor()
             return meta.assets.delete_asset(self.name)
 
         raise YException
@@ -289,7 +295,11 @@ class YObject(_YObject):
                     return meta.runtime.execute('$')
 
         if hasattr(meta, 'uclass'):
-            return meta.editor.get_selected_assets()
+            # return meta.editor.get_selected_assets()
+            if len(args) == 0 and len(kwargs) == 0:
+                return meta.editor.get_actor_reference(self.name, True)
+            else:
+                return meta.editor.get_selection_set()
 
         if hasattr(meta, "script"):
             meta.script.selection().clear()
@@ -302,9 +312,14 @@ class YObject(_YObject):
     def hide(self, on=True):
         if hasattr(meta, "data"):
             meta.data.objects[self.name].hide = on
-        
+            return
+
         if hasattr(meta, "runtime"):
             return getattr(meta.runtime, "hide" if on else "unhide")(meta.runtime.getnodebyname(self.name))
+
+        if hasattr(meta, 'uclass'):
+            # set_actor_hidden_in_game
+            return meta.editor.get_actor_reference(self.name).set_editor_property('hidden', on)
 
         raise YException
 
@@ -322,6 +337,12 @@ class YObject(_YObject):
 
         if hasattr(meta, "runtime"):
             return meta.runtime.getnodebyname(self.name).mesh
+
+        if hasattr(meta, 'uclass'):
+            actor = meta.editor.get_actor_reference(self.name).get_class().get_name()
+            if actor == 'StaticMeshActor' or actor == 'SkeletalMeshActor':
+                return meta.editor.get_actor_reference(self.name)
+            return
 
         raise YException
 
@@ -365,6 +386,10 @@ class YNode(YObject):
         if hasattr(meta, "getAttr"):
             return YNode(
                 partial(meta.listRelatives, self.item, p=1)(*args, **kwarg))
+
+        if hasattr(meta, 'uclass'):
+            return YNode(
+                meta.editor.get_actor_reference(self.name).get_parent_actor().get_name())
 
         if hasattr(meta, "root"):
             return YNode(meta.node(self.item).parent().name())
@@ -620,6 +645,9 @@ class YFile(_YObject):
             if meta.runtime.loadMaxFile(*args, **kwargs):
                 return cls(args[0])
 
+        if hasattr(meta, 'uclass'):
+            return
+
         if hasattr(meta, "ops"):
             return cls(meta.ops.wm.open_mainfile(*args, **kwargs))
 
@@ -651,6 +679,9 @@ class YFile(_YObject):
             if meta.runtime.saveMaxFile(*args, **kwargs):
                 return cls(args[0])
 
+        if hasattr(meta, 'uclass'):
+            return
+
         if hasattr(meta, "ops"):
             return meta.ops.wm.save_mainfile(*args, **kwargs)
 
@@ -672,6 +703,9 @@ class YFile(_YObject):
 
         if hasattr(meta, "runtime"):
             return meta.runtime.maxFilePath + meta.runtime.maxFileName
+
+        if hasattr(meta, 'uclass'):
+            return
 
         if hasattr(meta, "data"):
             return self(meta.data.filepath)
