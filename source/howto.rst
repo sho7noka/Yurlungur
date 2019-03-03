@@ -33,3 +33,14 @@ https://code.blender.org/2015/10/debugging-python-code-with-pycharm/
     import sys
 
 
+
+
+メモ
+---------------
+Node ベース  Maya Houdini Substance Nuke
+Stack ベース 3dsMax Blender Unreal Davinci
+
+パスヘッダーにYFileのcurrentを使う
+アセット(メディア)ブラウザ経由はノードではうまく表現できない
+Substance Davinci Unreal
+

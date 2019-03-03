@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import functools
 import os
-import platform
 import sys
+import functools
+import platform
 
 
 def __import__(name, globals=None, locals=None, fromlist=None):
@@ -11,6 +11,15 @@ def __import__(name, globals=None, locals=None, fromlist=None):
         return sys.modules[name]
     except KeyError:
         pass
+
+    if "DaVinci" in name:
+        if Windows():
+            resolve = "%PROGRAMDATA%\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting\\Modules"
+        if MacOS():
+            resolve = "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Developer/Scripting/Modules"
+        if Linux():
+            resolve = "/opt/resolve/Developer/Scripting/Modules"
+        sys.path.append(resolve)
 
     try:
         import imp
@@ -177,6 +186,30 @@ def Substance(func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if "Substance" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def Davinci(func=None):
+    if func == None:
+        return __import__("DaVinciResolveScript")
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if __import__("DaVinciResolveScript"):
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def Nuke(func=None):
+    if func == None:
+        return "Nuke" in sys.executable
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "Nuke" in sys.executable:
             return func(*args, **kwargs)
 
     return wrapper
