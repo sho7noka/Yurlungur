@@ -107,6 +107,11 @@ if env.Maya():
     _YMatrix = type('_YMatrix', (OM.MMatrix,), dict())
     _YColor = type('_YColor', (OM.MColor,), dict())
 
+    meta = YMObject()
+    if hasattr(meta, "loadPlugin"):
+        for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
+            meta.loadPlugin(plugin, qt=1)
+
 elif env.Houdini() or env.Unreal():
     meta = YMObject()
 
