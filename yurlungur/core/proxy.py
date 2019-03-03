@@ -50,11 +50,14 @@ class YObject(_YObject):
         if hasattr(meta, "ls"):
             return meta.ls(self.name, uuid=1)[0] or 0
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             return meta.node(self.name).sessionId() or 0
 
         if hasattr(meta, "data"):
             return meta.data.objects[self.name].id_data or 0
+
+        if hasattr(meta, "knob"):
+            return meta.toNode(self.name)["name"].value() or 0
 
         raise YException
 
@@ -66,13 +69,16 @@ class YObject(_YObject):
         if hasattr(meta, "rename"):
             return meta.rename(self.item, *args, **kwargs)
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             return meta.node(self.item).setName(*args, **kwargs)
 
         if hasattr(meta, "data"):
             meta.data.objects[self.item].name = "".join(args)
 
-        if hasattr(meta, "script"):
+        if hasattr(meta, "knob"):
+            meta.toNode(self.item).setName(args[0], **kwargs)
+
+        if hasattr(meta, "fusion"):
             return meta.script[self.name].setName(args[0])
 
     @trace
@@ -84,16 +90,18 @@ class YObject(_YObject):
         if hasattr(meta, "getAttr"):
             return YAttr(meta.getAttr(self.name + "." + val), self.name, val)
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             parm = (meta.node(self.name).parm(val) or meta.node(self.name).parmTuple(val))
             return YAttr(parm.eval(), self.name, val)
 
         if hasattr(meta, "data"):
             return YAttr(meta.data.objects[self.name].name, self.name, val)
 
-        if hasattr(meta, "script"):
-            value = meta.script[self.name][val].getValue()
-            return YAttr(meta.script[self.name], self.name, val)
+        if hasattr(meta, "knob"):
+            return YAttr(meta.toNode(self.name)[val], self.name, val)
+
+        if hasattr(meta, "fusion"):
+            return YAttr(meta.manager.GetCurrentProject().GetSetting(val), self.name, val)
 
         raise YException
 
@@ -106,16 +114,18 @@ class YObject(_YObject):
         if hasattr(meta, "getAttr"):
             return YAttr(meta.getAttr(self.name + "." + val, *args, **kwargs), self.name, val)
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             parm = (meta.node(self.name).parm(val) or meta.node(self.name).parmTuple(val))
             return YAttr(parm.eval(), self.name, val)
 
         if hasattr(meta, "data"):
             return YAttr(meta.data.objects[self.name].name, self.name, val)
 
-        if hasattr(meta, "script"):
-            value = meta.script[self.name][val].getValue()
-            return YAttr(meta.script[self.name], self.name, val)
+        if hasattr(meta, "knob"):
+            return YAttr(meta.toNode(self.name)[val], self.name, val)
+
+        if hasattr(meta, "fusion"):
+            return YAttr(meta.manager.GetCurrentProject().GetSetting(val), self.name, val)
 
         raise YException
 
@@ -130,14 +140,17 @@ class YObject(_YObject):
         if hasattr(meta, "listAttr"):
             return tuple(meta.listAttr(self.name, *args, **kwargs)) or None
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             return tuple(p.name() for p in meta.node(self.name).parms() or [])
 
         if hasattr(meta, "data"):
-            return inspect.getmembers(meta.data.objects[self.name])
+            return tuple(inspect.getmembers(meta.data.objects[self.name]))
 
-        if hasattr(meta, "script"):
-            return meta.script[self.name].values()
+        if hasattr(meta, "knob"):
+            return tuple([knob.name() for knob in meta.toNode(self.name).allKnobs()])
+
+        if hasattr(meta, "fusion"):
+            return tuple(meta.manager.GetCurrentProject().GetSetting().keys())
 
         raise YException
 
@@ -150,7 +163,7 @@ class YObject(_YObject):
         if hasattr(meta, "createNode"):
             return YNode(meta.createNode(*args, **kwargs))
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             if len(args) == 0 and len(kwargs) == 0:
                 return YNode(
                     partial(
@@ -158,15 +171,14 @@ class YObject(_YObject):
                     )(*args, **kwargs).path())
             return YNode(meta.node(self.name).createNode(*args, **kwargs).path())
 
-        if hasattr(meta, "ops"):
+        if hasattr(meta, "data"):
             try:
                 getattr(meta.ops.mesh, str(self).lower() + "_add")(*args, **kwargs)
             except AttributeError:
                 getattr(meta.ops.object, str(self).lower() + "_add")(*args, **kwargs)
 
-        if hasattr(meta, "script"):
-            node = getattr(meta, self.name)(*args, **kwargs)
-            meta.script.addChild(node)
+        if hasattr(meta, "fusion"):
+            return
 
         raise YException
 
@@ -176,13 +188,17 @@ class YObject(_YObject):
             return meta.graph.deleteNode(meta.graph.getNodeFromId(self.name))
 
         if hasattr(meta, "delete"):
-            return meta.delete(self.name, *args, **kwargs)
+            node = meta.toNode(self.name) if hasattr(meta, "knob") else self.name
+            return meta.delete(node, *args, **kwargs)
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             return meta.node(self.name).destroy()
 
         if hasattr(meta, "context"):
             return meta.context.scene.objects.unlink(meta.data.objects[self.name])
+
+        if hasattr(meta, "fusion"):
+            return
 
         raise YException
 
@@ -195,6 +211,15 @@ class YObject(_YObject):
                 return meta.instance(self.name, lf=1)
             else:
                 return meta.listRelatives(self.name, ap=1, f=1)[1:] or None
+
+        if hasattr(meta, "hda"):
+            return meta.node(self.name).copyTo(*args, **kwarg)
+
+        if hasattr(meta, "knob"):
+            if len(args) > 0:
+                return meta.clone(meta.toNode(self.name), *args, **kwarg)
+            else:
+                return meta.toNode(self.name).clones()
 
         raise YException
 
@@ -211,14 +236,18 @@ class YObject(_YObject):
                 kwargs['s'] = True
 
             if len(args) == 0 and len(kwargs) == 0:
-                return meta.select(*args, **kwargs)
-            else:
                 return meta.ls(sl=1)
+            else:
+                return meta.select(*args, **kwargs)
 
-        if hasattr(meta, "script"):
-            meta.script.selection().clear()
-            for arg in args:
-                meta.script.selection().add(meta.script[arg])
+        if hasattr(meta, "hda"):
+            return meta.node(self.name).setCurrent(*args, **kwargs)
+
+        if hasattr(meta, "knob"):
+            if len(args) == 0 and len(kwargs) == 0:
+                return meta.selectedNodes()
+            else:
+                return meta.toNode(self.name).setSelected()
 
         raise YException
 
@@ -235,7 +264,7 @@ class YObject(_YObject):
             dag = OM.MGlobal.getSelectionListByName(self.name).getDagPath(0)
             return OM.MFnMesh(dag)
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             return meta.node(self.name).geometry()
 
         if hasattr(meta, "data"):
@@ -277,8 +306,12 @@ class YNode(YObject):
                 return YNode(
                     partial(meta.listRelatives, self.item, p=1)(*args, **kwarg))
 
-            if hasattr(meta, "root"):
-                return YNode(meta.node(self.item).parent().name())
+            if hasattr(meta, "hda"):
+                return YNode(meta.node(self.name).parent().name())
+
+            if hasattr(meta, "knob"):
+                index = meta.toNode(self.name).inputs() - 1
+                return YNode(meta.toNode(self.name).input(index).name())
 
         raise YException
 
@@ -293,11 +326,11 @@ class YNode(YObject):
         if hasattr(meta, "getAttr"):
             return partial(meta.listRelatives, self.item, c=1)(*args, **kwarg) or None
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             return YNode(meta.node(self.item).children())
 
-        if hasattr(meta, ""):
-            return YNode(script.children(Gaffer.Node))
+        if hasattr(meta, "knob"):
+            return meta
 
         raise YException
 
@@ -310,11 +343,11 @@ class YNode(YObject):
         if hasattr(meta, "connectAttr"):
             return partial(meta.connectAttr, self.name + "." + args[0])(args[1:], **kwargs)
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             return partial(meta.node(self.name).setInput, 0)(*args, **kwargs)
 
-        if hasattr(meta, ""):
-            return destinationNode["destinationPlugName"].setInput(sourceNode["sourceNode"])
+        if hasattr(meta, "knob"):
+            return meta.toNode(self.name).setInput(*args, **kwargs)
 
         raise YException
 
@@ -333,11 +366,11 @@ class YNode(YObject):
         if hasattr(meta, "disconnectAttr"):
             return partial(meta.disconnectAttr, self.name + "." + args[0])(args[1:], **kwargs)
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             return partial(meta.node(self.name).setInput, 0, None)(*args, **kwargs)
 
-        if hasattr(meta, ""):
-            node["plugName"].setInput(None)
+        if hasattr(meta, "knob"):
+            return meta.toNode(self.name).setInput(0, None)
 
         raise YException
 
@@ -349,8 +382,11 @@ class YNode(YObject):
         if hasattr(meta, "listConnections"):
             return partial(meta.listConnections, s=1)(*args, **kwargs)
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             return meta.node(self.name).inputs()
+
+        if hasattr(meta, "knob"):
+            return meta
 
         raise YException
 
@@ -362,8 +398,11 @@ class YNode(YObject):
         if hasattr(meta, "listConnections"):
             return partial(meta.listConnections, d=1)(*args, **kwargs)
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             return meta.node(self.name).outputs()
+
+        if hasattr(meta, "knob"):
+            return meta
 
         raise YException
 
@@ -411,7 +450,7 @@ class YAttr(_YAttr):
         if hasattr(meta, "setAttr"):
             return meta.setAttr(self.obj + "." + self.val, *args, **kwargs)
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             parm = (meta.node(self.obj).parm(self.val) or
                     meta.node(self.obj).parmTuple(self.val))
             return parm.set(
@@ -421,13 +460,20 @@ class YAttr(_YAttr):
             return setattr(meta.data.objects[self.obj],
                            self.val, args[0].tolist() if hasattr(args[0], "T") else args[0])
 
-        if hasattr(meta, "script"):
-            return node["plugName"].setValue(*args, **kwargs)
+        if hasattr(meta, "knob"):
+            return meta.toNode(self.obj)[self.val].setValue(args[0], **kwargs)
+
+        if hasattr(meta, "fusion"):
+            YFile.current
+            return YAttr(meta.manager.GetCurrentProject().GetSetting(val), self.name, val)
 
         raise YException
 
-    def add(self, *args, **kwargs):
-        pass
+    def create(self, *args, **kwargs):
+        if hasattr(meta, "knob"):
+            b = nuke.toNode("aaa")
+            k = nuke.Array_Knob("name", "label")
+            b.addKnob(k)
 
     def delete(self, *args, **kwargs):
         pass
@@ -437,8 +483,11 @@ class YAttr(_YAttr):
         if hasattr(meta, "setAttr"):
             return meta.setAttr(self.obj + "." + self.val, lock=on)
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             return meta.node(self.obj).parm(self.val).lock(on)
+
+        if hasattr(meta, "knob"):
+            return meta.toNode(self.obj)[self.val].setEnabled(on)
 
         raise YException
 
@@ -447,8 +496,11 @@ class YAttr(_YAttr):
         if hasattr(meta, "setAttr"):
             return meta.setAttr(self.obj + "." + self.val, keyable=not on, channelBox=not on)
 
-        if hasattr(meta, "root"):
+        if hasattr(meta, "hda"):
             return meta.node(self.obj).parm(self.val).hide(on)
+
+        if hasattr(meta, "knob"):
+            return meta.toNode(self.obj)[self.val].setVisible(not on)
 
         raise YException
 
@@ -480,6 +532,9 @@ class YFile(_YObject):
     def __init__(self, file=""):
         self.file = file
 
+        if hasattr(meta, "fusion") and file:
+            self.file = meta.manager.CreateProject(file)
+
     @property
     def name(self):
         return os.path.basename(self.file)
@@ -491,8 +546,10 @@ class YFile(_YObject):
     @classmethod
     def open(cls, *args, **kwargs):
         from yurlungur.core.command import file
+
         if args[0].endswith("abc"):
             return cls(file.abcImporter(*args, **kwargs))
+
         if args[0].endswith("fbx"):
             return cls(file.fbxImporter(*args, **kwargs))
 
@@ -505,19 +562,24 @@ class YFile(_YObject):
         if hasattr(meta, "hipFile"):
             return cls(meta.hipFile.load(*args, **kwargs))
 
-        if hasattr(meta, "ops"):
+        if hasattr(meta, "data"):
             return cls(meta.ops.wm.open_mainfile(*args, **kwargs))
 
-        if hasattr(meta, "script"):
-            return cls(meta.script.importFile(*args, **kwargs))
+        if hasattr(meta, "knob"):
+            return meta.scriptOpen(*args, **kwargs)
+
+        if hasattr(meta, "fusion"):
+            return meta.manager.LoadProject(*args, **kwargs)
 
         raise YException
 
     @classmethod
     def save(cls, *args, **kwargs):
         from yurlungur.core.command import file
+
         if args[0].endswith("abc"):
             return cls(file.abcExporter(*args, **kwargs))
+
         if args[0].endswith("fbx"):
             return cls(file.fbxExporter(*args, **kwargs))
 
@@ -530,11 +592,14 @@ class YFile(_YObject):
         if hasattr(meta, "hipFile"):
             return cls(meta.hipFile.save(*args, **kwargs))
 
-        if hasattr(meta, "ops"):
+        if hasattr(meta, "data"):
             return meta.ops.wm.save_mainfile(*args, **kwargs)
 
-        if hasattr(meta, "script"):
-            return meta.script.serialiseToFile(*args, **kwargs)
+        if hasattr(meta, "knob"):
+            return meta.scriptSave(*args, **kwargs)
+
+        if hasattr(meta, "fusion"):
+            return meta.manager.SaveProject(*args, **kwargs)
 
         raise YException
 
@@ -552,8 +617,11 @@ class YFile(_YObject):
         if hasattr(meta, "data"):
             return self(meta.data.filepath)
 
-        if hasattr(meta, "script"):
-            return self(meta.script["fileName"].getValue())
+        if hasattr(meta, "knob"):
+            return self(meta.scriptName())
+
+        if hasattr(meta, "fusion"):
+            return self(meta.manager.GetCurrentProject())
 
         raise YException
 

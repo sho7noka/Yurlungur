@@ -31,30 +31,35 @@ elif __import__("hou"):
 
     application = hou
 
-elif "blender" in application:
-    import bpy
-
-    application = bpy
-
 elif "Substance" in application:
     import sd.api as sdapi
 
     application = sdapi
 
-elif __import__("Gaffer"):
-    import GafferScene
+elif "max" in application:
+    import pymxs
 
-    application = GafferScene
+    application = pymxs
+
+elif "blender" in application:
+    import bpy
+
+    application = bpy
 
 elif "UE4Editor" in application:
     import unreal
 
     application = unreal
 
-elif "max" in application:
-    import pymxs
+elif "Nuke" in application:
+    import nuke
 
-    application = pymxs
+    application = nuke
+
+elif __import__("DaVinciResolveScript"):
+    import DaVinciResolveScript
+
+    application = DaVinciResolveScript
 
 else:
     if platform.python_implementation() == 'IronPython':

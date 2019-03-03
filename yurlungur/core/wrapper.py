@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import inspect
+import string
 
 import yurlungur
 from yurlungur.core import app, env
@@ -25,10 +26,13 @@ class YMObject(object):
         manager = sd_app.getPackageMgr()
         graph = manager.getUserPackages()[0].getChildrenResources(True)[0]
 
-    if env.Gaffer():
-        global script
-        global IECore
-        # ['Gaffer', 'GafferUI', 'IECore', 'imath', 'parent', 'script']
+    if env.Davinci():
+        resolve = __import__("DaVinciResolveScript").scriptapp("Resolve")
+        if not resolve:
+            raise RuntimeError
+
+        manager = resolve.GetProjectManager()
+        fusion = resolve.Fusion()
 
     def __getattr__(self, item):
         for cmd, _ in inspect.getmembers(app.application):
@@ -116,3 +120,9 @@ elif env.Substance():
     _YVector = type('_YVector', (meta.SDValueVector,), dict())
     _YMatrix = type('_YMatrix', (meta.SDValueMatrix,), dict())
     _YColor = type('_YColor', (meta.SDValueColorRGBA,), dict())
+
+elif env.Nuke():
+    import _nukemath
+
+    _YVector = type('_YVector', (_nukemath.Vector3,), dict())
+    _YMatrix = type('_YMatrix', (_nukemath.Matrix4,), dict())

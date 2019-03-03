@@ -19,6 +19,10 @@ class Command(object):
         return [obj for obj in dir(cls) if not obj.startswith("_")]
 
 
+class Render:
+    pass
+
+
 def _ls(cls, *args, **kwargs):
     gen = meta.ls(*args, **kwargs) if hasattr(meta, "ls") else meta.pwd().allItems()
     return tuple(YNode(obj) for obj in gen)
@@ -38,7 +42,7 @@ def _select(cls, *args, **kwargs):
     if hasattr(meta, "select"):
         meta.select(*args, **kwargs)
 
-    if hasattr(meta, "root"):
+    if hasattr(meta, "hda"):
         for node in meta.nodes(args):
             node.setSelected(True, **kwargs)
 
@@ -52,7 +56,7 @@ def _alembicImporter(cls, *args, **kwargs):
     if hasattr(meta, "AbcImport"):
         return cls(meta.AbcImport(*args, **kwargs))
 
-    if hasattr(meta, "root"):
+    if hasattr(meta, "hda"):
         geo = yr.YNode("obj").create("geo")
         abc = geo.create("alembic")
         abc.fileName.set(*args)

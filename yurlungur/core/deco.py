@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
+import contextlib
 import functools
 
 from yurlungur.tool.meta import meta
-
 from yurlungur.core import env
+
+
+@contextlib.contextmanager
+def safe_def():
+    pass
 
 
 class UndoGroup(object):
@@ -14,17 +19,19 @@ class UndoGroup(object):
         if env.Maya():
             meta.undoInfo(ock=1)
             return self
-        elif env.Max():
-            pass
         elif env.Blender():
             self.undo = meta.context.user_preferences.edit.use_global_undo
             meta.context.user_preferences.edit.use_global_undo = False
+        elif env.Davinci():
+            meta.fusion.StartUndo()
 
     def __exit__(self, exc_type, exc_value, traceback):
         if env.Maya():
             meta.undoInfo(cck=1)
         elif env.Blender():
             meta.context.user_preferences.edit.use_global_undo = self.undo
+        elif env.Davinci():
+            meta.fusion.EndUndo()
 
 
 if env.Houdini():
@@ -35,3 +42,6 @@ if env.Unreal():
 
 if env.Max():
     UndoGroup = functools.partial(meta.undo, True)
+
+if env.Nuke():
+    UndoGroup = meta.Undo

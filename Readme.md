@@ -24,11 +24,11 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 | ---- | --- | --- | --- |
 | Maya | ○ | ○ | ☓ |
 | Houdini | ○ | ○ | ☓ |
-| Blender | ○ | ○ | ☓ |
 | Substance | ○ | ○ | - |
-| [Gaffer](http://www.gafferhq.org/documentation/0.50.0.0/Reference/ScriptingReference/CommonOperations/index.html) | - | - | - |
+| Blender | ○ | ○ | ☓ |
 | [Unreal](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python) | - | - | - |
-
+| Nuke | ○ | ○ | - |
+| Davinci | ○ | ○ | - |
 
 
 ### Installing

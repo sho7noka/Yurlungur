@@ -71,6 +71,9 @@ def widgetPtr():
         import hou
         return hou.qt.mainWindow()
 
+    if app_name == "nuke":
+        return QApplication.activeWindow()
+
     return None
 
 
