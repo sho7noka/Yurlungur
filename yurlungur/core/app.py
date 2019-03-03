@@ -36,7 +36,13 @@ elif "Substance" in application:
 
     application = sdapi
 
-elif "max" in application:
+
+elif "UE4Editor" in application:
+    import unreal
+
+    application = unreal
+
+elif "3dsmax" in application:
     import pymxs
 
     application = pymxs

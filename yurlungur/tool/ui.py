@@ -12,7 +12,6 @@ if env.Qt():
     from yurlungur.Qt.QtCore import *
     from yurlungur.Qt.QtGui import *
     from yurlungur.Qt.QtWidgets import *
-    from yurlungur.Qt.QtOpenGL import *
 
 
 class OpenGL(object):
@@ -64,8 +63,6 @@ def widgetPtr():
     if app_name == "pymxs":
         import MaxPlus
         return MaxPlus.QtHelpers_GetQmaxMainWindow()
-        # MaxPlus.NotifyQWidgetModalityChange(w, false)
-        # MaxPlus.MakeQWidgetDockable(w, 14)
 
     if app_name == "hou":
         import hou

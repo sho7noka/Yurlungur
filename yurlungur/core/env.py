@@ -37,16 +37,16 @@ def __import__(name, globals=None, locals=None, fromlist=None):
 def Qt(func=None):
     try:
         import yurlungur.Qt as Qt
-        isQt = any([Qt])
+        is_Qt = any([Qt])
     except ImportError:
         return False
 
-    if func == None:
-        return isQt
+    if func is None:
+        return is_Qt
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if isQt:
+        if is_Qt:
             return func(*args, **kwargs)
 
     return wrapper
@@ -55,23 +55,23 @@ def Qt(func=None):
 def Numpy(func=None):
     try:
         import numpy as nm
-        isNpy = True
+        is_numpy = True
     except ImportError:
         return False
 
-    if func == None:
-        return isNpy
+    if func is None:
+        return is_numpy
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if isNpy:
+        if is_numpy:
             return func(*args, **kwargs)
 
     return wrapper
 
 
 def Windows(func=None):
-    if func == None:
+    if func is None:
         return platform.system() == "Windows"
 
     @functools.wraps(func)
@@ -83,7 +83,7 @@ def Windows(func=None):
 
 
 def Linux(func=None):
-    if func == None:
+    if func is None:
         return platform.system() == "Linux"
 
     @functools.wraps(func)
@@ -95,7 +95,7 @@ def Linux(func=None):
 
 
 def MacOS(func=None):
-    if func == None:
+    if func is None:
         return platform.system() == "Darwin"
 
     @functools.wraps(func)
@@ -107,7 +107,7 @@ def MacOS(func=None):
 
 
 def Maya(func=None):
-    if func == None:
+    if func is None:
         return "maya" in sys.executable
 
     @functools.wraps(func)
@@ -119,7 +119,7 @@ def Maya(func=None):
 
 
 def Houdini(func=None):
-    if func == None:
+    if func is None:
         return __import__("hou")
 
     @functools.wraps(func)
@@ -131,7 +131,7 @@ def Houdini(func=None):
 
 
 def Unreal(func=None):
-    if func == None:
+    if func is None:
         return "UE4" in sys.executable
 
     @functools.wraps(func)
@@ -143,7 +143,7 @@ def Unreal(func=None):
 
 
 def Unity(func=None):
-    if func == None:
+    if func is None:
         return
 
     @functools.wraps(func)
@@ -154,9 +154,8 @@ def Unity(func=None):
     return wrapper
 
 
-
 def Blender(func=None):
-    if func == None:
+    if func is None:
         return "blender" in sys.executable
 
     @functools.wraps(func)
@@ -168,7 +167,7 @@ def Blender(func=None):
 
 
 def Max(func=None):
-    if func == None:
+    if func is None:
         return "3dsmax" in sys.executable
 
     @functools.wraps(func)
@@ -180,7 +179,7 @@ def Max(func=None):
 
 
 def Substance(func=None):
-    if func == None:
+    if func is None:
         return "Substance" in sys.executable
 
     @functools.wraps(func)
@@ -192,7 +191,7 @@ def Substance(func=None):
 
 
 def Davinci(func=None):
-    if func == None:
+    if func is None:
         return __import__("DaVinciResolveScript")
 
     @functools.wraps(func)
@@ -204,7 +203,7 @@ def Davinci(func=None):
 
 
 def Nuke(func=None):
-    if func == None:
+    if func is None:
         return "Nuke" in sys.executable
 
     @functools.wraps(func)
@@ -216,7 +215,7 @@ def Nuke(func=None):
 
 
 def Gaffer(func=None):
-    if func == None:
+    if func is None:
         return __import__("GafferScene")
 
     @functools.wraps(func)
@@ -273,9 +272,10 @@ def _Substance():
     }
     return d[platform.system()]
 
+
 def _Max():
     """find 3dsMax app"""
-    return os.environ.get("ADSK_3DSMAX_X64_2018") or "C:/Program Files/Autodesk/3ds Max 2018"
+    return os.environ.get("ADSK_3DSMAX_X64_2019") or "C:/Program Files/Autodesk/3ds Max 2019"
 
 
 def _Blender():
@@ -300,9 +300,11 @@ def _Unreal():
 MayaBin = _Maya()
 HoudiniBin = _Houdini()
 BlenderBin = _Blender()
+MaxBin = _Max()
 
 __all__ = [
     "Windows", "Linux", "MacOS",
     "Maya", "Houdini", "Blender",
-    "MayaBin", "HoudiniBin", "BlenderBin"
+    "MayaBin", "HoudiniBin", "BlenderBin",
+    "MaxBin"
 ]
