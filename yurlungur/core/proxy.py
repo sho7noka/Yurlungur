@@ -274,7 +274,11 @@ class YObject(_YObject):
 
     def select(self, *args, **kwargs):
         if hasattr(meta, "SDNode"):
-            return
+            context = meta.sd_app.getLocationContext()
+            if context:
+                return context.getSelectedNodes()
+            else:
+                return None
 
         if hasattr(meta, "select"):
             if 'shape' not in kwargs and 's' not in kwargs:
@@ -609,10 +613,6 @@ class YFile(_YObject):
 
     def __init__(self, file=""):
         self.file = file
-
-        if hasattr(meta, "loadPlugin"):
-            for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
-                meta.loadPlugin(plugin, qt=1)
 
     @property
     def name(self):
