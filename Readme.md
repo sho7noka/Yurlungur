@@ -24,12 +24,12 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 | ---- | --- | --- | --- |
 | Maya | ○ | ○ | ☓ |
 | Houdini | ○ | ○ | ☓ |
-| 3dsMax(2017~) | ○ | ○ | - |
-| Substance(2018.1.2~) | ○ | ○ | - |
+| Substance (2018.1.2~) | ○ | ○ | - |
+| 3dsMax (2017~) | ○ | ○ | ☓ |
 | Blender | ○ | ○ | ☓ |
-| [Unreal Engine](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python)(4.20~) | - | - | - |
 | Nuke | ○ | ○ | - |
-| Davinci Resolve(15~) | ○ | ○ | - |
+| Davinci Resolve (15~) | ○ | ○ | - |
+| [Unreal Engine](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python)(4.20~) | - | - | - |
 
 
 ### Installing
@@ -38,7 +38,7 @@ pipenv install yurlungur
 ```
 
 #### optional
-If you use Unreal or Standalone for full supports, Yurlungur require `PySide2` module.
+If you use Unreal or Standalone for full supports, Yurlungur require `Qt for Python` module.
 
 ```bash
 pipenv install PySide2

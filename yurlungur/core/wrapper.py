@@ -52,11 +52,9 @@ class YMObject(object):
 
     if env.Davinci():
         resolve = env.__import__("DaVinciResolveScript").scriptapp("Resolve")
-        if not resolve:
-            raise RuntimeError
-
-        manager = resolve.GetProjectManager()
-        fusion = resolve.Fusion()
+        if resolve:
+            manager = resolve.GetProjectManager()
+            fusion = resolve.Fusion()
 
     if env.Unreal():
         editor = EditorUtil()
