@@ -1,14 +1,10 @@
 # coding: utf-8
-# import sys
-#
-# sys.path.append("/Users/shosumioka/Yurlungur")
-# import yurlungur as yr
-#
-# reload(yr)
-#
-# print yr.meta.resolve
-#
-# sys.exit()
+import sys
+
+sys.path.append("/Users/shosumioka/Yurlungur")
+import yurlungur as yr
+
+reload(yr)
 
 
 import sys
@@ -151,15 +147,128 @@ def fu_script(comp):
     """
     # print fusion.MapPath("Fusion:\\"), fusion.GetCompList().items()[0], comp
     print comp.GetToolList().values()[0].GetAttrs()
-    # print fusion.GetAttrs()
-    fpath = fusion.MapPath("/Users/shosumioka/Documents/aaa.comp")
-    mcomp = fusion.LoadComp(fpath)
-    pprint.pprint(mcomp.GetAttrs()['COMPS_FileName'])
+    # print fusion.GetCurrentComp()
+    # fpath = fusion.MapPath("/Users/shosumioka/Documents/DaVinci Resolve/aaa.comp")
+    # mcomp = fusion.LoadComp(fpath)
+    # pprint.pprint(mcomp.GetAttrs()['COMPS_FileName'])
     # mcomp.Save(), mcomp.Print(), mcomp.Close(), mcomp.Lock(), mcomp.Unlock(), mcomp.Paste()
-    mcomp.AddTool()
-    print mcomp.GetPrefs()
-    mcomp.SetPrefs({})
-    mcomp.SetAttrs({"COMPS_FileName": "/Users/shosumioka/Documents/bbb.comp"})
+
+    a = comp.AddTool("Grain")
+
+    bg1 = comp.Background()
+    pl1 = comp.Plasma()
+    mg1 = comp.Merge({"Background": bg1, "Foreground": pl1})
+
+    # print comp.FindTool("Grain1")
+    # print comp.GetPrefs()
+    # comp.SetPrefs({})
+    comp.SetAttrs({"COMPS_FileName": "/Users/shosumioka/Documents/bbb.comp"})
+    toollist = comp.GetToolList().values()
+    # print toollist
+    # print comp.AddTool("Paint")
+
+    myblur = getattr(comp, "Blur")()
+    mybg = comp.Background()
+    # myblur = comp.Blur()
+
+    myblur.Input.ConnectTo(mybg.Output)
+    # myblur.Input.ConnectTo()
+    myblur.Input = mybg.Output
+    # myblur.Input = None
+    # pprint.pprint(myblur.GetAttrs())
+
+    yr.YNode(mybg.Name).Type.set("Vertical")
+    yr.YNode(myblur.Name).XBlurSize.set(5.0)
+
+    yr.YNode(mybg.Name).hide()
+
+    return
+    tool = []
+    for tool in toollist:
+        if tool.GetAttrs("TOOLS_RegID") == "Saver":
+            saverPath = tool.GetAttrs("TOOLST_Clip_Name")
+            print saverPath
+
+            self.comp.Lock()  # lock comp durring loop operation
+
+            # refresh loader
+            tool.SetAttrs({'TOOLB_PassThrough': True})
+            tool.SetAttrs({'TOOLB_PassThrough': False})
+
+            # Modify saver exr
+            if tool.GetAttrs('TOOLS_Name') == 'exr':
+                tool.OpenEXRFormat.Depth = 1
+                tool.OpenEXRFormat.ProcessRed = 1
+                tool.OpenEXRFormat.ProcessGreen = 1
+                tool.OpenEXRFormat.ProcessBlue = 1
+                tool.OpenEXRFormat.ProcessAlpha = 0
+                tool.OpenEXRFormat.RedEnable = 1
+                tool.OpenEXRFormat.GreenEnable = 1
+                tool.OpenEXRFormat.BlueEnable = 1
+                tool.OpenEXRFormat.AlphaEnable = 0
+                tool.OpenEXRFormat.ZEnable = 0
+                tool.OpenEXRFormat.CovEnable = 0
+                tool.OpenEXRFormat.ObjIDEnable = 0
+                tool.OpenEXRFormat.MatIDEnable = 0
+                tool.OpenEXRFormat.UEnable = 0
+                tool.OpenEXRFormat.VEnable = 0
+                tool.OpenEXRFormat.XNormEnable = 0
+                tool.OpenEXRFormat.YNormEnable = 0
+                tool.OpenEXRFormat.ZNormEnable = 0
+                tool.OpenEXRFormat.XVelEnable = 0
+                tool.OpenEXRFormat.YVelEnable = 0
+                tool.OpenEXRFormat.XRevVelEnable = 0
+                tool.OpenEXRFormat.YRevVelEnable = 0
+                tool.OpenEXRFormat.XPosEnable = 0
+                tool.OpenEXRFormat.YPosEnable = 0
+                tool.OpenEXRFormat.ZPosEnable = 0
+                tool.OpenEXRFormat.XDispEnable = 0
+                tool.OpenEXRFormat.YDispEnable = 0
+            comp.Unlock()
+
+    toollist = comp.GetToolList().values()
+    tool = []
+    for tool in toollist:
+        if tool.GetAttrs("TOOLS_RegID") == "Loader":
+            loaderPath = tool.GetAttrs("TOOLST_Clip_Name")
+            loaderPathClean = loaderPath[1]
+
+            # Extract, split, via ".split(os.sep)" require import os
+            loaderPathSplit = loaderPathClean.split(os.sep)
+
+            # Listing files
+            LoaderPathDir = os.listdir(loaderPathSplit[0])
+
+            self.comp.Lock()  # lock comp durring loop operation
+
+            # refresh loader
+            tool.SetAttrs({'TOOLB_PassThrough': True})
+            tool.SetAttrs({'TOOLB_PassThrough': False})
+
+            # Check file in directory, then apply frame missing,
+            LoaderPathDir = os.listdir(reLoadPath)
+
+            if len(LoaderPathDir) == 0:
+                # Write comment on loader
+                tool.Comments = "NO FOOTAGE"
+
+                # select missing frame : 0: Fail, 1:Hold previous, 2: Output Color, 3: Wait
+                tool.MissingFrames = 2
+
+                # Add tile color to the loader for warning users
+                tool.TileColor = {'R': 255 / 255, 'G': 85 / 255, 'B': 0 / 255}
+
+            # If got one file to the directory put loop
+            if len(LoaderPathDir) == 1:
+                tool.Loop
+
+            # If TOOLS_Name is good then force frame in - frame out
+            if tool.GetAttrs('TOOLS_Name') == "we_suck_less":
+                # don't forget to force integer
+                newGlobalIn = int(tool.GlobalIn[0])
+                newGlobalOut = int(tool.GlobalOut[1])
+
+                self.comp.Unlock()
 
 
 if __name__ == "__main__":
@@ -168,6 +277,9 @@ if __name__ == "__main__":
     print tm, tm.GetTrackCount("video")  # , "audio", "subtitle")
     comp = tm.GetItemsInTrack("video", 1).values()[0].AddFusionComp()
     fu_script(comp)
+    print tm.GetItemsInTrack("video", 1).values()[0].GetFusionCompCount()
+    print tm.GetItemsInTrack("video", 1).values()[0].ExportFusionComp(
+        "/Users/shosumioka/Documents/DaVinci Resolve/aaaaa.comp", 28)
 
 """
 Project

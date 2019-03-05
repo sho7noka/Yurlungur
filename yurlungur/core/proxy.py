@@ -62,6 +62,12 @@ class YObject(_YObject):
         if hasattr(meta, "knob"):
             return meta.toNode(self.name)["name"].value() or 0
 
+        if hasattr(meta, "fusion"):
+            return meta.fusion.GetCurrentComp().FindTool(self.name).ID or 0
+
+        if hasattr(meta, 'uclass'):
+            return
+
         raise YException
 
     @trace
@@ -83,15 +89,19 @@ class YObject(_YObject):
             meta.data.objects[self.item].name = "".join(args)
             return "".join(args)
 
-        if hasattr(meta, 'uclass'):
-            if meta.assets.rename_asset(self.name, args[0]):
-                return YNode(args[0])
-
         if hasattr(meta, "knob"):
             meta.toNode(self.item).setName(args[0], **kwargs)
 
         if hasattr(meta, "fusion"):
-            return meta.script[self.name].setName(args[0])
+            if True:
+                return meta.fusion.GetCurrentComp().FindTool(self.item).SetAttrs(
+                    {"TOOLS_Name": args[0], "TOOLB_Locked": True})
+            else:
+                return meta.script[self.name].setName(args[0])
+
+        if hasattr(meta, 'uclass'):
+            if meta.assets.rename_asset(self.name, args[0]):
+                return YNode(args[0])
 
     @trace
     def __getattr__(self, val):
@@ -109,8 +119,8 @@ class YObject(_YObject):
         if hasattr(meta, "runtime"):
             if '.' in self.name:
                 node, prop = self.name.split('.')
-                return YAttr(getattr(meta.runtime.getnodebyname(node), prop), meta.runtime.getnodebyname(node).name,
-                             val)
+                return YAttr(getattr(meta.runtime.getnodebyname(node), prop),
+                             meta.runtime.getnodebyname(node).name, val)
             else:
                 return YAttr(getattr(meta.runtime.getnodebyname(self.name), val), self.name, val)
 
@@ -121,7 +131,10 @@ class YObject(_YObject):
             return YAttr(meta.toNode(self.name)[val], self.name, val)
 
         if hasattr(meta, "fusion"):
-            return YAttr(meta.manager.GetCurrentProject().GetSetting(val), self.name, val)
+            if True:
+                return YAttr(getattr(meta.fusion.GetCurrentComp().FindTool(self.name), val), self.name, val)
+            else:
+                return YAttr(meta.manager.GetCurrentProject().GetSetting(val), self.name, val)
 
         if hasattr(meta, 'uclass'):
             return YAttr(
@@ -152,7 +165,10 @@ class YObject(_YObject):
             return YAttr(meta.toNode(self.name)[val], self.name, val)
 
         if hasattr(meta, "fusion"):
-            return YAttr(meta.manager.GetCurrentProject().GetSetting(val), self.name, val)
+            if True:
+                return YAttr(getattr(meta.fusion.GetCurrentComp().FindTool(self.name), val), self.name, val)
+            else:
+                return YAttr(meta.manager.GetCurrentProject().GetSetting(val), self.name, val)
 
         if hasattr(meta, 'uclass'):
             return YAttr(
@@ -184,7 +200,10 @@ class YObject(_YObject):
             return tuple([knob.name() for knob in meta.toNode(self.name).allKnobs()])
 
         if hasattr(meta, "fusion"):
-            return tuple(meta.manager.GetCurrentProject().GetSetting().keys())
+            if True:
+                return meta.fusion.GetCurrentComp().FindTool(self.name).GetAttrs()
+            else:
+                return tuple(meta.manager.GetCurrentProject().GetSetting().keys())
 
         if hasattr(meta, 'uclass'):
             return meta.assets.find_asset_data(self.name).get_asset()
@@ -229,7 +248,7 @@ class YObject(_YObject):
                 getattr(meta.ops.object, str(self).lower() + "_add")(*args, **kwargs)
 
         if hasattr(meta, "fusion"):
-            return
+            return YNode(meta.fusion.GetCurrentComp().AddTool(self.name).Name)
 
         if hasattr(meta, 'uclass'):
             if not 'FactoryNew' in args[0]:
@@ -257,11 +276,11 @@ class YObject(_YObject):
         if hasattr(meta, "runtime"):
             return meta.runtime.delete(meta.runtime.getnodebyname(self.name))
 
-        if hasattr(meta, "context"):
+        if hasattr(meta, "data"):
             return meta.context.scene.objects.unlink(meta.data.objects[self.name])
 
         if hasattr(meta, "fusion"):
-            return
+            return meta.fusion.GetCurrentComp().FindTool(self.name).Delete()
 
         if hasattr(meta, 'uclass'):
             # return meta.assets.delete_asset(self.name)
@@ -291,6 +310,13 @@ class YObject(_YObject):
             else:
                 return meta.toNode(self.name).clones()
 
+        if hasattr(meta, "fusion"):
+            meta.fusion.GetCurrentComp().FindTool(self.name).Copy()
+            return meta.fusion.GetCurrentComp().FindTool(self.name).Paste()
+
+        if hasattr(meta, 'uclass'):
+            return
+
         raise YException
 
     def select(self, *args, **kwargs):
@@ -313,12 +339,6 @@ class YObject(_YObject):
         if hasattr(meta, "hda"):
             return meta.node(self.name).setCurrent(*args, **kwargs)
 
-        if hasattr(meta, "knob"):
-            if len(args) == 0 and len(kwargs) == 0:
-                return meta.selectedNodes()
-            else:
-                return meta.toNode(self.name).setSelected()
-
         if hasattr(meta, "runtime"):
             if len(args) == 0 and len(kwargs) == 0:
                 return meta.runtime.select(meta.runtime.getnodebyname(self.name))
@@ -328,17 +348,21 @@ class YObject(_YObject):
                 else:
                     return meta.runtime.execute('$')
 
+        if hasattr(meta, "knob"):
+            if len(args) == 0 and len(kwargs) == 0:
+                return meta.selectedNodes()
+            else:
+                return meta.toNode(self.name).setSelected()
+
+        if hasattr(meta, "fusion"):
+            return meta.fusion.GetCurrentComp().CurrentFrame.FlowView.Select(*args, **kwargs)
+
         if hasattr(meta, 'uclass'):
             # return meta.editor.get_selected_assets()
             if len(args) == 0 and len(kwargs) == 0:
                 return meta.editor.get_actor_reference(self.name, True)
             else:
                 return meta.editor.get_selection_set()
-
-        if hasattr(meta, "script"):
-            meta.script.selection().clear()
-            for arg in args:
-                meta.script.selection().add(meta.script[arg])
 
         raise YException
 
@@ -350,6 +374,10 @@ class YObject(_YObject):
 
         if hasattr(meta, "runtime"):
             return getattr(meta.runtime, "hide" if on else "unhide")(meta.runtime.getnodebyname(self.name))
+
+        if hasattr(meta, "fusion"):
+            return meta.fusion.GetCurrentComp().FindTool(self.name).SetAttrs(
+                {'TOOLB_Visible': on, "TOOLB_Locked": True})
 
         if hasattr(meta, 'uclass'):
             # set_actor_hidden_in_game
@@ -428,6 +456,17 @@ class YNode(YObject):
             index = meta.toNode(self.name).inputs() - 1
             return YNode(meta.toNode(self.name).input(index).name())
 
+        if hasattr(meta, "fusion"):
+            parents = []
+            i = 1
+            while (True):
+                child = meta.fusion.GetCurrentComp().FindTool(self.name).FindMainInput(i)
+                if child:
+                    parents.append(child)
+                else:
+                    break
+            return parents
+
         if hasattr(meta, 'uclass'):
             return YNode(
                 meta.editor.get_actor_reference(self.name).get_parent_actor().get_name())
@@ -462,6 +501,17 @@ class YNode(YObject):
         if hasattr(meta, "knob"):
             return meta
 
+        if hasattr(meta, "fusion"):
+            childs = []
+            i = 1
+            while (True):
+                child = meta.fusion.GetCurrentComp().FindTool(self.name).FindMainOutput(i)
+                if child:
+                    childs.append(child)
+                else:
+                    break
+            return childs
+
         raise YException
 
     @trace
@@ -478,6 +528,9 @@ class YNode(YObject):
 
         if hasattr(meta, "knob"):
             return meta.toNode(self.name).setInput(*args, **kwargs)
+
+        if hasattr(meta, "fusion"):
+            return meta.fusion.GetCurrentComp().FindTool(self.name).Input.ConnectTo(*args, **kwargs)
 
         raise YException
 
@@ -502,6 +555,9 @@ class YNode(YObject):
         if hasattr(meta, "knob"):
             return meta.toNode(self.name).setInput(0, None)
 
+        if hasattr(meta, "fusion"):
+            return meta.fusion.GetCurrentComp().FindTool(self.name).Input.ConnectTo()
+
         raise YException
 
     @trace
@@ -516,7 +572,13 @@ class YNode(YObject):
             return meta.node(self.name).inputs()
 
         if hasattr(meta, "knob"):
-            return meta
+            tmp = []
+            for index in range(meta.toNode(self.name).inputs()):
+                tmp.append(meta.toNode(self.name).input(index))
+            return tmp
+
+        if hasattr(meta, "fusion"):
+            return meta.fusion.GetCurrentComp().FindTool(self.name).GetInputList()
 
         raise YException
 
@@ -532,7 +594,10 @@ class YNode(YObject):
             return meta.node(self.name).outputs()
 
         if hasattr(meta, "knob"):
-            return meta
+            return meta.toNode(self.name).dependencies(meta.INPUTS | meta.EXPRESSIONS)
+
+        if hasattr(meta, "fusion"):
+            return meta.fusion.GetCurrentComp().FindTool(self.name).GetOutputList()
 
         raise YException
 
@@ -548,6 +613,9 @@ class YAttr(_YAttr):
 
     @property
     def value(self):
+        if hasattr(meta, "SDNode"):
+            return self._values[0]
+        
         if ':' in str(self._values[0]):
             return getattr(self._values[0], self.val)
         else:
@@ -603,7 +671,10 @@ class YAttr(_YAttr):
             return meta.toNode(self.obj)[self.val].setValue(args[0], **kwargs)
 
         if hasattr(meta, "fusion"):
-            return meta.manager.GetCurrentProject().SetSetting(self.obj, self.val)
+            if True:
+                return setattr(meta.fusion.GetCurrentComp().FindTool(self.obj), self.val, args[0])
+            else:
+                return meta.manager.GetCurrentProject().SetSetting(self.obj, self.val)
 
         if hasattr(meta, 'uclass'):
             return meta.assets.find_asset_data(self.obj).get_asset().set_editor_property(self.obj, self.val)
@@ -669,9 +740,6 @@ class YFile(_YObject):
 
     def __init__(self, path=""):
         self.file = path
-
-        if hasattr(meta, "fusion") and path:
-            self.file = meta.manager.CreateProject(path)
 
     @property
     def name(self):

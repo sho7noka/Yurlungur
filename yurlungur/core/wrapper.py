@@ -83,6 +83,8 @@ class YMObject(object):
         if env.Max():
             import MaxPlus
             return MaxPlus.Core.EvalMAXScript(script)
+        if env.Davinci() and self.resolve:
+            self.fusion.GetCurrentComp().Execute(script)
 
         raise YException
 
