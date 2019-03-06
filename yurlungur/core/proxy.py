@@ -248,7 +248,7 @@ class YObject(_YObject):
                 getattr(meta.ops.object, str(self).lower() + "_add")(*args, **kwargs)
 
         if hasattr(meta, "fusion"):
-            return YNode(meta.fusion.GetCurrentComp().AddTool(self.name).Name)
+            return YNode(meta.fusion.GetCurrentComp().AddTool(args[0]).Name)
 
         if hasattr(meta, 'uclass'):
             if not 'FactoryNew' in args[0]:
@@ -498,6 +498,7 @@ class YNode(YObject):
         if hasattr(meta, "hda"):
             return YNode(meta.node(self.item).children())
 
+        # TODO
         if hasattr(meta, "knob"):
             return meta
 
