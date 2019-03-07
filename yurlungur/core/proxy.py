@@ -248,7 +248,7 @@ class YObject(_YObject):
                 getattr(meta.ops.object, str(self).lower() + "_add")(*args, **kwargs)
 
         if hasattr(meta, "fusion"):
-            return YNode(meta.fusion.GetCurrentComp().AddTool(args[0]).Name)
+            return YNode(meta.fusion.GetCurrentComp().AddTool(*args, **kwargs).Name)
 
         if hasattr(meta, 'uclass'):
             if not 'FactoryNew' in args[0]:
@@ -531,7 +531,8 @@ class YNode(YObject):
             return meta.toNode(self.name).setInput(*args, **kwargs)
 
         if hasattr(meta, "fusion"):
-            return meta.fusion.GetCurrentComp().FindTool(self.name).Input.ConnectTo(*args, **kwargs)
+            out = getattr(args[0], "Output")
+            return meta.fusion.GetCurrentComp().FindTool(self.name).Input.ConnectTo(out, **kwargs)
 
         raise YException
 
