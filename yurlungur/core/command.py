@@ -22,10 +22,6 @@ class Command(object):
         return [obj for obj in dir(cls) if not obj.startswith("_")]
 
 
-class Render:
-    pass
-
-
 def _ls(cls, *args, **kwargs):
     gen = meta.ls(*args, **kwargs) if hasattr(meta, "ls") else meta.pwd().allItems()
     return tuple(YNode(obj) for obj in gen)
@@ -72,6 +68,7 @@ def _alembicImporter(cls, *args, **kwargs):
 
     raise YException
 
+
 def _alembicExporter(cls, *args, **kwargs):
     if hasattr(meta, "AbcExport"):
         return cls(meta.AbcExport(*args, **kwargs))
@@ -82,6 +79,7 @@ def _alembicExporter(cls, *args, **kwargs):
             return args[0]
 
     raise YException
+
 
 def _fbxImporter(cls, *args, **kwargs):
     if hasattr(meta, "importFBX"):
@@ -100,6 +98,7 @@ def _fbxImporter(cls, *args, **kwargs):
 
     raise YException
 
+
 def _fbxExporter(cls, *args, **kwargs):
     if hasattr(meta, "runtime"):
         export = partial(meta.runtime.exportFile, args[0], meta.runtime.Name("noPrompt"), using='FBXEXPORTER')
@@ -110,6 +109,7 @@ def _fbxExporter(cls, *args, **kwargs):
         return cls(meta.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args)))
 
     raise YException
+
 
 # Monkey-Patch
 file = YFile()

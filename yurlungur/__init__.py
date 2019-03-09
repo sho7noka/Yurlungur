@@ -17,6 +17,7 @@ from yurlungur.tool.util import (
 )
 from yurlungur.tool import ui
 from yurlungur.tool.meta import meta
+from yurlungur.adapters import *  # noQA
 
 # info
 name = __name__
