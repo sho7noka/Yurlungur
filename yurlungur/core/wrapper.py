@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 import inspect
-import string
 
 import yurlungur
 from yurlungur.core import app, env
-
-"""internal module"""
 
 
 class YException(NotImplementedError):
@@ -13,30 +10,6 @@ class YException(NotImplementedError):
     >>> raise NotImplementedError(app.application)
     """
     pass
-
-
-if env.Unreal():
-    import unreal
-
-
-    @unreal.uclass()
-    class EditorUtil(unreal.GlobalEditorUtilityBase):
-        pass
-
-
-    @unreal.uclass()
-    class GetEditorAssetLibrary(unreal.EditorAssetLibrary):
-        pass
-
-
-    @unreal.uclass()
-    class MaterialEditingLib(unreal.MaterialEditingLibrary):
-        pass
-
-
-    @unreal.uclass()
-    class GetAnimationLibrary(unreal.AnimationLibrary):
-        pass
 
 
 class YMObject(object):
@@ -57,13 +30,13 @@ class YMObject(object):
             fusion = resolve.Fusion()
 
     if env.Unreal():
-        editor = EditorUtil()
-        assets = GetEditorAssetLibrary()
-        materials = MaterialEditingLib()
-        anim = GetAnimationLibrary()
+        from yurlungur.adapters import unreal as ue
+        editor = ue.EditorUtil()
+        assets = ue.GetEditorAssetLibrary()
+        materials = ue.MaterialEditingLib()
+        anim = ue.GetAnimationLibrary()
 
     def __getattr__(self, item):
-        # yr.meta.runtime.Name('export')
         for cmd, _ in inspect.getmembers(app.application):
             if cmd == item:
                 setattr(
