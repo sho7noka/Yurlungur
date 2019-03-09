@@ -93,11 +93,7 @@ class YObject(_YObject):
             meta.toNode(self.item).setName(args[0], **kwargs)
 
         if hasattr(meta, "fusion"):
-            if True:
-                return meta.fusion.GetCurrentComp().FindTool(self.item).SetAttrs(
-                    {"TOOLS_Name": args[0], "TOOLB_Locked": True})
-            else:
-                return meta.script[self.name].setName(args[0])
+            return meta.fusion.GetCurrentComp().FindTool(self.item).SetAttrs({"TOOLS_Name": args[0]})
 
         if hasattr(meta, 'uclass'):
             if meta.assets.rename_asset(self.name, args[0]):
@@ -131,10 +127,7 @@ class YObject(_YObject):
             return YAttr(meta.toNode(self.name)[val], self.name, val)
 
         if hasattr(meta, "fusion"):
-            if True:
-                return YAttr(getattr(meta.fusion.GetCurrentComp().FindTool(self.name), val), self.name, val)
-            else:
-                return YAttr(meta.manager.GetCurrentProject().GetSetting(val), self.name, val)
+            return YAttr(getattr(meta.fusion.GetCurrentComp().FindTool(self.name), val), self.name, val)
 
         if hasattr(meta, 'uclass'):
             return YAttr(
@@ -165,10 +158,7 @@ class YObject(_YObject):
             return YAttr(meta.toNode(self.name)[val], self.name, val)
 
         if hasattr(meta, "fusion"):
-            if True:
-                return YAttr(getattr(meta.fusion.GetCurrentComp().FindTool(self.name), val), self.name, val)
-            else:
-                return YAttr(meta.manager.GetCurrentProject().GetSetting(val), self.name, val)
+            return YAttr(getattr(meta.fusion.GetCurrentComp().FindTool(self.name), val), self.name, val)
 
         if hasattr(meta, 'uclass'):
             return YAttr(
@@ -200,10 +190,7 @@ class YObject(_YObject):
             return tuple([knob.name() for knob in meta.toNode(self.name).allKnobs()])
 
         if hasattr(meta, "fusion"):
-            if True:
-                return meta.fusion.GetCurrentComp().FindTool(self.name).GetAttrs()
-            else:
-                return tuple(meta.manager.GetCurrentProject().GetSetting().keys())
+            return meta.fusion.GetCurrentComp().FindTool(self.name).GetAttrs()
 
         if hasattr(meta, 'uclass'):
             return meta.assets.find_asset_data(self.name).get_asset()
@@ -311,8 +298,8 @@ class YObject(_YObject):
                 return meta.toNode(self.name).clones()
 
         if hasattr(meta, "fusion"):
-            meta.fusion.GetCurrentComp().FindTool(self.name).Copy()
-            return meta.fusion.GetCurrentComp().FindTool(self.name).Paste()
+            meta.fusion.GetCurrentComp().Copy(self.name)
+            return meta.fusion.GetCurrentComp().Paste(*args, **kwarg)
 
         if hasattr(meta, 'uclass'):
             return
@@ -431,15 +418,15 @@ class YNode(YObject):
                     nodes.append(YNode(connect.getInputPropertyNode().getIdentifier()))
             return nodes
 
-        if hasattr(meta, "parent"):
+        if hasattr(meta, "getAttr"):
             if len(args) == 0 and len(kwarg) > 0:
                 return meta.parent(self.item, *args, **kwarg)
             else:
                 return YNode(
                     partial(meta.listRelatives, self.item, p=1)(*args, **kwarg))
 
-        if hasattr(meta, "root"):
-            return YNode(meta.node(self.item).parent().name())
+        if hasattr(meta, "hda"):
+            return YNode(meta.node(self.name).parent().path())
 
         if hasattr(meta, "runtime"):
             if len(args) > 0:
@@ -449,23 +436,12 @@ class YNode(YObject):
                 _parent = meta.runtime.getnodebyname(self.item).parent
                 return YNode(_parent.name) if _parent else None
 
-        if hasattr(meta, "hda"):
-            return YNode(meta.node(self.name).parent().name())
-
         if hasattr(meta, "knob"):
             index = meta.toNode(self.name).inputs() - 1
             return YNode(meta.toNode(self.name).input(index).name())
 
         if hasattr(meta, "fusion"):
-            parents = []
-            i = 1
-            while (True):
-                child = meta.fusion.GetCurrentComp().FindTool(self.name).FindMainInput(i)
-                if child:
-                    parents.append(child)
-                else:
-                    break
-            return parents
+            return meta.fusion.GetCurrentComp().FindTool(self.name).ParentTool
 
         if hasattr(meta, 'uclass'):
             return YNode(
@@ -481,6 +457,12 @@ class YNode(YObject):
                     nodes.append(YNode(connect.getOutputPropertyNode().getIdentifier()))
             return nodes
 
+        if hasattr(meta, "getAttr"):
+            return partial(meta.listRelatives, self.item, c=1)(*args, **kwarg) or None
+
+        if hasattr(meta, "hda"):
+            return [YNode(node.name) for node in meta.node(self.item).children()]
+
         if hasattr(meta, "runtime"):
             if len(args) > 0:
                 meta.runtime.execute('append $%s.children $%s' % (self.item, args[0]))
@@ -491,27 +473,6 @@ class YNode(YObject):
                 for i in range(children.count):
                     nodes.append(children[i].name)
                 return nodes
-
-        if hasattr(meta, "getAttr"):
-            return partial(meta.listRelatives, self.item, c=1)(*args, **kwarg) or None
-
-        if hasattr(meta, "hda"):
-            return YNode(meta.node(self.item).children())
-
-        # TODO
-        if hasattr(meta, "knob"):
-            return meta
-
-        if hasattr(meta, "fusion"):
-            childs = []
-            i = 1
-            while (True):
-                child = meta.fusion.GetCurrentComp().FindTool(self.name).FindMainOutput(i)
-                if child:
-                    childs.append(child)
-                else:
-                    break
-            return childs
 
         raise YException
 
@@ -531,8 +492,7 @@ class YNode(YObject):
             return meta.toNode(self.name).setInput(*args, **kwargs)
 
         if hasattr(meta, "fusion"):
-            out = getattr(args[0], "Output")
-            return meta.fusion.GetCurrentComp().FindTool(self.name).Input.ConnectTo(out, **kwargs)
+            return meta.fusion.GetCurrentComp().FindTool(self.name).ConnectInput(*args, **kwargs)
 
         raise YException
 
@@ -558,7 +518,7 @@ class YNode(YObject):
             return meta.toNode(self.name).setInput(0, None)
 
         if hasattr(meta, "fusion"):
-            return meta.fusion.GetCurrentComp().FindTool(self.name).Input.ConnectTo()
+            return setattr(meta.fusion.GetCurrentComp().FindTool(self.name), "Input", None)
 
         raise YException
 
@@ -571,16 +531,14 @@ class YNode(YObject):
             return partial(meta.listConnections, s=1)(*args, **kwargs)
 
         if hasattr(meta, "hda"):
-            return meta.node(self.name).inputs()
+            return [YNode(node.name) for node in meta.node(self.name).inputs()]
 
         if hasattr(meta, "knob"):
-            tmp = []
-            for index in range(meta.toNode(self.name).inputs()):
-                tmp.append(meta.toNode(self.name).input(index))
-            return tmp
+            return [YNode(meta.toNode(self.name).input(index).name()) for index in
+                    range(meta.toNode(self.name).inputs())]
 
         if hasattr(meta, "fusion"):
-            return meta.fusion.GetCurrentComp().FindTool(self.name).GetInputList()
+            return meta.fusion.GetCurrentComp().FindTool(self.name).GetInputList().values()[0].GetAttrs()
 
         raise YException
 
@@ -593,13 +551,13 @@ class YNode(YObject):
             return partial(meta.listConnections, d=1)(*args, **kwargs)
 
         if hasattr(meta, "hda"):
-            return meta.node(self.name).outputs()
+            return [YNode(node.name) for node in meta.node(self.name).outputs()]
 
         if hasattr(meta, "knob"):
-            return meta.toNode(self.name).dependencies(meta.INPUTS | meta.EXPRESSIONS)
+            return meta.toNode(self.name).dependencies(meta.EXPRESSIONS)
 
         if hasattr(meta, "fusion"):
-            return meta.fusion.GetCurrentComp().FindTool(self.name).GetOutputList()
+            return meta.fusion.GetCurrentComp().FindTool(self.name).GetOutputList().values()[0].GetAttrs()
 
         raise YException
 
@@ -673,10 +631,7 @@ class YAttr(_YAttr):
             return meta.toNode(self.obj)[self.val].setValue(args[0], **kwargs)
 
         if hasattr(meta, "fusion"):
-            if True:
-                return setattr(meta.fusion.GetCurrentComp().FindTool(self.obj), self.val, args[0])
-            else:
-                return meta.manager.GetCurrentProject().SetSetting(self.obj, self.val)
+            return setattr(meta.fusion.GetCurrentComp().FindTool(self.obj), self.val, args[0])
 
         if hasattr(meta, 'uclass'):
             return meta.assets.find_asset_data(self.obj).get_asset().set_editor_property(self.obj, self.val)
@@ -781,7 +736,11 @@ class YFile(_YObject):
             return meta.scriptOpen(*args, **kwargs)
 
         if hasattr(meta, "fusion"):
-            return meta.manager.LoadProject(*args, **kwargs)
+            storage = meta.resolve.GetMediaStorage()
+            if "." in args:
+                return storage.AddItemsToMediaPool(*args)
+            else:
+                return meta.manager.LoadProject(*args, **kwargs)
 
         raise YException
 
