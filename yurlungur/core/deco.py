@@ -6,11 +6,6 @@ from yurlungur.tool.meta import meta
 from yurlungur.core import env
 
 
-@contextlib.contextmanager
-def safe_def():
-    pass
-
-
 class UndoGroup(object):
     def __init__(self, label):
         self.label = label

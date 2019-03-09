@@ -1,5 +1,4 @@
 from yurlungur.core.app import application
-from yurlungur.core.builder import Builder
 from yurlungur.core.command import cmd, file
 from yurlungur.core.deco import UndoGroup
 from yurlungur.core.env import Maya, Houdini, Blender

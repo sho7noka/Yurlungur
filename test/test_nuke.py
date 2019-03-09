@@ -1,6 +1,6 @@
 import sys
 
-sys.path.append("/Users/shosumioka/Yurlungur")
+sys.path.append('../yurlungur')
 import yurlungur as yr
 
 reload(yr)
