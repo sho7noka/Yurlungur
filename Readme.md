@@ -20,13 +20,13 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 * Useful py-snippet for Game&Film technical artist.
 
 ### available
-|       | Node | Attribute | Geom |
+|       | Node | Attribute | Anim |
 | ---- | --- | --- | --- |
 | Maya | ○ | ○ | ☓ |
 | Houdini | ○ | ○ | ☓ |
 | Substance (2018.1.2~) | ○ | ○ | - |
 | 3dsMax (2017~) | ○ | ○ | ☓ |
-| Blender | ○ | ○ | ☓ |
+| Blender (2.8) | ○ | ○ | ☓ |
 | Nuke | ○ | ○ | - |
 | Davinci Resolve (15~) | ○ | ○ | - |
 | [Unreal Engine](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python)(4.20~) | - | - | - |
