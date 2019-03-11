@@ -29,7 +29,7 @@ class Projects(object):
         return
 
     @property
-    def timelines(self):
+    def sequences(self):
         return Timeline(self.project)
 
     @property
@@ -86,7 +86,7 @@ class Track(object):
         return self
 
     @property
-    def comps(self):
+    def clips(self):
         return Item(self.track)
 
 
