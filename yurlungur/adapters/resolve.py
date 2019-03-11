@@ -3,16 +3,16 @@ import os
 from yurlungur.tool.meta import meta
 
 
-
 class Base(object):
-	"""
-	projects/sequences/tracks/clips
-	"""
-	def to_object(self, val):
-		return YObject(val)
-		
-	def to_file(self, val):
-		return YFile(val)
+    """
+    projects/sequences/tracks/clips
+    """
+
+    def to_object(self, val):
+        return YObject(val)
+
+    def to_file(self, val):
+        return YFile(val)
 
 
 class Projects(object):
