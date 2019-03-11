@@ -2,9 +2,17 @@
 import os
 from yurlungur.tool.meta import meta
 
-"""
-/projects/timelines/tracks/comps
-"""
+
+
+class Base(object):
+	"""
+	projects/sequences/tracks/clips
+	"""
+	def to_object(self, val):
+		return YObject(val)
+		
+	def to_file(self, val):
+		return YFile(val)
 
 
 class Projects(object):
@@ -25,11 +33,8 @@ class Projects(object):
 
         return self
 
-    def settings(self, *args):
-        return
-
     @property
-    def timelines(self):
+    def sequences(self):
         return Timeline(self.project)
 
     @property
@@ -86,7 +91,7 @@ class Track(object):
         return self
 
     @property
-    def comps(self):
+    def clips(self):
         return Item(self.track)
 
 
