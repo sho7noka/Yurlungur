@@ -20,10 +20,5 @@ setup(
 
     packages=["yurlungur"],
     include_package_data=True,
-    test_suite='test',
-    entry_points={
-        'console_scripts': [
-            'yur = yurlungur.tool.standalone._cli',
-        ],
-    },
+    test_suite='test'
 )
