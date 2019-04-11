@@ -400,10 +400,10 @@ class YNode(YObject):
     """relationship object"""
 
     def __init__(self, item=None):
-        if sys.version_info > (3, 2):
-            super().__init__(item)
-        else:
+        if sys.version_info < (3, 2):
             super(YNode, self).__init__(item)
+        else:
+            super().__init__(item)
         self.item = item
 
         if self.item and hasattr(meta, "SDNode"):
