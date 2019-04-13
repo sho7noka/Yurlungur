@@ -19,15 +19,17 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 * PySide & PyQt shorten accessor.
 * Useful py-snippet for Game&Film technical artist.
 
-### availables
-|       | Node | Attribute | Geom |
+### available
+|       | Node | Attribute | Anim |
 | ---- | --- | --- | --- |
-| Maya | ○ | ○ | - |
-| Houdini | ○ | ○ | - |
-| Blender | ○ | ○ | - |
-| Substance | - | - | - |
-| [Unreal](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python) | - | - | - |
-
+| Maya | ○ | ○ | ☓ |
+| Houdini | ○ | ○ | ☓ |
+| Substance (2018.1.2~) | ○ | ○ | - |
+| 3dsMax (2017~) | ○ | ○ | ☓ |
+| Blender (2.8) | ○ | ○ | ☓ |
+| Nuke | ○ | ○ | - |
+| Davinci Resolve (15~) | ○ | ○ | - |
+| [Unreal Engine](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python)(4.20~) | - | - | - |
 
 
 ### Installing
@@ -36,10 +38,10 @@ pipenv install yurlungur
 ```
 
 #### optional
-If you use Unreal or Standalone for full supports, Yurlungur require `PySide` module.
+If you use Unreal or Standalone for full supports, Yurlungur require `Qt for Python` module.
 
 ```bash
-pipenv install pyside
+pipenv install PySide2
 ```
 
 ### semantics

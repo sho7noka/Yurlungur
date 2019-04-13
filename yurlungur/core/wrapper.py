@@ -4,8 +4,6 @@ import inspect
 import yurlungur
 from yurlungur.core import app, env
 
-"""internal module"""
-
 
 class YException(NotImplementedError):
     """
@@ -17,6 +15,27 @@ class YException(NotImplementedError):
 class YMObject(object):
     """command wrapper for any application"""
 
+    if env.Substance():
+        import sd
+        from sd.api.sdproperty import SDPropertyCategory
+        context = sd.getContext()
+        sd_app = context.getSDApplication()
+        manager = sd_app.getPackageMgr()
+        graph = manager.getUserPackages()[0].getChildrenResources(True)[0]
+
+    if env.Davinci():
+        resolve = env.__import__("DaVinciResolveScript").scriptapp("Resolve")
+        if resolve:
+            manager = resolve.GetProjectManager()
+            fusion = resolve.Fusion()
+
+    if env.Unreal():
+        from yurlungur.adapters import unreal as ue
+        editor = ue.EditorUtil()
+        assets = ue.GetEditorAssetLibrary()
+        materials = ue.MaterialEditingLib()
+        anim = ue.GetAnimationLibrary()
+
     def __getattr__(self, item):
         for cmd, _ in inspect.getmembers(app.application):
             if cmd == item:
@@ -26,14 +45,19 @@ class YMObject(object):
                 )
                 return getattr(yurlungur, item)
 
-        return None
+        raise YException
 
     def eval(self, script):
         if env.Maya():
             import maya.mel as mel
             return mel.eval(script)
         if env.Houdini():
-            app.application.hscript(script)
+            return app.application.hscript(script)
+        if env.Max():
+            import MaxPlus
+            return MaxPlus.Core.EvalMAXScript(script)
+        if env.Davinci() and self.resolve:
+            self.fusion.GetCurrentComp().Execute(script)
 
         raise YException
 
@@ -70,6 +94,11 @@ if env.Maya():
     _YMatrix = type('_YMatrix', (OM.MMatrix,), dict())
     _YColor = type('_YColor', (OM.MColor,), dict())
 
+    meta = YMObject()
+    if hasattr(meta, "loadPlugin"):
+        for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
+            meta.loadPlugin(plugin, qt=1)
+
 elif env.Houdini() or env.Unreal():
     meta = YMObject()
 
@@ -89,3 +118,23 @@ elif env.Blender():
     _YVector = type('_YVector', (mathutils.Vector,), dict())
     _YMatrix = type('_YMatrix', (mathutils.Matrix,), dict())
     _YColor = type('_YColor', (mathutils.Color,), dict())
+
+elif env.Substance():
+    meta = YMObject()
+
+    _YVector = type('_YVector', (meta.SDValueVector,), dict())
+    _YMatrix = type('_YMatrix', (meta.SDValueMatrix,), dict())
+    _YColor = type('_YColor', (meta.SDValueColorRGBA,), dict())
+
+elif env.Nuke():
+    import _nukemath
+
+    _YVector = type('_YVector', (_nukemath.Vector3,), dict())
+    _YMatrix = type('_YMatrix', (_nukemath.Matrix4,), dict())
+
+elif env.Max():
+    import MaxPlus
+
+    _YVector = type('_YVector', (MaxPlus.Point3,), dict())
+    _YMatrix = type('_YMatrix', (MaxPlus.Matrix3,), dict())
+    _YColor = type('_YColor', (MaxPlus.Color,), dict())

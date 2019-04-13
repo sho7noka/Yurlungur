@@ -1,28 +1,11 @@
 # -*- coding: utf-8 -*-
-from yurlungur.core import env
+from functools import partial
+
 from yurlungur.core.proxy import YNode, YFile
 from yurlungur.tool.meta import meta
+from yurlungur.core.wrapper import YException
 
-__all__ = ["file", "cmd", "UndoGroup"]
-
-
-class UndoGroup(object):
-    def __init__(self, label):
-        self.label = label
-
-    def __enter__(self):
-        if env.Maya():
-            meta.undoInfo(ock=1)
-            return self
-        elif env.Blender():
-            self.undo = meta.context.user_preferences.edit.use_global_undo
-            meta.context.user_preferences.edit.use_global_undo = False
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        if env.Maya():
-            meta.undoInfo(cck=1)
-        elif env.Blender():
-            meta.context.user_preferences.edit.use_global_undo = self.undo
+__all__ = ["file", "cmd"]
 
 
 class Command(object):
@@ -58,7 +41,7 @@ def _select(cls, *args, **kwargs):
     if hasattr(meta, "select"):
         meta.select(*args, **kwargs)
 
-    if hasattr(meta, "root"):
+    if hasattr(meta, "hda"):
         for node in meta.nodes(args):
             node.setSelected(True, **kwargs)
 
@@ -72,61 +55,71 @@ def _alembicImporter(cls, *args, **kwargs):
     if hasattr(meta, "AbcImport"):
         return cls(meta.AbcImport(*args, **kwargs))
 
-    if hasattr(meta, "root"):
+    if hasattr(meta, "hda"):
         geo = yr.YNode("obj").create("geo")
         abc = geo.create("alembic")
         abc.fileName.set(*args)
         return cls(*args)
+
+    if hasattr(meta, "runtime"):
+        importer = partial(meta.runtime.importFile, args[0], meta.runtime.Name("noPrompt"), using='AlembicImport')
+        if importer(**kwargs):
+            return args[0]
+
+    raise YException
 
 
 def _alembicExporter(cls, *args, **kwargs):
     if hasattr(meta, "AbcExport"):
         return cls(meta.AbcExport(*args, **kwargs))
 
+    if hasattr(meta, "runtime"):
+        export = partial(meta.runtime.exportFile, args[0], meta.runtime.Name("noPrompt"), using='AlembicExport')
+        if export(**kwargs):
+            return args[0]
+
+    raise YException
+
 
 def _fbxImporter(cls, *args, **kwargs):
     if hasattr(meta, "importFBX"):
         return meta.importFBX(*args, **kwargs)
-    else:
+
+    if hasattr(meta, "runtime"):
+        importer = partial(meta.runtime.importFile, args[0], meta.runtime.Name("noPrompt"), using='FBXIMPORTER')
+        if importer(**kwargs):
+            return args[0]
+
+    if hasattr(meta, 'AssetImportTask'):
+        meta.AssetToolsHelpers.get_asset_tools().import_asset_task()
+
+    if hasattr(meta, 'eval'):
         return cls(meta.eval("FBXImport -file {0};".format(*args)))
+
+    raise YException
 
 
 def _fbxExporter(cls, *args, **kwargs):
-    return cls(meta.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args)))
+    if hasattr(meta, "runtime"):
+        export = partial(meta.runtime.exportFile, args[0], meta.runtime.Name("noPrompt"), using='FBXEXPORTER')
+        if export(**kwargs):
+            return args[0]
 
+    if hasattr(meta, 'eval'):
+        return cls(meta.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args)))
 
-file = YFile()
-cmd = Command()
+    raise YException
+
 
 # Monkey-Patch
-if env.Maya():
-    for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
-        meta.loadPlugin(plugin, qt=1)
+file = YFile()
+YFile.abcImporter = _alembicImporter
+YFile.abcExporter = _alembicExporter
+YFile.fbxImporter = _fbxImporter
+YFile.fbxExporter = _fbxExporter
 
-    YFile.abcImporter = _alembicImporter
-    YFile.abcExporter = _alembicExporter
-    YFile.fbxImporter = _fbxImporter
-    YFile.fbxExporter = _fbxExporter
-
-    Command.ls = _ls
-    Command.rm = _rm
-    Command.glob = _glob
-    Command.select = _select
-
-if env.Houdini():
-    UndoGroup = meta.undos.group
-
-    YFile.abcImporter = _alembicImporter
-    YFile.fbxImporter = _fbxImporter
-
-    Command.ls = _ls
-    Command.rm = _rm
-    Command.glob = _glob
-    Command.select = _select
-
-if env.Blender():
-    YFile.abcImporter = _alembicImporter
-    YFile.fbxImporter = _fbxImporter
-
-if env.Unreal():
-    UndoGroup = meta.ScopedEditorTransaction
+cmd = Command()
+Command.ls = _ls
+Command.rm = _rm
+Command.glob = _glob
+Command.select = _select
