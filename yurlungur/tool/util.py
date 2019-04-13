@@ -31,7 +31,10 @@ def trace(func):
         try:
             return func(*args, **kwargs)
         except:
-            logger.logger.warn(traceback.format_exc())
+            if hasattr(logger.logger, "warn"):
+                logger.logger.warn(traceback.format_exc())
+            else:
+                logger.logger.log(traceback.format_exc(), logger.Warning)
 
     return wrapper
 

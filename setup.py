@@ -8,7 +8,7 @@ Yurlungur is common interface which adapted each application for universal wrapp
 
 setup(
     name='yurlungur',
-    version="0.9.4",
+    version="0.9.5",
     url='https://sho7noka.github.io/Yurlungur/',
     license='MIT',
     author='sho7noka',
@@ -20,10 +20,5 @@ setup(
 
     packages=["yurlungur"],
     include_package_data=True,
-    test_suite='test',
-    entry_points={
-        'console_scripts': [
-            'yurl = yurlungur.core.standalone._cli',
-        ],
-    },
+    test_suite='test'
 )

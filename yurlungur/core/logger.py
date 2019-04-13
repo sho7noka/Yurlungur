@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-
-try:
-    import __builtin__
-except ImportError:
-    import builtins as __builtins__
-
 import sys
-import time
 from logging import (
     getLogger, Handler, INFO, WARNING, basicConfig
 )
@@ -38,6 +31,10 @@ class GuiLogHandler(Handler):
                 meta.log_error(msg)
             elif env.Unity():
                 meta.Debug.LogError(msg)
+            elif env.Nuke():
+                meta.error(msg)
+            elif env.Max():
+                meta.print_(msg, True, False)
 
         elif record.levelno > INFO:
             if env.Maya():
@@ -48,6 +45,10 @@ class GuiLogHandler(Handler):
                 meta.log_warning(msg)
             elif env.Unity():
                 meta.Debug.LogWarning(msg)
+            elif env.Nuke():
+                meta.warning(msg)
+            elif env.Max():
+                meta.print_(msg, True, False)
 
         else:
             if env.Maya():
@@ -58,31 +59,29 @@ class GuiLogHandler(Handler):
                 meta.log(msg)
             elif env.Unity():
                 meta.Debug.Log(msg)
+            elif env.Nuke():
+                meta.debug(msg)
+            elif env.Max():
+                meta.print_(msg, False, True)
 
 
-# logger
-logger = getLogger(yurlungur.__name__)
-logger.setLevel(INFO)
+if env.Substance():
+    import sd
+    import sd.logger as slog
 
-# TODO: https://code.blender.org/2016/05/logging-from-python-code-in-blender/
-if not env.Blender():
+    logger = sd.getContext().getLogger()
+    Warning = slog.LogLevel.Warning
+
+elif env.Blender():
+    pass  # TODO: https://code.blender.org/2016/05/logging-from-python-code-in-blender/
+
+else:
+    logger = getLogger(yurlungur.__name__)
+    logger.setLevel(INFO)
     handler = GuiLogHandler()
     logger.addHandler(handler)
-basicConfig(level=INFO, stream=sys.stdout)
+    basicConfig(level=INFO, stream=sys.stdout)
 
 
 def log(*msgs):
-    logger.info(pformat(*msgs))
-
-
-def print(*args):
-    __builtin__.print(pformat(*args))
-
-
-def _progress():
-    for i in range(1, 101):
-        sys.stdout.flush()
-        log = "\r%d%% (%d of %d)" % (i, i, 100)
-        sys.stdout.write(log + "")
-        sys.stdout.flush()
-        time.sleep(0.01)
+    logger.log(pformat(*msgs))

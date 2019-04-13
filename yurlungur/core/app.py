@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import platform
 import sys
-
 from yurlungur.core.env import __import__
 
 application = sys.executable
-
 __doc__ = "app modules"
+
 
 def exApplication(module=""):
     application = ""
@@ -15,7 +14,7 @@ def exApplication(module=""):
         application = __import__(module)
 
     elif application == "":
-        from yurlungur.core import standalone
+        from yurlungur.tool import standalone
 
         application = standalone
 
@@ -32,25 +31,41 @@ elif __import__("hou"):
 
     application = hou
 
-elif "blender" in application:
-    import bpy
-
-    application = bpy
-
 elif "Substance" in application:
-    import sd
+    import sd.api as sdapi
 
-    application = sd
+    application = sdapi
+
 
 elif "UE4Editor" in application:
     import unreal
 
     application = unreal
 
-elif "max" in application:
+elif "3dsmax" in application:
     import pymxs
 
     application = pymxs
+
+elif "blender" in application:
+    import bpy
+
+    application = bpy
+
+elif "UE4Editor" in application:
+    import unreal
+
+    application = unreal
+
+elif "Nuke" in application:
+    import nuke
+
+    application = nuke
+
+elif __import__("DaVinciResolveScript"):
+    import DaVinciResolveScript
+
+    application = DaVinciResolveScript
 
 else:
     if platform.python_implementation() == 'IronPython':

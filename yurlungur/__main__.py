@@ -10,5 +10,5 @@ if not local in sys.path:
     sys.path.append(local)
 
 if __name__ == "__main__":
-    from yurlungur.core.standalone import _cli
+    from yurlungur.tool.standalone import _cli
     _cli(sys.argv[1:])
