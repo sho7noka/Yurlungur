@@ -214,18 +214,6 @@ def Nuke(func=None):
     return wrapper
 
 
-def Gaffer(func=None):
-    if func is None:
-        return __import__("GafferScene")
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if __import__("GafferScene"):
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
 def installed(app):
     _app = app.lower()
 
