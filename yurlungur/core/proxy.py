@@ -24,14 +24,14 @@ class YObject(_YObject):
         self.item = item
 
     def __repr__(self):
-        if hasattr(meta, "SDNode"):
+        if getattr(meta, "SDNode", None):
             return "id: " + self.name
         else:
             return self.name
 
     @property
     def name(self):
-        if hasattr(meta, "SDNode"):
+        if getattr(meta, "SDNode", None):
             return self.id
         else:
             return self.item
@@ -65,6 +65,9 @@ class YObject(_YObject):
         if hasattr(meta, "fusion"):
             return meta.fusion.GetCurrentComp().FindTool(self.name).ID or 0
 
+        if hasattr(meta, "activeDocument"):
+            return meta.activeDocument
+
         if hasattr(meta, 'uclass'):
             return
 
@@ -94,6 +97,9 @@ class YObject(_YObject):
 
         if hasattr(meta, "fusion"):
             return meta.fusion.GetCurrentComp().FindTool(self.item).SetAttrs({"TOOLS_Name": args[0]})
+
+        if hasattr(meta, "activeDocument"):
+            return setattr(meta.activeDocument.activeLayer, "name", *args)
 
         if hasattr(meta, 'uclass'):
             if meta.assets.rename_asset(self.name, args[0]):
@@ -400,10 +406,10 @@ class YNode(YObject):
     """relationship object"""
 
     def __init__(self, item=None):
-        if sys.version_info < (3, 2):
-            super(YNode, self).__init__(item)
-        else:
-            super().__init__(item)
+        # if sys.version_info < (3, 2):
+        super(YNode, self).__init__(item)
+        # else:
+        #     super().__init__(item)
         self.item = item
 
         if self.item and hasattr(meta, "SDNode"):

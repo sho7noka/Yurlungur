@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import platform
 import sys
+import glob
 from yurlungur.core.env import __import__
 
 application = sys.executable
@@ -17,6 +18,19 @@ def exApplication(module=""):
         from yurlungur.tool import standalone
 
         application = standalone
+
+    elif application == "photoshop":
+        import pip
+
+        if platform.system() == "Windows":
+            pip.main(["install", "comtypes"])
+            from comtypes.client import GetActiveObject
+            application = GetActiveObject("Photoshop.Application")
+        elif platform.system() == "Darwin":
+            pip.main(["install", "appscript"])
+            from appscript import app
+            glob.glob("/Applications/Adobe*")
+            application = app()
 
     return application
 
