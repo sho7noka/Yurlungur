@@ -190,6 +190,22 @@ def Substance(func=None):
     return wrapper
 
 
+def Photoshop(func=None):
+    if func is None:
+        from comtypes.client import GetActiveObject, CreateObject
+        try:
+            app = GetActiveObject('Photoshop.Application')
+        except WindowsError:
+            app = CreateObject("Photoshop.Application")
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "Substance" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
 def Davinci(func=None):
     if func is None:
         return __import__("DaVinciResolveScript")

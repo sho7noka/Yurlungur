@@ -1,4 +1,4 @@
-from yurlungur.core.app import application
+from yurlungur.core.app import application, exApplication
 from yurlungur.core.command import cmd, file
 from yurlungur.core.deco import UndoGroup
 from yurlungur.core.env import Maya, Houdini, Blender

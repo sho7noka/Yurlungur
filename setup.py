@@ -8,7 +8,7 @@ Yurlungur is common interface which adapted each application for universal wrapp
 
 setup(
     name='yurlungur',
-    version="0.9.5",
+    version="0.9.6",
     url='https://sho7noka.github.io/Yurlungur/',
     license='MIT',
     author='sho7noka',
