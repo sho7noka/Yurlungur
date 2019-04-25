@@ -33,7 +33,7 @@ class YMObject(object):
         from yurlungur.adapters import unreal as ue
         editor = ue.EditorUtil()
         assets = ue.GetEditorAssetLibrary()
-        materials = ue.MaterialEditingLib()
+        mats = ue.MaterialEditingLib()
         anim = ue.GetAnimationLibrary()
 
     def __getattr__(self, item):
@@ -58,6 +58,8 @@ class YMObject(object):
             return MaxPlus.Core.EvalMAXScript(script)
         if env.Davinci() and self.resolve:
             self.fusion.GetCurrentComp().Execute(script)
+        if env.Photoshop():
+            return app.application.DoJavascript(script)
 
         raise YException
 

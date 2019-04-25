@@ -1,7 +1,7 @@
 from __future__ import print_function, unicode_literals, absolute_import
 
 __all__ = []
-__version__ = "0.9.5"
+__version__ = "0.9.6"
 
 import sys
 

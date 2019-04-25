@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
 import inspect
 from functools import partial, total_ordering
 
@@ -65,9 +64,6 @@ class YObject(_YObject):
         if hasattr(meta, "fusion"):
             return meta.fusion.GetCurrentComp().FindTool(self.name).ID or 0
 
-        if hasattr(meta, "activeDocument"):
-            return meta.activeDocument
-
         if hasattr(meta, 'uclass'):
             return
 
@@ -99,7 +95,7 @@ class YObject(_YObject):
             return meta.fusion.GetCurrentComp().FindTool(self.item).SetAttrs({"TOOLS_Name": args[0]})
 
         if hasattr(meta, "activeDocument"):
-            return setattr(meta.activeDocument.activeLayer, "name", *args)
+            return setattr(meta.activeDocument.activeLayer, "name", args[0])
 
         if hasattr(meta, 'uclass'):
             if meta.assets.rename_asset(self.name, args[0]):
@@ -135,6 +131,9 @@ class YObject(_YObject):
         if hasattr(meta, "fusion"):
             return YAttr(getattr(meta.fusion.GetCurrentComp().FindTool(self.name), val), self.name, val)
 
+        if hasattr(meta, "activeDocument"):
+            return YAttr(getattr(meta.activeDocument, val), self.name, val)
+
         if hasattr(meta, 'uclass'):
             return YAttr(
                 meta.editor.get_actor_reference(self.name).get_editor_property(val), self.name, val)
@@ -165,6 +164,12 @@ class YObject(_YObject):
 
         if hasattr(meta, "fusion"):
             return YAttr(getattr(meta.fusion.GetCurrentComp().FindTool(self.name), val), self.name, val)
+
+        if hasattr(meta, "activeDocument"):
+            if hasattr(app.activeDocument, val):
+                return YAttr(getattr(meta.activeDocument, val), self.name, val)
+            if hasattr(app.Preferences, val):
+                return YAttr(getattr(meta.Preferences, val), self.name, val)
 
         if hasattr(meta, 'uclass'):
             return YAttr(
@@ -243,6 +248,10 @@ class YObject(_YObject):
         if hasattr(meta, "fusion"):
             return YNode(meta.fusion.GetCurrentComp().AddTool(*args, **kwargs).Name)
 
+        if hasattr(meta, "activeDocument"):
+            layer = meta.activeDocument.artLayers.Add()
+            return setattr(layer, "Kind", *args)
+
         if hasattr(meta, 'uclass'):
             if not 'FactoryNew' in args[0]:
                 return None
@@ -275,6 +284,9 @@ class YObject(_YObject):
         if hasattr(meta, "fusion"):
             return meta.fusion.GetCurrentComp().FindTool(self.name).Delete()
 
+        if hasattr(meta, "activeDocument"):
+            return meta.activeDocument.artLayers[self.name].delete()
+
         if hasattr(meta, 'uclass'):
             # return meta.assets.delete_asset(self.name)
             return meta.editor.get_actor_reference(self.name).destroy_actor()
@@ -306,6 +318,9 @@ class YObject(_YObject):
         if hasattr(meta, "fusion"):
             meta.fusion.GetCurrentComp().Copy(self.name)
             return meta.fusion.GetCurrentComp().Paste(*args, **kwarg)
+
+        if hasattr(meta, "activeDocument"):
+            return meta.activeDocument.artLayers[self.name].duplicate()
 
         if hasattr(meta, 'uclass'):
             return
@@ -350,6 +365,15 @@ class YObject(_YObject):
         if hasattr(meta, "fusion"):
             return meta.fusion.GetCurrentComp().CurrentFrame.FlowView.Select(*args, **kwargs)
 
+        if hasattr(meta, "activeDocument"):
+            if len(args) == 0 and len(kwargs) == 0:
+                return meta.activeDocument.Selection
+            else:
+                meta.activeDocument.selection.deselect()
+                sel_area = ((50, 60), (150, 60), (150, 120), (50, 120))
+                appReplaceSelection = 1  # from enum PsSelectionType
+                return meta.activeDocument.Selection.Select(sel_area, appReplaceSelection, 5.5, False)
+
         if hasattr(meta, 'uclass'):
             # return meta.editor.get_selected_assets()
             if len(args) == 0 and len(kwargs) == 0:
@@ -362,8 +386,7 @@ class YObject(_YObject):
     @trace
     def hide(self, on=True):
         if hasattr(meta, "data"):
-            meta.data.objects[self.name].hide = on
-            return
+            return setattr(meta.data.objects[self.name], "hide", on)
 
         if hasattr(meta, "runtime"):
             return getattr(meta.runtime, "hide" if on else "unhide")(meta.runtime.getnodebyname(self.name))
@@ -371,6 +394,9 @@ class YObject(_YObject):
         if hasattr(meta, "fusion"):
             return meta.fusion.GetCurrentComp().FindTool(self.name).SetAttrs(
                 {'TOOLB_Visible': on, "TOOLB_Locked": True})
+
+        if hasattr(meta, "activeDocument"):
+            return setattr(meta.activeDocument.artLayers[self.name], "visible", on)
 
         if hasattr(meta, 'uclass'):
             # set_actor_hidden_in_game
@@ -639,6 +665,9 @@ class YAttr(_YAttr):
         if hasattr(meta, "fusion"):
             return setattr(meta.fusion.GetCurrentComp().FindTool(self.obj), self.val, args[0])
 
+        if hasattr(meta, "activeDocument"):
+            return setattr(meta.activeDocument.artLayers[self.obj], self.val, args[0])
+
         if hasattr(meta, 'uclass'):
             return meta.assets.find_asset_data(self.obj).get_asset().set_editor_property(self.obj, self.val)
 
@@ -748,6 +777,9 @@ class YFile(_YObject):
             else:
                 return meta.manager.LoadProject(*args, **kwargs)
 
+        if hasattr(meta, "activeDocument"):
+            return meta.open(*args, **kwargs)
+
         raise YException
 
     @classmethod
@@ -781,6 +813,9 @@ class YFile(_YObject):
 
         if hasattr(meta, "fusion"):
             return meta.manager.SaveProject(*args, **kwargs)
+
+        if hasattr(meta, "activeDocument"):
+            return meta.save(*args, **kwargs)
 
         raise YException
 

@@ -24,13 +24,11 @@ def exApplication(module=""):
 
         if platform.system() == "Windows":
             pip.main(["install", "comtypes"])
-            from comtypes.client import GetActiveObject
-            application = GetActiveObject("Photoshop.Application")
-        elif platform.system() == "Darwin":
-            pip.main(["install", "appscript"])
-            from appscript import app
-            glob.glob("/Applications/Adobe*")
-            application = app()
+            from comtypes.client import GetActiveObject, CreateObject
+            try:
+                app = GetActiveObject('Photoshop.Application')
+            except WindowsError:
+                app = CreateObject("Photoshop.Application")
 
     return application
 
@@ -76,10 +74,10 @@ elif "Nuke" in application:
 
     application = nuke
 
-elif __import__("DaVinciResolveScript"):
-    import DaVinciResolveScript
-
-    application = DaVinciResolveScript
+# elif __import__("DaVinciResolveScript"):
+#     import DaVinciResolveScript
+#
+#     application = DaVinciResolveScript
 
 else:
     if platform.python_implementation() == 'IronPython':
