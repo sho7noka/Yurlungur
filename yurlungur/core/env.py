@@ -200,8 +200,12 @@ def Photoshop(func=None):
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if "Substance" in sys.executable:
+        try:
+            from comtypes.client import GetActiveObject, CreateObject
+            GetActiveObject('Photoshop.Application')
             return func(*args, **kwargs)
+        except Exception:
+            pass
 
     return wrapper
 

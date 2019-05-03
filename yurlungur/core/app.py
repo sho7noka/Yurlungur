@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-import platform
 import sys
-import glob
+import platform
 from yurlungur.core.env import __import__
 
 application = sys.executable
-__doc__ = "app modules"
 
 
 def exApplication(module=""):
@@ -20,17 +18,16 @@ def exApplication(module=""):
         application = standalone
 
     elif application == "photoshop":
+        if platform.system() != "Windows":
+            return
+
         import pip
-
-        if platform.system() == "Windows":
-            pip.main(["install", "comtypes"])
-            from comtypes.client import GetActiveObject, CreateObject
-            try:
-                app = GetActiveObject('Photoshop.Application')
-            except WindowsError:
-                app = CreateObject("Photoshop.Application")
-
-    return application
+        pip.main(["install", "comtypes"])
+        from comtypes.client import GetActiveObject, CreateObject
+        try:
+            application = GetActiveObject('Photoshop.Application')
+        except WindowsError:
+            application = CreateObject("Photoshop.Application")
 
 
 if "maya" in application:
@@ -74,10 +71,10 @@ elif "Nuke" in application:
 
     application = nuke
 
-# elif __import__("DaVinciResolveScript"):
-#     import DaVinciResolveScript
-#
-#     application = DaVinciResolveScript
+elif __import__("DaVinciResolveScript"):
+    import DaVinciResolveScript
+
+    application = DaVinciResolveScript
 
 else:
     if platform.python_implementation() == 'IronPython':
@@ -88,6 +85,6 @@ else:
 
         application = unity
     else:
-        application = exApplication()
+        exApplication()
 
 __all__ = ["application", "exApplication"]
