@@ -6,16 +6,13 @@ import sys
 sys.path.append('../yurlungur')
 
 import yurlungur as yr
-from yurlungur.core.env import installed, Maya
+from yurlungur.core.env import installed, Photoshop
 
 
-@unittest.skipUnless(installed("maya"), "Maya is not found")
-class TestMaya(unittest.TestCase):
+@unittest.skipUnless(installed("photoshop"), "Photoshop is not found")
+class TestPhotoshop(unittest.TestCase):
     def test_env(self):
-        assert Maya()
-
-    def test_maya(self):
-        standalone.mayapy("import yurlungur as yr; print yr.name")
+        assert Photoshop()
 
     @unittest.skip("only runtime")
     def test_cmds(self):

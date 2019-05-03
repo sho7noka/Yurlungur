@@ -1,5 +1,5 @@
 # coding: utf-8
-import platform, ctypes, os, sys
+import platform, ctypes
 
 if platform.system() == "Windows":
     from comtypes.client import CreateObject, GetActiveObject
@@ -9,27 +9,21 @@ if platform.system() == "Windows":
     except WindowsError:
         app = CreateObject("Photoshop.Application")
 
-# print app.Preferences.rulerUnits
+elif platform.system() == "Darwin":
+    from appscript import *
 
-# ドキュメント
-try:
-    print app.documents[0]
-except IndexError:
-    print app.documents.add(name)
-except ctypes.ArgumentError:
-    print app.activeDocument
-
-# jpgFile = new File( "/Temp001.jpeg" )
-jpgSaveOptions = app.JPEGSaveOptions()
-jpgSaveOptions.embedColorProfile = True
-# jpgSaveOptions.formatOptions = app.FormatOptions.STANDARDBASELINE
-# jpgSaveOptions.matte = MatteType.NONE
-jpgSaveOptions.quality = 1
-app.activeDocument.saveAs("", jpgSaveOptions, True)
+    papp = app("/Applications/Adobe Photoshop CC 2019/Adobe Photoshop CC 2019.app")
+    print papp.print_, papp.open, papp.quit, papp.save
 
 
 class Document(object):
-    pass
+    # ドキュメント
+    try:
+        print app.documents[0]
+    except IndexError:
+        print app.documents.add(name)
+    except ctypes.ArgumentError:
+        print app.activeDocument
 
 
 class Layer(object):
