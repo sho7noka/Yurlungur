@@ -9,6 +9,8 @@ if platform.system() == "Windows":
     except WindowsError:
         app = CreateObject("Photoshop.Application")
 
+    app.bringToFront()
+
 elif platform.system() == "Darwin":
     from appscript import *
 

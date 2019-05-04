@@ -7,22 +7,21 @@ application = sys.executable
 
 
 def exApplication(module=""):
-    application = ""
-
     if __import__(module):
         application = __import__(module)
 
-    elif application == "":
+    elif module == "":
         from yurlungur.tool import standalone
 
         application = standalone
 
-    elif application == "photoshop":
+    elif module == "photoshop":
         if platform.system() != "Windows":
             return
 
         import pip
         pip.main(["install", "comtypes"])
+
         from comtypes.client import GetActiveObject, CreateObject
         try:
             application = GetActiveObject('Photoshop.Application')
