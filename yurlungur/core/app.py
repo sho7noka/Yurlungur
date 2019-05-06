@@ -7,26 +7,31 @@ application = sys.executable
 
 
 def exApplication(module=""):
-    if __import__(module):
-        application = __import__(module)
-
-    elif module == "":
-        from yurlungur.tool import standalone
-
-        application = standalone
-
-    elif module == "photoshop":
+    if module == "photoshop":
         if platform.system() != "Windows":
-            return
+            assert "Sorry, macOS is not availabale."
 
-        import pip
-        pip.main(["install", "comtypes"])
+        if not __import__("comtypes"):
+            import pip
+            if getattr(pip, 'main', False):
+                pip.main(['install', "comtypes"])
+            else:
+                from pip import _internal
+                _internal.main(['install', "comtypes"])
 
         from comtypes.client import GetActiveObject, CreateObject
         try:
             application = GetActiveObject('Photoshop.Application')
         except WindowsError:
             application = CreateObject("Photoshop.Application")
+
+    elif __import__(module):
+        application = __import__(module)
+    else:
+        from yurlungur.tool import standalone
+        application = standalone
+
+    return application
 
 
 if "maya" in application:
@@ -84,6 +89,6 @@ else:
 
         application = unity
     else:
-        exApplication()
+        application = exApplication("photoshop")
 
 __all__ = ["application", "exApplication"]

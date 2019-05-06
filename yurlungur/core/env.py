@@ -201,7 +201,7 @@ def Photoshop(func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
-            from comtypes.client import GetActiveObject, CreateObject
+            from comtypes.client import GetActiveObject
             GetActiveObject('Photoshop.Application')
             return func(*args, **kwargs)
         except Exception:
@@ -247,8 +247,10 @@ def installed(app):
         return os.path.exists(_Blender())
     if _app == "max":
         return os.path.exists(_Max())
-    if _app == "Substance":
+    if _app == "substance":
         return os.path.exists(_Substance())
+    if _app == "photoshop":
+        return os.path.exists(_Photoshop())
     return False
 
 
@@ -280,6 +282,12 @@ def _Substance():
     }
     return d[platform.system()]
 
+def _Photoshop():
+    d = {
+        "Windows": "C:/Program Files/Adobe/Adobe Photoshop CC 2019",
+        "Darwin": "/Applications/Photoshop.app/Contents",
+    }
+    return d[platform.system()]
 
 def _Max():
     """find 3dsMax app"""
