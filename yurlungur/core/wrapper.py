@@ -30,11 +30,12 @@ class YMObject(object):
             fusion = resolve.Fusion()
 
     if env.Unreal():
-        from yurlungur.adapters import unreal as ue
-        editor = ue.EditorUtil()
-        assets = ue.GetEditorAssetLibrary()
-        mats = ue.MaterialEditingLib()
-        anim = ue.GetAnimationLibrary()
+        from yurlungur.adapters import ue4
+        editor = ue4.EditorUtil()
+        assets = ue4.GetEditorAssetLibrary()
+        levels = ue4.GetEditorLevelLibrary()
+        mtllib = ue4.MaterialEditingLib()
+        anmlib = ue4.GetAnimationLibrary()
 
     def __getattr__(self, item):
         for cmd, _ in inspect.getmembers(app.application):
@@ -45,7 +46,7 @@ class YMObject(object):
                 )
                 return getattr(yurlungur, item)
 
-        raise YException
+        return getattr(yurlungur, item, False)
 
     def eval(self, script):
         if env.Maya():
@@ -78,14 +79,8 @@ class MetaAttr(type):
         return super(MetaAttr, cls).__new__(cls, name, bases, attrs)
 
 
-class MetaNode(type):
-    def __new__(cls, name, bases, attrs):
-        return super(MetaNode, cls).__new__(cls, name, bases, attrs)
-
-
 # Dynamic Class
 _YObject = MetaObject("YObject", (object,), {"__doc__": MetaObject.__doc__})
-_YNode = MetaNode("YNode", (object,), {"__doc__": MetaNode.__doc__})
 _YAttr = MetaAttr("YAttr", (object,), {"__doc__": MetaAttr.__doc__})
 _YVector = _YMatrix = _YColor = OM = object
 
