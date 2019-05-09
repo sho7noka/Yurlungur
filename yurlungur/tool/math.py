@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 import sys
-import inspect
-import cmath
+
+try:
+    import inspect
+    import cmath
+except ImportError:
+    pass
 
 from yurlungur.core.wrapper import (
     _YVector, _YMatrix, _YColor
@@ -10,8 +14,6 @@ from yurlungur.core.env import Numpy, Blender
 
 if Numpy():
     import numpy as np
-else:
-    pass
 
 
 class YVector(_YVector):
@@ -59,4 +61,4 @@ class YColor(_YColor):
         super(YColor, self).__init__(*args, **kwargs)
 
 
-__all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
+# __all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))

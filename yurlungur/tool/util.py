@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
-import functools
-import inspect
-import os
-import sqlite3
 import sys
-import time
-import traceback
+
+try:
+    import functools
+    import inspect
+    import os
+    import sqlite3
+    import time
+    import traceback
+except ImportError:
+    pass
 
 import yurlungur
 from yurlungur.core import logger
@@ -26,15 +30,18 @@ def cache(func, *args, **kwargs):
 
 
 def trace(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except:
-            if hasattr(logger.logger, "warning"):
-                logger.logger.warning(traceback.format_exc())
-            else:
-                logger.logger.log(traceback.format_exc(), logger.Warning)
+    try:
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except:
+                if hasattr(logger.logger, "warning"):
+                    logger.logger.warning(traceback.format_exc())
+                else:
+                    logger.logger.log(traceback.format_exc(), logger.Warning)
+    except (NameError, ImportError):
+        wrapper = func
 
     return wrapper
 

@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
-import os
+
 import sys
-import functools
-import platform
+try:
+    import os
+    import functools
+    import platform
+except ImportError:
+    pass
 
 
 def __import__(name, globals=None, locals=None, fromlist=None):
@@ -12,14 +16,17 @@ def __import__(name, globals=None, locals=None, fromlist=None):
     except KeyError:
         pass
 
-    if "DaVinci" in name:
-        if Windows():
-            resolve = "%PROGRAMDATA%\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting\\Modules"
-        if MacOS():
-            resolve = "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Developer/Scripting/Modules"
-        if Linux():
-            resolve = "/opt/resolve/Developer/Scripting/Modules"
-        sys.path.append(resolve)
+    try:
+        if "DaVinci" in name:
+            if Windows():
+                resolve = "%PROGRAMDATA%\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting\\Modules"
+            if MacOS():
+                resolve = "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Developer/Scripting/Modules"
+            if Linux():
+                resolve = "/opt/resolve/Developer/Scripting/Modules"
+            sys.path.append(resolve)
+    except NameError:
+        pass
 
     try:
         import imp
@@ -313,10 +320,10 @@ def _Unreal():
     return d[platform.system()]
 
 
-MayaBin = _Maya()
-HoudiniBin = _Houdini()
-BlenderBin = _Blender()
-MaxBin = _Max()
+# MayaBin = _Maya()
+# HoudiniBin = _Houdini()
+# BlenderBin = _Blender()
+# MaxBin = _Max()
 
 __all__ = [
     "Windows", "Linux", "MacOS",

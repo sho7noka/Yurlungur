@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 import sys
-import os
-import inspect
-import fnmatch
-import traceback
+
+try:
+    import os
+    import inspect
+    import fnmatch
+    import traceback
+except:
+    pass
 
 import yurlungur
 from yurlungur.core import env
@@ -12,6 +16,11 @@ if env.Qt():
     from yurlungur.Qt.QtCore import *
     from yurlungur.Qt.QtGui import *
     from yurlungur.Qt.QtWidgets import *
+
+elif "MarvelousDesigner" in str(yurlungur.application):
+    from PythonQt.QtCore import *
+    from PythonQt.QtGui import *
+    from PythonQt.QtWidgets import *
 
 
 class OpenGL(object):
