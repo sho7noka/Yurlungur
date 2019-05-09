@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-import contextlib
-import functools
-
 from yurlungur.tool.meta import meta
 from yurlungur.core import env
 
@@ -36,6 +33,7 @@ if env.Unreal():
     UndoGroup = meta.ScopedEditorTransaction
 
 if env.Max():
+    import functools
     UndoGroup = functools.partial(meta.undo, True)
 
 if env.Nuke():

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import sys
-import platform
 from yurlungur.core.env import __import__
 
 application = sys.executable
@@ -8,9 +7,6 @@ application = sys.executable
 
 def exApplication(module=""):
     if module == "photoshop":
-        if platform.system() != "Windows":
-            assert "Sorry, macOS is not availabale."
-
         if not __import__("comtypes"):
             import pip
             if getattr(pip, 'main', False):
@@ -49,11 +45,10 @@ elif "Substance" in application:
 
     application = sdapi
 
+elif "MarvelousDesigner" in application:
+    from MarvelousDesigner import MarvelousDesigner
 
-elif "UE4Editor" in application:
-    import unreal
-
-    application = unreal
+    application = MarvelousDesigner()
 
 elif "3dsmax" in application:
     import pymxs
@@ -81,14 +76,17 @@ elif __import__("DaVinciResolveScript"):
     application = DaVinciResolveScript
 
 else:
+    import platform
+
     if platform.python_implementation() == 'IronPython':
         import clr
-
         clr.AddReferenceByPartialName('UnityEngine')
-        import UnityEngine as unity
+        import UnityEngine
 
-        application = unity
+        application = UnityEngine
     else:
+        if platform.system() != "Windows":
+            assert "Sorry, macOS is not availabale."
         application = exApplication("photoshop")
 
 __all__ = ["application", "exApplication"]

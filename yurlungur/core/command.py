@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
-from functools import partial
+
+try:
+    from functools import partial
+except ImportError:
+    pass
 
 from yurlungur.core.proxy import YNode, YFile
 from yurlungur.tool.meta import meta
 from yurlungur.core.wrapper import YException
+
 
 __all__ = ["file", "cmd"]
 

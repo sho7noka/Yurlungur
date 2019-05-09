@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from yurlungur.core.wrapper import YMObject
-from yurlungur.tool import util
+# from yurlungur.tool import util
 
 meta = YMObject()
 # modules = util.__make_completer(meta.module)
