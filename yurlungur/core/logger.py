@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import sys
 
 try:
@@ -7,6 +6,7 @@ try:
         getLogger, Handler, INFO, WARNING, basicConfig
     )
     from pprint import pformat
+
     from yurlungur.core import env
 except ImportError:
     Handler = object
@@ -73,9 +73,6 @@ try:
 
         logger = sd.getContext().getLogger()
         Warning = slog.LogLevel.Warning
-
-    elif env.Blender():
-        pass  # TODO: https://code.blender.org/2016/05/logging-from-python-code-in-blender/
 
     else:
         import yurlungur

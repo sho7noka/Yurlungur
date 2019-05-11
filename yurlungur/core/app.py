@@ -7,24 +7,16 @@ application = sys.executable
 
 def exApplication(module=""):
     if module == "photoshop":
-        if not __import__("comtypes"):
-            import pip
-            if getattr(pip, 'main', False):
-                pip.main(['install', "comtypes"])
-            else:
-                from pip import _internal
-                _internal.main(['install', "comtypes"])
+        from yurlungur.adapters import photoshop
 
-        from comtypes.client import GetActiveObject, CreateObject
-        try:
-            application = GetActiveObject('Photoshop.Application')
-        except WindowsError:
-            application = CreateObject("Photoshop.Application")
+        application = photoshop.app
 
     elif __import__(module):
         application = __import__(module)
+
     else:
         from yurlungur.tool import standalone
+
         application = standalone
 
     return application
@@ -39,16 +31,6 @@ elif __import__("hou"):
     import hou
 
     application = hou
-
-elif "Substance" in application:
-    import sd.api as sdapi
-
-    application = sdapi
-
-elif "MarvelousDesigner" in application:
-    from MarvelousDesigner import MarvelousDesigner
-
-    application = MarvelousDesigner()
 
 elif "3dsmax" in application:
     import pymxs
@@ -75,18 +57,31 @@ elif __import__("DaVinciResolveScript"):
 
     application = DaVinciResolveScript
 
+elif "Substance" in application:
+    import sd.api as sdapi
+
+    application = sdapi
+
+elif "MarvelousDesigner" in application:
+    from MarvelousDesigner import MarvelousDesigner
+
+    application = MarvelousDesigner()
+    application.initialize()
+
 else:
     import platform
 
-    if platform.python_implementation() == 'IronPython':
+    if platform.python_implementation() == "IronPython":
         import clr
-        clr.AddReferenceByPartialName('UnityEngine')
+
+        clr.AddReferenceByPartialName("UnityEngine")
         import UnityEngine
 
         application = UnityEngine
     else:
         if platform.system() != "Windows":
-            assert "Sorry, macOS is not availabale."
+            assert "Sorry, macOS is not availabale for Photoshop."
+
         application = exApplication("photoshop")
 
 __all__ = ["application", "exApplication"]

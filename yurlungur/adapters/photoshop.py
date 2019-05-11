@@ -2,14 +2,23 @@
 import platform, ctypes
 
 if platform.system() == "Windows":
-    from comtypes.client import CreateObject, GetActiveObject
+    if not __import__("comtypes"):
+        import pip
+
+        if getattr(pip, "main", False):
+            pip.main(["install", "comtypes"])
+        else:
+            from pip import _internal
+
+            _internal.main(["install", "comtypes"])
+
+    from comtypes.client import GetActiveObject, CreateObject
 
     try:
-        app = GetActiveObject('Photoshop.Application')
+        application = GetActiveObject("Photoshop.Application")
     except WindowsError:
-        app = CreateObject("Photoshop.Application")
+        application = CreateObject("Photoshop.Application")
 
-    app.bringToFront()
 
 elif platform.system() == "Darwin":
     from appscript import *
