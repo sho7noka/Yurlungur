@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import inspect
-
 import yurlungur
 from yurlungur.core import app, env
 
@@ -16,12 +14,9 @@ class YMObject(object):
     """command wrapper for any application"""
 
     if env.Substance():
-        import sd
-        from sd.api.sdproperty import SDPropertyCategory
-        context = sd.getContext()
-        sd_app = context.getSDApplication()
-        manager = sd_app.getPackageMgr()
-        graph = manager.getUserPackages()[0].getChildrenResources(True)[0]
+        from yurlungur.adapters import substance as sd
+        graph = sd.graph
+        manager = sd.manager
 
     if env.Davinci():
         resolve = env.__import__("DaVinciResolveScript").scriptapp("Resolve")
@@ -34,18 +29,24 @@ class YMObject(object):
         editor = ue4.EditorUtil()
         assets = ue4.GetEditorAssetLibrary()
         levels = ue4.GetEditorLevelLibrary()
-        mtllib = ue4.MaterialEditingLib()
-        anmlib = ue4.GetAnimationLibrary()
+        tools = ue4.tools
 
     def __getattr__(self, item):
-        for cmd, _ in inspect.getmembers(app.application):
+        try:
+            from inspect import getmembers
+        except ImportError:
+            setattr(yurlungur, item, getattr(app.application, item))
+            return getattr(app.application, item)
+
+        for cmd, _ in getmembers(app.application):
             if cmd == item:
                 setattr(
                     yurlungur, cmd,
-                    (lambda str: dict(inspect.getmembers(app.application))[str])(cmd)
+                    (lambda str: dict(getmembers(app.application))[str])(cmd)
                 )
                 return getattr(yurlungur, item)
 
+        # TODO self.eval(item)
         return getattr(yurlungur, item, False)
 
     def eval(self, script):
@@ -66,7 +67,7 @@ class YMObject(object):
 
     @property
     def module(self):
-        return app.application.__name__
+        return app.application
 
 
 class MetaObject(type):
