@@ -20,7 +20,6 @@ if env.Qt():
 elif "MarvelousDesigner" in str(yurlungur.application):
     from PythonQt.QtCore import *
     from PythonQt.QtGui import *
-    from PythonQt.QtWidgets import *
 
 
 class OpenGL(object):
