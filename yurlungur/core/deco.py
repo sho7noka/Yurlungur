@@ -34,7 +34,11 @@ if env.Unreal():
 
 if env.Max():
     import functools
+
     UndoGroup = functools.partial(meta.undo, True)
 
 if env.Nuke():
     UndoGroup = meta.Undo
+
+if env.Substance():
+    UndoGroup = meta.sd.UndoGroup
