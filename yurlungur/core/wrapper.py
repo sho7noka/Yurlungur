@@ -120,9 +120,9 @@ elif env.Blender():
 elif env.Substance():
     meta = YMObject()
 
-    _YVector = type('_YVector', (meta.SDValueVector,), dict())
-    _YMatrix = type('_YMatrix', (meta.SDValueMatrix,), dict())
-    _YColor = type('_YColor', (meta.SDValueColorRGBA,), dict())
+    # _YVector = type('_YVector', (meta.SDValueVector,), dict())
+    # _YMatrix = type('_YMatrix', (meta.SDValueMatrix,), dict())
+    # _YColor = type('_YColor', (meta.SDValueColorRGBA,), dict())
 
 elif env.Nuke():
     import _nukemath

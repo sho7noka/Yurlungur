@@ -1,13 +1,10 @@
 # coding: utf-8
-import doctest
-import unittest
 import sys
+import unittest
 
 sys.path.append('../yurlungur')
 
-
-import sys; sys.path.append("C:/Users/sumioka-sho/Yurlungur"); import yurlungur as yr
-
+import yurlungur as yr
 from yurlungur.core.env import installed, Unreal
 
 

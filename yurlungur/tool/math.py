@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys
-
 try:
     import inspect
     import cmath
@@ -59,6 +57,3 @@ class YMatrix(_YMatrix):
 class YColor(_YColor):
     def __init__(self, *args, **kwargs):
         super(YColor, self).__init__(*args, **kwargs)
-
-
-# __all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))

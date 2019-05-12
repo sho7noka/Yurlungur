@@ -42,6 +42,17 @@ elif "blender" in application:
 
     application = bpy
 
+elif "Substance" in application:
+    import sd.api as sdapi
+
+    application = sdapi
+
+elif "MarvelousDesigner" in application:
+    from MarvelousDesigner import MarvelousDesigner
+
+    application = MarvelousDesigner()
+    application.initialize()
+
 elif "UE4Editor" in application:
     import unreal
 
@@ -56,17 +67,6 @@ elif __import__("DaVinciResolveScript"):
     import DaVinciResolveScript
 
     application = DaVinciResolveScript
-
-elif "Substance" in application:
-    import sd.api as sdapi
-
-    application = sdapi
-
-elif "MarvelousDesigner" in application:
-    from MarvelousDesigner import MarvelousDesigner
-
-    application = MarvelousDesigner()
-    application.initialize()
 
 else:
     import platform

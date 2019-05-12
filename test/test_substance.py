@@ -1,11 +1,11 @@
 # coding: utf-8
-import doctest
+import sys
 import unittest
 
-import sys
-
 sys.path.append('../yurlungur')
+import sys;
 
+sys.path.append("/Users/shosumioka/Yurlungur");
 import yurlungur as yr
 from yurlungur.core.env import installed, Substance
 
@@ -18,17 +18,19 @@ class TestSubstance(unittest.TestCase):
     @unittest.skip("only runtime")
     def test_cmds(self):
         with yr.UndoGroup("undo"):
-            uniform = yr.YNode().create("uniform")
+            node = yr.YNode().create("uniform")
 
-            node = yr.YNode().create("warp")
             print(node, node.attr("$pixelsize"), node.attrs)
-            normal = yr.YNode("Normal")
+            normal = yr.YNode().create("normal")
             print(normal)
 
             node.connect("unique_filter_output", normal, "inputNodeOutput.connector")
             print(node.parent())
             node.disconnect("unique_filter_output")
             print(node.parent())
+
+    def test_file(self):
+        yr.YFile.open("")
 
 
 if __name__ == '__main__':

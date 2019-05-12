@@ -3,6 +3,7 @@ import sys
 import unittest
 
 sys.path.append('../yurlungur')
+
 import yurlungur as yr
 from yurlungur.adapters import resolve
 
