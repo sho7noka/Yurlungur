@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 import sys
-from logging import (
-    getLogger, Handler, INFO, WARNING, basicConfig
-)
-from pprint import pformat
 
-import yurlungur
-from yurlungur.core import env
+try:
+    from logging import (
+        getLogger, Handler, INFO, WARNING, basicConfig
+    )
+    from pprint import pformat
+
+    from yurlungur.core import env
+except ImportError:
+    Handler = object
 
 
 class GuiLogHandler(Handler):
@@ -64,23 +66,23 @@ class GuiLogHandler(Handler):
             elif env.Max():
                 meta.print_(msg, False, True)
 
+try:
+    if env.Substance():
+        import sd
+        import sd.logger as slog
 
-if env.Substance():
-    import sd
-    import sd.logger as slog
+        logger = sd.getContext().getLogger()
+        Warning = slog.LogLevel.Warning
 
-    logger = sd.getContext().getLogger()
-    Warning = slog.LogLevel.Warning
-
-elif env.Blender():
-    pass  # TODO: https://code.blender.org/2016/05/logging-from-python-code-in-blender/
-
-else:
-    logger = getLogger(yurlungur.__name__)
-    logger.setLevel(INFO)
-    handler = GuiLogHandler()
-    logger.addHandler(handler)
-    basicConfig(level=INFO, stream=sys.stdout)
+    else:
+        import yurlungur
+        logger = getLogger(yurlungur.__name__)
+        logger.setLevel(INFO)
+        handler = GuiLogHandler()
+        logger.addHandler(handler)
+        basicConfig(level=INFO, stream=sys.stdout)
+except:
+    pass
 
 
 def log(*msgs):

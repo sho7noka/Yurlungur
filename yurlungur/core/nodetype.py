@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-import fnmatch
 from yurlungur.core.proxy import YNode
 from yurlungur.tool.meta import meta
 
 
 class _NodeType(object):
     def __getattr__(self, item):
+        import fnmatch
         if hasattr(meta, "types"):
             nodes = fnmatch.filter(dir(meta.types), str(item))
         else:
