@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import sys
-import platform
 from yurlungur.core.env import __import__
 
 application = sys.executable
@@ -8,27 +7,16 @@ application = sys.executable
 
 def exApplication(module=""):
     if module == "photoshop":
-        if platform.system() != "Windows":
-            assert "Sorry, macOS is not availabale."
+        from yurlungur.adapters import photoshop
 
-        if not __import__("comtypes"):
-            import pip
-            if getattr(pip, 'main', False):
-                pip.main(['install', "comtypes"])
-            else:
-                from pip import _internal
-                _internal.main(['install', "comtypes"])
-
-        from comtypes.client import GetActiveObject, CreateObject
-        try:
-            application = GetActiveObject('Photoshop.Application')
-        except WindowsError:
-            application = CreateObject("Photoshop.Application")
+        application = photoshop.app
 
     elif __import__(module):
         application = __import__(module)
+
     else:
         from yurlungur.tool import standalone
+
         application = standalone
 
     return application
@@ -43,17 +31,6 @@ elif __import__("hou"):
     import hou
 
     application = hou
-
-elif "Substance" in application:
-    import sd.api as sdapi
-
-    application = sdapi
-
-
-elif "UE4Editor" in application:
-    import unreal
-
-    application = unreal
 
 elif "3dsmax" in application:
     import pymxs
@@ -80,15 +57,31 @@ elif __import__("DaVinciResolveScript"):
 
     application = DaVinciResolveScript
 
+elif "Substance" in application:
+    import sd.api as sdapi
+
+    application = sdapi
+
+elif "MarvelousDesigner" in application:
+    from MarvelousDesigner import MarvelousDesigner
+
+    application = MarvelousDesigner()
+    application.initialize()
+
 else:
-    if platform.python_implementation() == 'IronPython':
+    import platform
+
+    if platform.python_implementation() == "IronPython":
         import clr
 
-        clr.AddReferenceByPartialName('UnityEngine')
-        import UnityEngine as unity
+        clr.AddReferenceByPartialName("UnityEngine")
+        import UnityEngine
 
-        application = unity
+        application = UnityEngine
     else:
+        if platform.system() != "Windows":
+            assert "Sorry, macOS is not availabale for Photoshop."
+
         application = exApplication("photoshop")
 
 __all__ = ["application", "exApplication"]

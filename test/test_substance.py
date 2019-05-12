@@ -1,3 +1,4 @@
+# coding: utf-8
 import doctest
 import unittest
 
@@ -10,26 +11,24 @@ from yurlungur.core.env import installed, Substance
 
 
 @unittest.skipUnless(installed("substance"), "Substance is not found")
-class TestMaya(unittest.TestCase):
+class TestSubstance(unittest.TestCase):
     def test_env(self):
         assert Substance()
 
-    def test_maya(self):
-        standalone.mayapy("import yurlungur as yr; print yr.name")
-
     @unittest.skip("only runtime")
     def test_cmds(self):
-        uniform = yr.YNode().create("uniform")
+        with yr.UndoGroup("undo"):
+            uniform = yr.YNode().create("uniform")
 
-        node = yr.YNode("Directional Warp")
-        print(node, node.attr("$pixelsize"), node.attrs)
-        normal = yr.YNode("Normal")
-        print(normal)
+            node = yr.YNode().create("warp")
+            print(node, node.attr("$pixelsize"), node.attrs)
+            normal = yr.YNode("Normal")
+            print(normal)
 
-        node.connect("unique_filter_output", normal, "inputNodeOutput.connector")
-        print(node.parent())
-        node.disconnect("unique_filter_output")
-        print(node.parent())
+            node.connect("unique_filter_output", normal, "inputNodeOutput.connector")
+            print(node.parent())
+            node.disconnect("unique_filter_output")
+            print(node.parent())
 
 
 if __name__ == '__main__':

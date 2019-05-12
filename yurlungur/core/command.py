@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
-from functools import partial
+
+try:
+    from functools import partial
+except ImportError:
+    pass
 
 from yurlungur.core.proxy import YNode, YFile
 from yurlungur.tool.meta import meta
 from yurlungur.core.wrapper import YException
+
 
 __all__ = ["file", "cmd"]
 
@@ -66,6 +71,13 @@ def _alembicImporter(cls, *args, **kwargs):
         if importer(**kwargs):
             return args[0]
 
+    if hasattr(meta, 'uclass'):
+        data = unreal.AutomatedAssetImportData()
+        data.set_editor_property('filenames', *args)
+        for k, v in kwargs:
+            data.set_editor_property(k, v)
+        meta.tools.import_assets_automated(data)
+
     raise YException
 
 
@@ -90,8 +102,15 @@ def _fbxImporter(cls, *args, **kwargs):
         if importer(**kwargs):
             return args[0]
 
-    if hasattr(meta, 'AssetImportTask'):
-        meta.AssetToolsHelpers.get_asset_tools().import_asset_task()
+    if hasattr(meta, 'uclass'):
+        data = unreal.AutomatedAssetImportData()
+        data.set_editor_property('filenames', *args)
+        for k, v in kwargs:
+            data.set_editor_property(k, v)
+        factory = unreal.FbxSceneImportFactory()
+        data.set_editor_property('factory', factory)
+
+        meta.tools.import_assets_automated(data)
 
     if hasattr(meta, 'eval'):
         return cls(meta.eval("FBXImport -file {0};".format(*args)))

@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 import sys
-import os
-import inspect
-import fnmatch
-import traceback
+
+try:
+    import os
+    import inspect
+    import fnmatch
+    import traceback
+except:
+    pass
 
 import yurlungur
 from yurlungur.core import env
@@ -12,6 +16,10 @@ if env.Qt():
     from yurlungur.Qt.QtCore import *
     from yurlungur.Qt.QtGui import *
     from yurlungur.Qt.QtWidgets import *
+
+elif "MarvelousDesigner" in str(yurlungur.application):
+    from PythonQt.QtCore import *
+    from PythonQt.QtGui import *
 
 
 class OpenGL(object):
@@ -22,8 +30,7 @@ class OpenGL(object):
             for cmd, _ in inspect.getmembers(mod):
                 if fnmatch.fnmatch(item, "".join(["*", cmd])):
                     setattr(
-                        self, cmd,
-                        (lambda str: dict(inspect.getmembers(mod))[str])(cmd)
+                        self, cmd, (lambda str: dict(inspect.getmembers(mod))[str])(cmd)
                     )
                     return getattr(self, item)
 
@@ -31,10 +38,12 @@ class OpenGL(object):
 
         if env.Maya():
             from maya import OpenMayaRender as _mgl
+
             _tmp.extend(_mgl, _mgl.MHardwareRenderer.theRenderer().glFunctionTable())
 
         if env.Blender():
             import bgl
+
             _tmp.extend(bgl)
 
         for gl in _tmp:
@@ -43,30 +52,42 @@ class OpenGL(object):
 
         try:
             from OpenGL import GL as gl
+
             return gl
         except ImportError:
             import ctypes
+
             return ctypes.cdll.OpenGL32
 
 
 @env.Qt
 def widgetPtr():
     import yurlungur.core.app
+
     app_name = yurlungur.core.application.__name__
 
     if app_name == "maya.cmds":
         from yurlungur.Qt import QtCompat
         from maya import OpenMayaUI
+
         ptr = long(OpenMayaUI.MQtUtil.mainWindow())
         return QtCompat.wrapInstance(ptr, QWidget)
 
     if app_name == "pymxs":
         import MaxPlus
+
         return MaxPlus.QtHelpers_GetQmaxMainWindow()
 
     if app_name == "hou":
         import hou
+
         return hou.qt.mainWindow()
+
+    if app_name == "sd.api":
+        from yurlungur.adapters import substance
+        
+        qt = substance.sd_app.getQtForPythonUIMgr()
+        return qt.getMainWindow()
 
     if app_name == "nuke":
         return QApplication.activeWindow()
@@ -115,8 +136,6 @@ def __max_protect_show(w):
 
 
 def __dark_view(view):
-    local = os.path.dirname(
-        os.path.dirname(inspect.currentframe().f_code.co_filename)
-    )
+    local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
     with open(local + "/user/dark.css") as f:
         view.setStyleSheet("".join(f.readlines()))

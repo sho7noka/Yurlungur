@@ -17,21 +17,22 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 ### future
 * HOM (Houdini Object Model) like command wrapper.
 * PySide & PyQt shorten accessor.
-* Useful py-snippet for Game&Film technical artist.
+* Useful py-snippet for Game&VFX technical artist.
 
 ### available
 |       | Node | Attribute | Anim |
 | ---- | --- | --- | --- |
-| Maya | ○ | ○ | ☓ |
-| Houdini | ○ | ○ | ☓ |
+| Maya (2016~) | ○ | ○ | ☓ |
+| Houdini (16~) | ○ | ○ | ☓ |
 | Substance (2018.1.2~) | ○ | ○ | - |
-| Photoshop (CC) | ○ | ○ | ☓ |
 | 3dsMax (2017~) | ○ | ○ | ☓ |
-| Blender (2.8) | ○ | ○ | ☓ |
-| Nuke | ○ | ○ | - |
-| Davinci Resolve (15~) | ○ | ○ | - |
-| [Unreal Engine](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python)(4.20~) | - | - | - |
+| Photoshop (CC) | ○ | ○ | - |
+| Marvelous Designer 8 (WIP) | ○ | ○ | - |
+| Nuke Studio | ○ | ○ | ☓ |
+| Davinci Resolve (15~) | ○ | ○ | ☓ |
+| Unreal Engine (4.22~) | ○ | ○ | ☓ |
 
+| Blender (2.8) | ○ | ○ | ☓ |
 
 ### Installing
 ```bash
@@ -39,7 +40,7 @@ pipenv install yurlungur
 ```
 
 #### optional
-If you use Unreal or Standalone for full supports, Yurlungur require `Qt for Python` module.
+If you use UE4 Editor or Standalone for full supports, Yurlungur require `Qt for Python` module.
 
 ```bash
 pipenv install PySide2
@@ -66,7 +67,7 @@ yr.YNode("foo").bar.set(1)
 ## TODO
 - [x] basic api
 - [x] github.io
-- [ ] unreal
+- [x] UE4 
 
 ## contribution
 lets see [CONTRIBUTING](./CONTRIBUTING.md).
