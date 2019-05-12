@@ -570,8 +570,8 @@ class YNode(YObject):
         self.item = item
 
         if self.item and getattr(meta, "SDNode", False):
-            self._inputs = meta.graph.getNodeFromId(self.name).getProperties(1)
-            self._outputs = meta.graph.getNodeFromId(self.name).getProperties(2)
+            self._inputs = meta.graph.getNodeFromId(self.name).getProperties(meta.sd.SDPropertyCategory.Input)
+            self._outputs = meta.graph.getNodeFromId(self.name).getProperties(meta.sd.SDPropertyCategory.Output)
 
     def parent(self, *args, **kwarg):
         if getattr(meta, "SDNode", False):

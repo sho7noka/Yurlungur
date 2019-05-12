@@ -3,11 +3,12 @@ import sd
 from sd.api.sdproperty import SDPropertyCategory
 
 context = sd.getContext()
-sd_app = context.getSDApplication()
+app = context.getSDApplication()
+manager = app.getPackageMgr()
 
-manager = sd_app.getPackageMgr()
-graph = sd_app.getUIMgr().getCurrentGraph()
-if not graph:
+if getattr(app, "getUIMgr", False):
+    graph = app.getUIMgr().getCurrentGraph()
+    UndoGroup = sd.api.SDHistoryUtils.UndoGroup
+    qt = app.getQtForPythonUIMgr()
+else:
     graph = manager.getUserPackages()[0].getChildrenResources(True)[0]
-
-UndoGroup = sd.api.SDHistoryUtils.UndoGroup

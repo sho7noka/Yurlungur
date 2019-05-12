@@ -14,7 +14,7 @@ class TestMaya(unittest.TestCase):
         assert Maya()
 
     def test_maya(self):
-        standalone.mayapy("import yurlungur as yr; print yr.name")
+        yr.standalone.mayapy("import yurlungur as yr; print yr.name")
 
     @unittest.skip("only runtime")
     def test_cmds(self):
