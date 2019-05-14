@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-import os
 import sys
+import os
 import inspect
+import multiprocessing
 import subprocess
 import tempfile
-import multiprocessing
-import multiprocessing.process as process
 
 import yurlungur as yr
 from yurlungur.core import env
@@ -23,7 +22,7 @@ def mayapy(pystr):
         os.path.join(os.path.dirname(exe), "mayapy")
     )
 
-    process.ORIGINAL_DIR = os.path.join(
+    multiprocessing.process.ORIGINAL_DIR = os.path.join(
         os.path.dirname(exe),
         "../Python/Lib/site-packages"
     )
@@ -108,6 +107,9 @@ def _cli(args):
     parser.add_argument("--setenv", "-env",
                         help="init ENV settings.",
                         nargs=2)
+    parser.add_argument("--debug", "-debug",
+                        help="install ptvsd modules.",
+                        nargs=2)
 
     args = parser.parse_args(args)
     if args.dialog:
@@ -127,6 +129,12 @@ def _cli(args):
         maxpy(args.maxpy[0])
 
     if args.qt:
+        pass
+
+    if args.setenv:
+        pass
+
+    if args.debug:
         pass
 
 

@@ -198,11 +198,11 @@ def Substance(func=None):
 
 def Photoshop(func=None):
     if func is None:
-        from comtypes.client import GetActiveObject, CreateObject
+        from comtypes.client import GetActiveObject
         try:
-            app = GetActiveObject('Photoshop.Application')
+            return GetActiveObject('Photoshop.Application')
         except WindowsError:
-            app = CreateObject("Photoshop.Application")
+            return False
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -210,8 +210,8 @@ def Photoshop(func=None):
             from comtypes.client import GetActiveObject
             GetActiveObject('Photoshop.Application')
             return func(*args, **kwargs)
-        except Exception:
-            pass
+        except WindowsError:
+            return False
 
     return wrapper
 

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import sys
-
 try:
     import time
     import traceback
     import functools
     import threading
+    import contextlib
 except ImportError:
     pass
 
@@ -34,22 +34,6 @@ class UndoGroup(object):
             meta.context.user_preferences.edit.use_global_undo = self.undo
         elif env.Davinci():
             meta.fusion.EndUndo()
-
-
-if env.Houdini():
-    UndoGroup = meta.undos.group
-
-if env.Unreal():
-    UndoGroup = meta.ScopedEditorTransaction
-
-if env.Max():
-    UndoGroup = functools.partial(meta.undo, True)
-
-if env.Nuke():
-    UndoGroup = meta.Undo
-
-if env.Substance():
-    UndoGroup = meta.sd.UndoGroup
 
 
 def cache(func, *args, **kwargs):
@@ -100,3 +84,62 @@ def timer(func):
         return ret
 
     return wrapper
+
+
+@contextlib.contextmanager
+def threads(func):
+    """
+    Maya, Houdini, 3dsMax, Substance and Nuke
+    >>>
+    :param func:
+    :return:
+    """
+    t = threading.Thread(target=func)
+    t.start()
+    t.join()
+
+
+def __runner(locker):
+    """
+    thread runner
+    :param locker:
+    :return:
+    """
+    if env.Maya():
+        import maya.utils as utils
+        utils.executeDeferred(locker)
+
+    elif env.Houdini():
+        meta
+
+    elif env.Nuke():
+        meta.executeInMainThreadWithResult(locker)
+
+    elif env.Max():
+        try:
+            locker.acquire()
+            with meta.mxstoken():
+                locker
+        except:
+            raise
+        finally:
+            if locker.locked():
+                locker.release()
+
+    return locker
+
+
+if env.Houdini():
+    UndoGroup = meta.undos.group
+
+if env.Unreal():
+    UndoGroup = meta.ScopedEditorTransaction
+
+if env.Max():
+    UndoGroup = functools.partial(meta.undo, True)
+
+if env.Nuke():
+    UndoGroup = meta.Undo
+
+if env.Substance():
+    UndoGroup = meta.sd.UndoGroup

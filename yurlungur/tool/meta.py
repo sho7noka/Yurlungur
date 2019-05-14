@@ -5,6 +5,11 @@ meta = YMObject()
 
 
 def __make_completer(mod):
+    """
+    make each meta modules
+    :param mod:
+    :return:
+    """
     import os
     import inspect
 
@@ -24,7 +29,5 @@ def __make_completer(mod):
             f.write("   \"\"\"{0}\"\"\"\n".format(inspect.getdoc(fn)))
             f.write("   pass\n\n")
 
-    # return inspect.getmembers(__import__(completer))
 
-
-__all__ = ["meta"]
+__make_completer(meta.module)
