@@ -42,3 +42,16 @@ if env.Nuke():
 
 if env.Substance():
     UndoGroup = meta.sd.UndoGroup
+    
+    
+def threads():
+    """
+    maya
+    hou
+    max
+    substance
+    nuke
+    """
+    from yurlungur.adapters import *
+    import threading
+    return threading.Thread()
