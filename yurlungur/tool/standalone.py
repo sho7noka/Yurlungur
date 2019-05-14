@@ -9,24 +9,10 @@ import multiprocessing.process as process
 
 import yurlungur as yr
 from yurlungur.core import env
+from yurlungur.tool import editor
 
 local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
 __all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
-
-try:
-    from yurlungur.Qt.QtCore import *
-    from yurlungur.Qt.QtGui import *
-    from yurlungur.Qt.QtWidgets import *
-    from yurlungur.Qt import __binding__
-
-    # script editor
-    sys.path.append(os.path.join(
-        os.path.dirname(local), "scriptEditor", "pw_multiScriptEditor")
-    )
-    from pw_multiScriptEditor import scriptEditorClass
-
-except ImportError as e:
-    pass
 
 
 def mayapy(pystr):
@@ -80,7 +66,7 @@ def uepython(project, pystr):
     with tempfile.NamedTemporaryFile(delete=False) as tf:
         tf.write(pystr)
     subprocess.call(
-        "{0}/UE4Editor-Cmd -run=pythonscript -script={1}".format(env.UnrealBin, pyfile)
+        "{0}/UE4Editor-Cmd -run=pythonscript -script={1}".format(env.UnrealBin, tf)
     )
 
 
@@ -116,6 +102,12 @@ def _cli(args):
     parser.add_argument("--maxpy", "-max",
                         help="Run Python from 3dsmaxpy.",
                         nargs=2)
+    parser.add_argument("--qt", "-qt",
+                        help="install Qt for Python.",
+                        nargs=2)
+    parser.add_argument("--setenv", "-env",
+                        help="init ENV settings.",
+                        nargs=2)
 
     args = parser.parse_args(args)
     if args.dialog:
@@ -134,15 +126,13 @@ def _cli(args):
     if args.maxpy:
         maxpy(args.maxpy[0])
 
+    if args.qt:
+        pass
+
 
 def main(args=[]):
-    if yr.Qt():
-        app = QApplication(args)
-        widget = scriptEditorClass()
-        widget.show()
-        sys.exit(app.exec_())
-    else:
-        yr.logger.warn("Qt isn't available")
+    widget = editor.View()
+    yr.ui.show(widget)
 
 
 if __name__ == '__main__':

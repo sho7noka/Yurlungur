@@ -24,7 +24,7 @@ try:
     # hrpyc.start_server(port=PORT, use_thread=False)
 
     pydevd.settrace(HOST, port=PORT, stdoutToServer=True, stderrToServer=True)
-    yr.log(yr.name)
+    yr.pprint(yr.name)
 except:
     pydevd.stoptrace()
 

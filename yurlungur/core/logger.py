@@ -6,8 +6,8 @@ try:
         getLogger, Handler, INFO, WARNING, basicConfig
     )
     from pprint import pformat
-
     from yurlungur.core import env
+
 except ImportError:
     Handler = object
 
@@ -66,6 +66,7 @@ class GuiLogHandler(Handler):
             elif env.Max():
                 meta.print_(msg, False, True)
 
+
 try:
     if env.Substance():
         import sd
@@ -76,6 +77,7 @@ try:
 
     else:
         import yurlungur
+
         logger = getLogger(yurlungur.__name__)
         logger.setLevel(INFO)
         handler = GuiLogHandler()
@@ -85,5 +87,5 @@ except:
     pass
 
 
-def log(*msgs):
+def pprint(*msgs):
     logger.log(pformat(*msgs))

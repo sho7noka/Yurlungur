@@ -14,7 +14,7 @@ setup(
     author='sho7noka',
     author_email='shosumioka@gmail.com',
     platforms="any",
-    description='universal scripting environment with Python which Maya, Houdini and Blender.',
+    description='universal scripting environment with Python which Maya, Houdini and UnrealEngine.',
     long_description=text,
     keywords=['maya', '3d', 'graphics', 'Game', 'VFX', 'CG', 'houdini', "unreal"],
 

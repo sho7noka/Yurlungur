@@ -92,13 +92,14 @@ if env.Maya():
     _YMatrix = type('_YMatrix', (OM.MMatrix,), dict())
     _YColor = type('_YColor', (OM.MColor,), dict())
 
-    meta = YMObject()
+    from yurlungur.tool.meta import meta
+
     if hasattr(meta, "loadPlugin"):
         for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
             meta.loadPlugin(plugin, qt=1)
 
 elif env.Houdini() or env.Unreal():
-    meta = YMObject()
+    from yurlungur.tool.meta import meta
 
     _YVector = type('_YVector', (
         meta.Vector if hasattr(meta, "Vector") else meta.Vector3,
@@ -118,8 +119,7 @@ elif env.Blender():
     _YColor = type('_YColor', (mathutils.Color,), dict())
 
 elif env.Substance():
-    meta = YMObject()
-
+    from yurlungur.tool.meta import meta
     # _YVector = type('_YVector', (meta.SDValueVector,), dict())
     # _YMatrix = type('_YMatrix', (meta.SDValueMatrix,), dict())
     # _YColor = type('_YColor', (meta.SDValueColorRGBA,), dict())
