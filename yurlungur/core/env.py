@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import sys
 try:
     import os
@@ -319,15 +318,7 @@ def _Unreal():
     }
     return d[platform.system()]
 
-
-# MayaBin = _Maya()
-# HoudiniBin = _Houdini()
-# BlenderBin = _Blender()
-# MaxBin = _Max()
-
 __all__ = [
     "Windows", "Linux", "MacOS",
     "Maya", "Houdini", "Blender",
-    "MayaBin", "HoudiniBin", "BlenderBin",
-    "MaxBin"
 ]

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys
 
 try:
     import os
@@ -8,10 +7,10 @@ try:
 except ImportError:
     total_ordering = dir
 
-from yurlungur.core.wrapper import YException, _YObject, _YAttr, OM
-from yurlungur.tool.math import YVector, YColor, YMatrix
+from yurlungur.core.wrapper import YException, _YObject, _YAttr
+from yurlungur.core.deco import trace
+from yurlungur.core.math import YVector, YColor, YMatrix
 from yurlungur.tool.meta import meta
-from yurlungur.tool.util import trace
 
 
 class YObject(_YObject):
@@ -43,9 +42,9 @@ class YObject(_YObject):
             for node in meta.graph.getNodes():
                 d = node.getDefinition()
                 if (
-                    d.getId() == self.item
-                    or d.getLabel() == self.item
-                    or node.getIdentifier() == self.item
+                        d.getId() == self.item
+                        or d.getLabel() == self.item
+                        or node.getIdentifier() == self.item
                 ):
                     node_id = node.getIdentifier()
                     break
@@ -99,8 +98,8 @@ class YObject(_YObject):
         if getattr(meta, "fusion", False):
             return (
                 meta.fusion.GetCurrentComp()
-                .FindTool(self.item)
-                .SetAttrs({"TOOLS_Name": args[0]})
+                    .FindTool(self.item)
+                    .SetAttrs({"TOOLS_Name": args[0]})
             )
 
         if getattr(meta, "ActiveDocument", False):
@@ -263,8 +262,8 @@ class YObject(_YObject):
                 [
                     prop.getId()
                     for prop in meta.graph.getNodeFromId(self.name).getProperties(
-                        meta.sd.SDPropertyCategory.Input
-                    )
+                    meta.sd.SDPropertyCategory.Input
+                )
                 ]
             )
 
@@ -294,7 +293,7 @@ class YObject(_YObject):
             )
 
         if getattr(meta, "uclass", False):
-            return tuple()
+            return meta.ue4.uname(self.name).component_tags()
 
         raise YException
 
@@ -360,13 +359,13 @@ class YObject(_YObject):
                 args = (self.name, "/Game", None)
 
             assert len(args) == 3 and factory
-            
+
             new_asset = partial(meta.tools.create_asset, *args)(factory(), **kwargs)
             if new_asset:
                 meta.assets.save_loaded_asset(new_asset)
                 return YNode(new_asset.get_name())
             else:
-                return 
+                return
 
         raise YException
 
@@ -529,8 +528,8 @@ class YObject(_YObject):
         if getattr(meta, "fusion", False):
             return (
                 meta.fusion.GetCurrentComp()
-                .FindTool(self.name)
-                .SetAttrs({"TOOLB_Visible": on, "TOOLB_Locked": True})
+                    .FindTool(self.name)
+                    .SetAttrs({"TOOLB_Visible": on, "TOOLB_Locked": True})
             )
 
         if getattr(meta, "ActiveDocument", False):
@@ -546,6 +545,7 @@ class YObject(_YObject):
     @trace
     def geometry(self):
         if getattr(meta, "ls", False):
+            from yurlungur.core.wrapper import OM
             dag = OM.MGlobal.getSelectionListByName(self.name).getDagPath(0)
             return OM.MFnMesh(dag)
 
@@ -578,7 +578,7 @@ class YNode(YObject):
             nodes = []
             for prop in self._inputs:
                 for connect in meta.graph.getNodeFromId(
-                    self.name
+                        self.name
                 ).getPropertyConnections(prop):
                     nodes.append(YNode(connect.getInputPropertyNode().getIdentifier()))
             return nodes
@@ -622,7 +622,7 @@ class YNode(YObject):
             nodes = []
             for prop in self._outputs:
                 for connect in meta.graph.getNodeFromId(
-                    self.name
+                        self.name
                 ).getPropertyConnections(prop):
                     nodes.append(YNode(connect.getOutputPropertyNode().getIdentifier()))
             return nodes
@@ -664,8 +664,8 @@ class YNode(YObject):
             args = (args[0], meta.graph.getNodeFromId(args[1].id), args[2])
             return (
                 meta.graph.getNodeFromId(self.name)
-                .newPropertyConnectionFromId(*args)
-                .getClassName()
+                    .newPropertyConnectionFromId(*args)
+                    .getClassName()
             )
 
         if getattr(meta, "connectAttr"):
@@ -682,8 +682,8 @@ class YNode(YObject):
         if getattr(meta, "fusion", False):
             return (
                 meta.fusion.GetCurrentComp()
-                .FindTool(self.name)
-                .ConnectInput(*args, **kwargs)
+                    .FindTool(self.name)
+                    .ConnectInput(*args, **kwargs)
             )
 
         raise YException
@@ -744,10 +744,10 @@ class YNode(YObject):
         if getattr(meta, "fusion", False):
             return (
                 meta.fusion.GetCurrentComp()
-                .FindTool(self.name)
-                .GetInputList()
-                .values()[0]
-                .GetAttrs()
+                    .FindTool(self.name)
+                    .GetInputList()
+                    .values()[0]
+                    .GetAttrs()
             )
 
         raise YException
@@ -771,10 +771,10 @@ class YNode(YObject):
         if getattr(meta, "fusion", False):
             return (
                 meta.fusion.GetCurrentComp()
-                .FindTool(self.name)
-                .GetOutputList()
-                .values()[0]
-                .GetAttrs()
+                    .FindTool(self.name)
+                    .GetOutputList()
+                    .values()[0]
+                    .GetAttrs()
             )
 
         raise YException
@@ -888,6 +888,14 @@ class YAttr(_YAttr):
                 )
 
         raise YException
+
+    @staticmethod
+    def add(self):
+        pass
+
+    @staticmethod
+    def des(self):
+        pass
 
     @trace
     def lock(self, on):

@@ -24,6 +24,13 @@ elif "MarvelousDesigner" in str(yurlungur.application):
 
 @env.Qt
 def widgetPtr():
+    """
+    >>> ptr = yurlungur.ui.widgetPtr()
+    >>> view = yurlungur.Qt.QMainWindow(ptr)
+    >>> memoryview.show()
+
+    :return:
+    """
     import yurlungur.core.app
 
     app_name = yurlungur.core.application.__name__
@@ -37,12 +44,10 @@ def widgetPtr():
 
     if app_name == "pymxs":
         import MaxPlus
-
         return MaxPlus.QtHelpers_GetQmaxMainWindow()
 
     if app_name == "hou":
         import hou
-
         return hou.qt.mainWindow()
 
     if app_name == "sd.api":
@@ -57,18 +62,31 @@ def widgetPtr():
 
 @env.Qt
 def show(view):
+    """
+    >>> view = yurlungur.Qt.QWidget()
+    >>> yurlungur.ui.show(view)
+
+    :param view:
+    :return:
+    """
     try:
         view.deleteLater()
     except:
-        yurlungur.logger.log(view)
+        yurlungur.logger.pprint(view)
 
     try:
         __dark_view(view)
 
-        if env.Max() or env.Unreal():
-            __max_protect_show(view)
+        if env.Max():
+            __protect_show(view)
+
+        elif env.Unreal():
+            import unreal
+            unreal.parent_external_window_to_slate(view.winId())
+
         else:
             view.show()
+
     except:
         view.deleteLater()
         yurlungur.logger.warn(traceback.print_exc())
@@ -78,7 +96,7 @@ def show(view):
         __dark_view(view)
 
         if env.Max():
-            __max_protect_show(view)
+            __protect_show(view)
         else:
             view.show()
 
@@ -86,7 +104,9 @@ def show(view):
 
 
 class OpenGL(object):
-    """openGL wrapper"""
+    """
+    >>> yurlungur.ui.OpenGL()
+    """
 
     def __getattr__(self, item):
         def _getGL(mod):
@@ -127,7 +147,7 @@ class __GCProtector(object):
     widgets = []
 
 
-def __max_protect_show(w):
+def __protect_show(w):
     w.setWindowFlags(Qt.WindowStaysOnTopHint)
     w.show()
     __GCProtector.widgets.append(w)

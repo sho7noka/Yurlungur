@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 try:
-    import inspect
     import cmath
+    import numpy as np
 except ImportError:
     pass
 
@@ -9,9 +9,6 @@ from yurlungur.core.wrapper import (
     _YVector, _YMatrix, _YColor
 )
 from yurlungur.core.env import Numpy, Blender
-
-if Numpy():
-    import numpy as np
 
 
 class YVector(_YVector):
