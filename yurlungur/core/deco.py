@@ -1,6 +1,16 @@
 # -*- coding: utf-8 -*-
+import sys
+
+try:
+    import time
+    import traceback
+    import functools
+    import threading
+except ImportError:
+    pass
+
 from yurlungur.tool.meta import meta
-from yurlungur.core import env
+from yurlungur.core import env, logger
 
 
 class UndoGroup(object):
@@ -33,8 +43,6 @@ if env.Unreal():
     UndoGroup = meta.ScopedEditorTransaction
 
 if env.Max():
-    import functools
-
     UndoGroup = functools.partial(meta.undo, True)
 
 if env.Nuke():
@@ -42,3 +50,53 @@ if env.Nuke():
 
 if env.Substance():
     UndoGroup = meta.sd.UndoGroup
+
+
+def cache(func, *args, **kwargs):
+    saved = {}
+
+    @functools.wraps(func)
+    def wrapper(*args):
+        if args in saved:
+            return saved[args]
+        result = func(*args)
+        saved[args] = result
+        return result
+
+    return wrapper if sys.version_info < (3, 2) else functools.lcu_cache(*args, **kwargs)
+
+
+def trace(func):
+    try:
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except:
+                if hasattr(logger.logger, "warning"):
+                    logger.logger.warning(traceback.format_exc())
+                else:
+                    logger.logger.log(traceback.format_exc(), logger.Warning)
+    except (NameError, ImportError):
+        wrapper = func
+
+    return wrapper
+
+
+def timer(func):
+    import yurlungur
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        yurlungur.logger.pprint(
+            '{0} start'.format(func.__name__)
+        )
+        start_time = time.clock()
+        ret = func(*args, **kwargs)
+        end_time = time.clock()
+        yurlungur.logger.pprint(
+            '\n{0}: {1:,f}s'.format("total: ", (end_time - start_time))
+        )
+        return ret
+
+    return wrapper
