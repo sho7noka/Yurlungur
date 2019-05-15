@@ -12,19 +12,25 @@ if platform.system() == "Windows":
 
             _internal.main(["install", "comtypes"])
 
-    from comtypes.client import GetActiveObject, CreateObject
+    from comtypes.client import GetActiveObject
 
-    try:
-        application = GetActiveObject("Photoshop.Application")
-    except WindowsError:
-        application = CreateObject("Photoshop.Application")
+    app = GetActiveObject("Photoshop.Application")
 
 
 elif platform.system() == "Darwin":
-    from appscript import *
+    if not __import__("ScriptingBridge"):
+        import pip
 
-    papp = app("/Applications/Adobe Photoshop CC 2019/Adobe Photoshop CC 2019.app")
-    print papp.print_, papp.open, papp.quit, papp.save
+        if getattr(pip, "main", False):
+            pip.main(["install", "pyobjc-framework-ScriptingBridge"])
+        else:
+            from pip import _internal
+
+            _internal.main(["install", "pyobjc-framework-ScriptingBridge"])
+
+    from ScriptingBridge import SBApplication
+
+    app = SBApplication.applicationWithBundleIdentifier_("com.adobe.photoshop")
 
 
 class Document(object):
@@ -35,6 +41,9 @@ class Document(object):
         print app.documents.add(name)
     except ctypes.ArgumentError:
         print app.activeDocument
+
+    def layer(self):
+        Layer
 
 
 class Layer(object):
@@ -64,3 +73,14 @@ class Property(object):
     app.activeDocument.activeLayer.visible
     app.activeDocument.activeLayer.applyblur()
     # app.activeDocument.activeLayer.applyStyle("Embs")
+
+
+def do(cmd):
+    """
+    photoshop command runner
+    """
+    assert len(cmd) == 4 and ("'" not in cmd)
+
+    app.DoJavaScript("""
+        executeAction(charIDToTypeID("%s"), undefined, DialogModes.NO);
+    """ % cmd)
