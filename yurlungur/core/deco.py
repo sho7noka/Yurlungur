@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+
 try:
     import time
     import traceback
@@ -12,20 +13,51 @@ except ImportError:
 from yurlungur.tool.meta import meta
 from yurlungur.core import env, logger
 
+# assign UndoGroup
+if env.Houdini():
+    UndoGroup = meta.undos.group
+
+if env.Unreal():
+    UndoGroup = meta.ScopedEditorTransaction
+
+if env.Max():
+    UndoGroup = functools.partial(meta.undo, True)
+
+if env.Nuke():
+    UndoGroup = meta.Undo
+
+if env.Substance():
+    UndoGroup = meta.sd.UndoGroup
+
 
 class UndoGroup(object):
+    """
+    undoGroup with script
+.
+    >>> import yurlungur
+    >>> with yurlungur.UndoGroup("undo group"):
+    >>>     for node in "hoge", "fuga", "piyo":
+    >>>         yurlungur.YNode(node).delete()
+    """
+
     def __init__(self, label):
-        self.label = label
+        if env.Photoshop():
+            self.label = meta.activeDocument.ActiveHistoryState
+        else:
+            self.label = label
 
     def __enter__(self):
         if env.Maya():
             meta.undoInfo(ock=1)
-            return self
         elif env.Blender():
             self.undo = meta.context.user_preferences.edit.use_global_undo
             meta.context.user_preferences.edit.use_global_undo = False
         elif env.Davinci():
             meta.fusion.StartUndo()
+        elif env.Photoshop():
+            self.label = meta.activeDocument.activeHistoryState
+
+        return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         if env.Maya():
@@ -34,6 +66,11 @@ class UndoGroup(object):
             meta.context.user_preferences.edit.use_global_undo = self.undo
         elif env.Davinci():
             meta.fusion.EndUndo()
+        elif env.Photoshop():
+            from yurlungur.adapters import photoshop
+            meta.activeDocument.ActiveHistoryState = self.label
+            photoshop.do("undo")
+            # app.DoJavaScript("app.activeDocument.suspendHistory(\"undo\", \"%s\")")
 
 
 def cache(func, *args, **kwargs):
@@ -127,19 +164,3 @@ def __runner(locker):
                 locker.release()
 
     return locker
-
-
-if env.Houdini():
-    UndoGroup = meta.undos.group
-
-if env.Unreal():
-    UndoGroup = meta.ScopedEditorTransaction
-
-if env.Max():
-    UndoGroup = functools.partial(meta.undo, True)
-
-if env.Nuke():
-    UndoGroup = meta.Undo
-
-if env.Substance():
-    UndoGroup = meta.sd.UndoGroup
