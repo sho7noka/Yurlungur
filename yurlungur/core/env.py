@@ -197,18 +197,17 @@ def Substance(func=None):
 
 
 def Photoshop(func=None):
+    from yurlungur.adapters import photoshop
     if func is None:
-        from comtypes.client import GetActiveObject
         try:
-            return GetActiveObject('Photoshop.Application')
+            return photoshop.app
         except WindowsError:
             return False
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
-            from comtypes.client import GetActiveObject
-            GetActiveObject('Photoshop.Application')
+            photoshop.app
             return func(*args, **kwargs)
         except WindowsError:
             return False

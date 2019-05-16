@@ -7,6 +7,7 @@ try:
     import functools
     import threading
     import contextlib
+    import multiprocessing
 except ImportError:
     pass
 
@@ -131,36 +132,36 @@ def threads(func):
     :param func:
     :return:
     """
-    t = threading.Thread(target=func)
+    t = threading.Thread(target=__worker, args=(func,))
     t.start()
     t.join()
 
 
-def __runner(locker):
+def __worker(func):
     """
     thread runner
-    :param locker:
+    :param func:
     :return:
     """
     if env.Maya():
         import maya.utils as utils
-        utils.executeDeferred(locker)
+        utils.executeDeferred(func)
 
     elif env.Houdini():
         meta
 
     elif env.Nuke():
-        meta.executeInMainThreadWithResult(locker)
+        meta.executeInMainThreadWithResult(func)
 
     elif env.Max():
         try:
-            locker.acquire()
+            func.acquire()
             with meta.mxstoken():
-                locker
+                func
         except:
             raise
         finally:
-            if locker.locked():
-                locker.release()
+            if func.locked():
+                func.release()
 
-    return locker
+    return func

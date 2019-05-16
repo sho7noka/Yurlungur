@@ -79,9 +79,6 @@ else:
 
         application = UnityEngine
     else:
-        if platform.system() != "Windows":
-            assert "Sorry, macOS is not availabale for Photoshop."
-
         application = exApplication("photoshop")
 
 __all__ = ["application", "exApplication"]
