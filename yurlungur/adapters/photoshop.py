@@ -1,8 +1,9 @@
 # coding: utf-8
-import platform, ctypes
+import platform
+from yurlungur.core import env
 
 if platform.system() == "Windows":
-    if not __import__("comtypes"):
+    if not env.__import__("comtypes"):
         import pip
 
         if getattr(pip, "main", False):
@@ -18,7 +19,7 @@ if platform.system() == "Windows":
 
 
 elif platform.system() == "Darwin":
-    if not __import__("ScriptingBridge"):
+    if not env.__import__("ScriptingBridge"):
         import pip
 
         if getattr(pip, "main", False):
@@ -34,27 +35,57 @@ elif platform.system() == "Darwin":
 
 
 class Document(object):
-    # ドキュメント
-    try:
-        print app.documents[0]
-    except IndexError:
-        print app.documents.add(name)
-    except ctypes.ArgumentError:
-        print app.activeDocument
+    """
+    >>> app.Document[0].layer.add()
+    """
+
+    def __init__(self):
+        self.document = (
+            app.activeDocument if env.Windows() else app.currentDocument()
+        )
+
+    def __getitem__(self, val):
+        self.document = app.documents[val]
+
+    def set(self):
+        pass
 
     def layer(self):
-        Layer
+        return Layer(self.document)
+
+    def historyState(self):
+        return (
+            self.document.activeHistoryState if env.Windows()
+            else self.document.currentHistoryState()
+        )
 
 
 class Layer(object):
-    # レイヤー
-    app.activeDocument.activeLayer.name = "aaa"
-    try:
+
+    def __init__(self, document):
+        self.document = document
+        self.layer = (
+            self.document.activeLayer
+            if env.Windows() else self.document.currentLayer()
+        )
+
+    def __getitem__(self, val):
+        self.layer = (
+            self.document.artLayers[val]
+            if env.Windows() else self.document.artLayers()[val]
+        )
+
+    def add(self):
+        pass
+
+    def rm(self):
+        pass
+
+    def set(self):
         print app.activeDocument.artLayers["aaa"].kind
         layer = app.activeDocument.artLayers["aaa"]
         layer = app.activeDocument.artLayers[1]
         # app.activeDocument.artLayers["aaa"].delete()
-    except ctypes.ArgumentError:
         layer = app.activeDocument.artLayers.Add()
         layer.name = "aaa"
         appSmartObjectLayer = 2  # from enum PsLayerKind
@@ -65,14 +96,15 @@ class Property(object):
     def add(self, name, *args):
         getattr(app.activeDocument.activeLayer, "apply%s" % name)(*args)
 
-    # フィルター/プロパティ
-    app.activeDocument.activeLayer.blendMode
-    app.activeDocument.activeLayer.opacity
-    app.activeDocument.activeLayer.fillOpacity
-    app.activeDocument.activeLayer.allLocked
-    app.activeDocument.activeLayer.visible
-    app.activeDocument.activeLayer.applyblur()
-    # app.activeDocument.activeLayer.applyStyle("Embs")
+    def set(self):
+        # フィルター/プロパティ
+        app.activeDocument.activeLayer.blendMode
+        app.activeDocument.activeLayer.opacity
+        app.activeDocument.activeLayer.fillOpacity
+        app.activeDocument.activeLayer.allLocked
+        app.activeDocument.activeLayer.visible
+        app.activeDocument.activeLayer.applyblur()
+        # app.activeDocument.activeLayer.applyStyle("Embs")
 
 
 def do(cmd):
@@ -80,7 +112,6 @@ def do(cmd):
     photoshop command runner
     """
     assert len(cmd) == 4 and ("'" not in cmd)
-
     app.DoJavaScript("""
         executeAction(charIDToTypeID("%s"), undefined, DialogModes.NO);
     """ % cmd)

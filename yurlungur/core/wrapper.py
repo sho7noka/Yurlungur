@@ -31,6 +31,10 @@ class YMObject(object):
         levels = ue4.GetEditorLevelLibrary()
         tools = ue4.tools
 
+    if env.Photoshop():
+        from yurlungur.adapters import photoshop
+        document = photoshop.Document()
+
     def __getattr__(self, item):
         try:
             from inspect import getmembers

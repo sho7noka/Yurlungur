@@ -10,4 +10,4 @@ if env.Maya() or env.Houdini() or env.Substance() or env.Nuke() or env.Davinci()
 else:
     from yurlungur.core.proxy import YObject
 
-del app, command, deco, logger, nodetype, proxy
+del app, command, deco, logger, proxy
