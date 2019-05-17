@@ -41,13 +41,31 @@ from yurlungur.adapters import photoshop
 
 app = photoshop.app
 doc = photoshop.Document()
-app.close(app)
-print app.get(), app.currentDocument().currentLayer().name()
+# app.activate()
+# app.currentDocument().count()
 
-# state = doc.historyState().get()
-# for layer in app.currentDocument().artLayers():
-#     layer.setValue_forKey_("T", "name")
-#     layer.setValue_forKey_(True, "visible")
-#     layer.setValue_forKey_(30, "opacity")
-#     # layer.setValue_forKey_(3, "blendMode")
-# doc.historyState().setTo_(state)
+import os
+
+osx = """
+tell application "Adobe Photoshop CC 2019"
+    do javascript "alert(1);"
+end tell
+"""
+# print app.get(), app.currentDocument().currentLayer().name()
+# print app.currentDocument().resolution()
+
+# print app.documents()[0].name(), app.documents()[0].artLayers().count()
+p = {'name': 'Testing'}
+# playlist = app.classForScriptingClass_("playlist").alloc().initWithProperties_(p)
+# iTunes.sources()[0].playlists().insertObject_atIndex_(playlist, 0)
+# app.currentDocument().artLayers().addObject_()
+# app.currentDocument().currentLayer().delete()
+
+
+state = doc.historyState().get()
+for layer in app.currentDocument().artLayers():
+    layer.setValue_forKey_("T", "name")
+    layer.setValue_forKey_(True, "visible")
+    layer.setValue_forKey_(30, "opacity")
+    # layer.setValue_forKey_(3, "blendMode")
+doc.historyState().setTo_(state)
