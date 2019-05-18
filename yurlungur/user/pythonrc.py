@@ -1,24 +1,16 @@
-
 import sys
 
 # server
 HOST = 'localhost'
 PORT = 1089
 
-# user
-EGG = "/Users/shosumioka/Library/Application Support/JetBrains/Toolbox/apps/PyCharm-P/ch-0/181.5087.37/PyCharm.app/Contents/debug-eggs/pycharm-debug.egg"
-PYD = "/Users/shosumioka/Library/Application/ Support/JetBrains/Toolbox/apps/PyCharm-P/ch-0/181.5087.37/PyCharm.app/Contents/helpers/pydev"
-YUR = "/Users/shosumioka/Documents/Yurlungur"
-
 if EGG not in sys.path:
     sys.path.append(EGG)
     sys.path.append(PYD)
     sys.path.append(YUR)
 
-import yurlungur as yr
-yr.YNode("Camera").location.set(yr.YVector(1, 1, 1).array())
-
 import pydevd
+
 try:
     # import hrpyc
     # hrpyc.start_server(port=PORT, use_thread=False)
@@ -28,11 +20,30 @@ try:
 except:
     pydevd.stoptrace()
 
+import ptvsd
+
+# allow other computers to attach to ptvsd at this IP address and port, using the password
+try:
+    ptvsd.enable_attach("SFds_KjLDFJ:LK", address=('localhost', 3000))
+    print("Not attached already, attaching...")
+except ptvsd.AttachAlreadyEnabledError:
+    print("Attached already, continuing...")
+
+
+def test():
+    # pause the program until a remote debugger is attached
+    ptvsd.wait_for_attach()
+    # break at this line
+    ptvsd.break_into_debugger()
+    before = "before"
+    after = "after"
+
+
+print(before)
+print(after)
 
 # hou sever side
 # import hrpyc
 # connection, hou = hrpyc.import_remote_module()
 
 # http://www.sidefx.com/docs/houdini/hom/rpc.html
-# /Applications/Blender/blender.app/Contents/Resources/2.79/scripts/startup
-# /Applications/Houdini/Houdini16.5.473/Frameworks/Houdini.framework/Versions/16.5.473/Resources/houdini/python2.7libs

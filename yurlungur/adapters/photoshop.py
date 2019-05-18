@@ -1,8 +1,7 @@
 # coding: utf-8
-import platform
 from yurlungur.core import env
 
-if platform.system() == "Windows":
+if env.Windows():
     if not env.__import__("comtypes"):
         import pip
 
@@ -14,11 +13,15 @@ if platform.system() == "Windows":
             _internal.main(["install", "comtypes"])
 
     from comtypes.client import GetActiveObject
+    from comtypes.gen import Photoshop
 
     app = GetActiveObject("Photoshop.Application")
+    if app:
+        setattr(app, "isRunning", True)
+    psd = Photoshop
 
 
-elif platform.system() == "Darwin":
+elif env.Mac():
     if not env.__import__("ScriptingBridge"):
         import pip
 
@@ -32,86 +35,96 @@ elif platform.system() == "Darwin":
     from ScriptingBridge import SBApplication
 
     app = SBApplication.applicationWithBundleIdentifier_("com.adobe.photoshop")
+    psd = None
 
 
 class Document(object):
     """
-    >>> app.Document[0].layer.add()
+    >>> app.Document()
     """
 
     def __init__(self):
-        self.document = (
-            app.activeDocument if env.Windows() else app.currentDocument()
-        )
+        self._doc = app.activeDocument if env.Windows() else app.currentDocument()
+
+    def __repr__(self):
+        return self._doc.name if env.Windows() else self._doc.name()
 
     def __getitem__(self, val):
-        self.document = app.documents[val]
+        if isinstance(val, int):
+            self._doc = app.documents[val] if env.Windows() else app.documents()[val]
 
-    def set(self):
-        pass
+        if isinstance(val, str):
+            if env.Windows():
+                for i, doc in enumerate(app.documents):
+                    if doc.name == val:
+                        self._doc = app.documents[i]
+            else:
+                for i, doc in enumerate(app.documents()):
+                    if doc.name() == val:
+                        self._doc = app.documents()[i]
+        return self._doc
 
-    def layer(self):
-        return Layer(self.document)
-
-    def historyState(self):
-        return (
-            self.document.activeHistoryState if env.Windows()
-            else self.document.currentHistoryState()
-        )
+    @property
+    def layers(self):
+        return Layer(self._doc)
 
 
 class Layer(object):
+    """
+    >>> app.Document().layers.add()
+    """
 
     def __init__(self, document):
-        self.document = document
-        self.layer = (
-            self.document.activeLayer
-            if env.Windows() else self.document.currentLayer()
+        self._doc = document
+        self._layer = (
+            self._doc.activeLayer if env.Windows() else self._doc.currentLayer()
         )
+
+    def __repr__(self):
+        return str(self._layer.name if env.Windows() else self._layer.name())
 
     def __getitem__(self, val):
-        self.layer = (
-            self.document.artLayers[val]
-            if env.Windows() else self.document.artLayers()[val]
-        )
+        if isinstance(val, int):
+            self._layer = (
+                self._doc.artLayers[val]
+                if env.Windows() else self._doc.artLayers()[val]
+            )
 
-    def add(self):
-        pass
+        if isinstance(val, str):
+            if env.Windows():
+                for layer in self._doc.artLayers:
+                    if layer.name == val:
+                        self._layer = layer
+            else:
+                for layer in self._doc.artLayers():
+                    if layer.name() == val:
+                        self._layer = layer
+        return self._layer
 
-    def rm(self):
-        pass
-
-    def set(self):
-        print app.activeDocument.artLayers["aaa"].kind
-        layer = app.activeDocument.artLayers["aaa"]
-        layer = app.activeDocument.artLayers[1]
-        # app.activeDocument.artLayers["aaa"].delete()
-        layer = app.activeDocument.artLayers.Add()
-        layer.name = "aaa"
-        appSmartObjectLayer = 2  # from enum PsLayerKind
-        # layer.Kind = appSmartObjectLayer
+    def rmv(self):
+        self._layer.delete()
 
 
-class Property(object):
-    def add(self, name, *args):
-        getattr(app.activeDocument.activeLayer, "apply%s" % name)(*args)
-
-    def set(self):
-        # フィルター/プロパティ
-        app.activeDocument.activeLayer.blendMode
-        app.activeDocument.activeLayer.opacity
-        app.activeDocument.activeLayer.fillOpacity
-        app.activeDocument.activeLayer.allLocked
-        app.activeDocument.activeLayer.visible
-        app.activeDocument.activeLayer.applyblur()
-        # app.activeDocument.activeLayer.applyStyle("Embs")
+class File(object):
+    pass
 
 
 def do(cmd):
     """
-    photoshop command runner
+    photoshop script runner
     """
     assert len(cmd) == 4 and ("'" not in cmd)
-    app.DoJavaScript("""
-        executeAction(charIDToTypeID("%s"), undefined, DialogModes.NO);
-    """ % cmd)
+
+    if env.Mac():
+        import os
+
+        osa = "osascript -e "
+        osa += "'tell application \"%s\" " % str(app).split("\"")[1]
+        osa += "to do javascript "
+        osa += "\"executeAction(charIDToTypeID(\\\"%s\\\"), undefined, DialogModes.NO);\"'" % cmd
+
+        os.system(osa)
+    else:
+        app.DoJavaScript("""
+            executeAction(charIDToTypeID("%s"), undefined, DialogModes.NO);
+        """ % cmd)

@@ -42,21 +42,21 @@ class UndoGroup(object):
     """
 
     def __init__(self, label):
-        if env.Photoshop():
-            self.label = meta.activeDocument.ActiveHistoryState
-        else:
-            self.label = label
+        self.label = label
 
     def __enter__(self):
         if env.Maya():
             meta.undoInfo(ock=1)
         elif env.Blender():
-            self.undo = meta.context.user_preferences.edit.use_global_undo
+            self.label = meta.context.user_preferences.edit.use_global_undo
             meta.context.user_preferences.edit.use_global_undo = False
         elif env.Davinci():
             meta.fusion.StartUndo()
         elif env.Photoshop():
-            self.label = meta.activeDocument.activeHistoryState
+            self.label = (
+                meta.doc.activeHistoryState if env.Windows()
+                else meta.doc.currentHistoryState().get()
+            )
 
         return self
 
@@ -64,14 +64,16 @@ class UndoGroup(object):
         if env.Maya():
             meta.undoInfo(cck=1)
         elif env.Blender():
-            meta.context.user_preferences.edit.use_global_undo = self.undo
+            meta.context.user_preferences.edit.use_global_undo = self.label
         elif env.Davinci():
             meta.fusion.EndUndo()
         elif env.Photoshop():
             from yurlungur.adapters import photoshop
-            meta.activeDocument.ActiveHistoryState = self.label
+            if env.Windows():
+                meta.doc.activeHistoryState = self.label
+            else:
+                meta.doc.currentHistoryState().setTo_(self.label)
             photoshop.do("undo")
-            # app.DoJavaScript("app.activeDocument.suspendHistory(\"undo\", \"%s\")")
 
 
 def cache(func, *args, **kwargs):
