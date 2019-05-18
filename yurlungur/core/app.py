@@ -2,8 +2,6 @@
 import sys
 from yurlungur.core.env import __import__
 
-application = sys.executable
-
 
 def exApplication(module=""):
     if module == "photoshop":
@@ -21,6 +19,8 @@ def exApplication(module=""):
 
     return application
 
+
+application = sys.executable
 
 if "maya" in application:
     import maya.cmds as cmds

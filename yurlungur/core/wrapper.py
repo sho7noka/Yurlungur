@@ -21,8 +21,8 @@ class YMObject(object):
     if env.Davinci():
         resolve = env.__import__("DaVinciResolveScript").scriptapp("Resolve")
         if resolve:
-            manager = resolve.GetProjectManager()
             fusion = resolve.Fusion()
+            manager = resolve.GetProjectManager()
 
     if env.Unreal():
         from yurlungur.adapters import ue4
@@ -32,8 +32,8 @@ class YMObject(object):
         tools = ue4.tools
 
     if env.Photoshop():
-        from yurlungur.adapters import photoshop
-        document = photoshop.Document()
+        from yurlungur.adapters import photoshop as ps
+        doc = ps.Document()._doc
 
     def __getattr__(self, item):
         try:
@@ -50,7 +50,6 @@ class YMObject(object):
                 )
                 return getattr(yurlungur, item)
 
-        # TODO self.eval(item)
         return getattr(yurlungur, item, False)
 
     def eval(self, script):

@@ -29,5 +29,4 @@ def __make_completer(mod):
             f.write("   \"\"\"{0}\"\"\"\n".format(inspect.getdoc(fn)))
             f.write("   pass\n\n")
 
-
-__make_completer(meta.module)
+# __make_completer(meta.module)

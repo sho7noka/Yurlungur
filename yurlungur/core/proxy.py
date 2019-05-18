@@ -102,8 +102,11 @@ class YObject(_YObject):
                     .SetAttrs({"TOOLS_Name": args[0]})
             )
 
-        if getattr(meta, "ActiveDocument", False):
-            return setattr(meta.ActiveDocument.activeLayer, "name", args[0])
+        if getattr(meta, "doc", False):
+            try:
+                return setattr(meta.doc.activeLayer, "name", args[0])
+            except AttributeError:
+                return meta.doc.currentLayer().setValue_forKey_(args[0], "name")
 
         if getattr(meta, "wind_type", False):
             return meta.module
@@ -163,15 +166,13 @@ class YObject(_YObject):
                 val,
             )
 
-        if getattr(meta, "ActiveDocument", False):
-            if getattr(meta.ActiveDocument.artLayers[self.name], val, False):
-                return YAttr(
-                    getattr(meta.ActiveDocument.artLayers[self.name], val),
-                    self.name,
-                    val,
-                )
-            if getattr(meta.Preferences, val, False):
-                return YAttr(getattr(meta.Preferences, val), self.name, val)
+        if getattr(meta, "doc", False):
+            try:
+                layer = meta.doc.layers[self.name]
+            except TypeError:
+                layer = meta.ps.Document().layers[self.name]
+
+            return YAttr(getattr(layer, val), self.name, val)
 
         if getattr(meta, "wind_type", False):
             return YAttr(meta.module, self.name, val)
@@ -228,15 +229,13 @@ class YObject(_YObject):
                 val,
             )
 
-        if getattr(meta, "ActiveDocument", False):
-            if getattr(meta.ActiveDocument.artLayers[self.name], val, False):
-                return YAttr(
-                    getattr(meta.ActiveDocument.artLayers[self.name], val),
-                    self.name,
-                    val,
-                )
-            if getattr(meta.Preferences, val, False):
-                return YAttr(getattr(meta.Preferences, val), self.name, val)
+        if getattr(meta, "doc", False):
+            try:
+                layer = meta.doc.layers[self.name]
+            except TypeError:
+                layer = meta.ps.Document().layers[self.name]
+
+            return YAttr(getattr(layer, val), self.name, val)
 
         if getattr(meta, "wind_type", False):
             return YAttr(meta.module, self.name, val)
@@ -258,14 +257,12 @@ class YObject(_YObject):
     @property
     def attrs(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
-            return tuple(
-                [
-                    prop.getId()
-                    for prop in meta.graph.getNodeFromId(self.name).getProperties(
+            return tuple([
+                prop.getId() for prop in
+                meta.graph.getNodeFromId(self.name).getProperties(
                     meta.sd.SDPropertyCategory.Input
                 )
-                ]
-            )
+            ])
 
         if getattr(meta, "listAttr", False):
             return tuple(meta.listAttr(self.name, *args, **kwargs)) or None
@@ -285,12 +282,9 @@ class YObject(_YObject):
         if getattr(meta, "fusion", False):
             return meta.fusion.GetCurrentComp().FindTool(self.name).GetAttrs()
 
-        if getattr(meta, "ActiveDocument", False):
-            from comtypes.gen import Photoshop
-
+        if getattr(meta, "doc", False):
             return tuple(
-                [p for p, _ in inspect.getmembers(Photoshop.ArtLayer) if "_" not in p]
-            )
+                [p for p, _ in inspect.getmembers(meta.photoshop.Photoshop.ArtLayer) if "_" not in p])
 
         if getattr(meta, "uclass", False):
             return meta.ue4.uname(self.name).component_tags()
@@ -342,12 +336,10 @@ class YObject(_YObject):
         if getattr(meta, "fusion", False):
             return YNode(meta.fusion.GetCurrentComp().AddTool(*args, **kwargs).Name)
 
-        if getattr(meta, "ActiveDocument", False):
-            from comtypes.gen import Photoshop
-
-            ps = getattr(Photoshop, "ps%s" % args[0], Photoshop.psNormalLayer)
+        if getattr(meta, "doc", False):
+            ps = getattr(meta.photoshop.Photoshop, "ps%s" % args[0], meta.doc.psNormalLayer)
             if ps:
-                layer = meta.ActiveDocument.artLayers.Add()
+                layer = meta.doc.artLayers.Add()
                 layer.name = self.name
                 return setattr(layer, "Kind", ps)
             else:
@@ -390,8 +382,11 @@ class YObject(_YObject):
         if getattr(meta, "fusion", False):
             return meta.fusion.GetCurrentComp().FindTool(self.name).Delete()
 
-        if getattr(meta, "ActiveDocument", False):
-            return meta.ActiveDocument.artLayers[self.name].delete()
+        if getattr(meta, "doc", False):
+            try:
+                return meta.doc.layers[self.name].delete()
+            except TypeError:
+                return meta.ps.Document().layers[self.name].delete()
 
         if getattr(meta, "uclass", False):
             uname = meta.ue4.uname(self.name)
@@ -430,8 +425,11 @@ class YObject(_YObject):
             meta.fusion.GetCurrentComp().Copy(self.name)
             return meta.fusion.GetCurrentComp().Paste(*args, **kwarg)
 
-        if getattr(meta, "ActiveDocument", False):
-            return meta.ActiveDocument.artLayers[self.name].duplicate()
+        if getattr(meta, "doc", False):
+            try:
+                return meta.doc.layers[self.name].duplicate()
+            except TypeError:
+                return meta.ps.Document().layers[self.name].duplicate()
 
         if getattr(meta, "uclass", False):
             uname = meta.ue4.uname(self.name)
@@ -484,15 +482,21 @@ class YObject(_YObject):
                 *args, **kwargs
             )
 
-        if getattr(meta, "ActiveDocument", False):
+        if getattr(meta, "doc", False):
             if len(args) == 0 and len(kwargs) == 0:
-                return YNode(meta.ActiveDocument.ActiveLayer.name)
+                try:
+                    return YNode(meta.doc.ActiveLayer.name)
+                except AttributeError:
+                    return YNode(meta.doc.currentLayer().name())
             else:
-                return setattr(
-                    meta.ActiveDocument,
-                    "ActiveLayer",
-                    meta.activeDocument.artLayers[self.name],
-                )
+                try:
+                    return setattr(
+                        meta.doc,
+                        "ActiveLayer",
+                        meta.doc.artLayers[self.name],
+                    )
+                except TypeError:
+                    return meta.doc.currentLayer().setTo_(meta.ps.Document().layers[self.name])
 
         if getattr(meta, "uclass", False):
             uname = meta.ue4.uname(self.name)
@@ -532,8 +536,11 @@ class YObject(_YObject):
                     .SetAttrs({"TOOLB_Visible": on, "TOOLB_Locked": True})
             )
 
-        if getattr(meta, "ActiveDocument", False):
-            return setattr(meta.ActiveDocument.artLayers[self.name], "visible", not on)
+        if getattr(meta, "doc", False):
+            try:
+                return setattr(meta.doc.layers[self.name], "visible", not on)
+            except TypeError:
+                return meta.ps.Document().layers[self.name].setValue_forKey_(not on, "visible")
 
         if getattr(meta, "uclass", False):
             return meta.ue4.uname(self.name).root_component.set_editor_property(
@@ -609,8 +616,8 @@ class YNode(YObject):
         if getattr(meta, "fusion", False):
             return meta.fusion.GetCurrentComp().FindTool(self.name).ParentTool
 
-        if getattr(meta, "ActiveDocument", False):
-            return YNode(meta.ActiveDocument.artLayers[self.name].parent.name)
+        if getattr(meta, "doc", False):
+            return YNode(meta.doc.artLayers[self.name].parent.name)
 
         if getattr(meta, "uclass", False):
             return YNode(meta.ue4.uname(self.name).get_parent_actor().get_name())
@@ -644,10 +651,10 @@ class YNode(YObject):
                     nodes.append(children[i].name)
                 return nodes
 
-        if getattr(meta, "ActiveDocument", False):
+        if getattr(meta, "doc", False):
             return [
                 YNode(layer.name)
-                for layer in meta.ActiveDocument.LayerSets[self.name].layers
+                for layer in meta.doc.LayerSets[self.name].layers
             ]
 
         if getattr(meta, "uclass", False):
@@ -795,7 +802,10 @@ class YAttr(_YAttr):
             return self._values[0]
 
         if ":" in str(self._values[0]):
-            return getattr(self._values[0], self.val)
+            try:
+                return getattr(self._values[0], self.val)
+            except AttributeError:
+                return self._values[0]()
         else:
             return self._values[0]
 
@@ -861,18 +871,18 @@ class YAttr(_YAttr):
 
         if getattr(meta, "fusion", False):
             return setattr(
-                meta.fusion.GetCurrentComp().FindTool(self.obj), self.val, args[0]
-            )
+                meta.fusion.GetCurrentComp().FindTool(self.obj), self.val, args[0])
 
-        if getattr(meta, "ActiveDocument", False):
+        if getattr(meta, "doc", False):
             try:
-                return getattr(meta.ActiveDocument.artLayers[self.obj], self.val)(
-                    *args, **kwargs
-                )
+                return getattr(meta.doc.layers[self.obj], self.val)(*args, **kwargs)
             except TypeError:
-                return setattr(
-                    meta.ActiveDocument.artLayers[self.obj], self.val, args[0]
-                )
+                try:
+                    return setattr(
+                        meta.doc.layers[self.obj], self.val, args[0]
+                    )
+                except TypeError:
+                    return meta.ps.Document().layers[self.obj].setValue_forKey_(args[0], self.val)
 
         if getattr(meta, "wind_type", False):
             return meta.module._MarvelousDesigner__module_obj.SaveFile(*args, **kwargs)
@@ -974,7 +984,7 @@ class YFile(_YObject):
         if getattr(meta, "sbs", False):
             return cls(meta.manager.loadUserPackage(*args, **kwargs))
 
-        if getattr(meta, "ActiveDocument", False):
+        if getattr(meta, "doc", False):
             return meta.Open(*args, **kwargs)
 
         if getattr(meta, "wind_type", False):
@@ -1021,11 +1031,11 @@ class YFile(_YObject):
         if getattr(meta, "sbs", False):
             return cls(meta.manager.savePackageAs(*args, **kwargs))
 
-        if getattr(meta, "ActiveDocument", False):
+        if getattr(meta, "doc", False):
             if args[0].endswith(".psd"):
-                return meta.ActiveDocument.Save()
+                return meta.doc.Save()
             else:
-                return meta.ActiveDocument.SaveAs(*args, **kwargs)
+                return meta.doc.SaveAs(*args, **kwargs)
 
         if getattr(meta, "wind_type", False):
             return meta.module._MarvelousDesigner__module_obj.SaveFile(*args, **kwargs)
@@ -1059,8 +1069,11 @@ class YFile(_YObject):
         if getattr(meta, "sbs", False):
             return meta.manager.getUserPackageFromFilePath()
 
-        if getattr(meta, "ActiveDocument", False):
-            return os.path.join(meta.ActiveDocument.path, meta.ActiveDocument.name)
+        if getattr(meta, "doc", False):
+            try:
+                return os.path.join(meta.doc.path, meta.doc.name)
+            except AttributeError:
+                return meta.doc.filePath().absoluteString()
 
         if getattr(meta, "wind_type", False):
             return meta.module._MarvelousDesigner__module_obj.GetSaveFilePath()
@@ -1088,8 +1101,7 @@ class YFile(_YObject):
                 return meta.assets.find_asset_data(self.path).package_path
             else:
                 return meta.assets.list_assets(
-                    "/Game", recursive=True, include_folder=True
-                )
+                    "/Game", recursive=True, include_folder=True)
 
         raise YException
 
