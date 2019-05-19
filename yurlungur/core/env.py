@@ -19,13 +19,22 @@ def __import__(name, globals=None, locals=None, fromlist=None):
         if "DaVinci" in name:
             if Windows():
                 resolve = "%PROGRAMDATA%\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting\\Modules"
-            if MacOS():
+            if Mac():
                 resolve = "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Developer/Scripting/Modules"
             if Linux():
                 resolve = "/opt/resolve/Developer/Scripting/Modules"
             sys.path.append(resolve)
     except NameError:
         pass
+
+    # import pip
+    #
+    # if getattr(pip, "main", False):
+    #     pip.main(["install", name])
+    # else:
+    #     from pip import _internal
+    #
+    #     _internal.main(["install", name])
 
     try:
         import imp
@@ -100,7 +109,7 @@ def Linux(func=None):
     return wrapper
 
 
-def MacOS(func=None):
+def Mac(func=None):
     if func is None:
         return platform.system() == "Darwin"
 
@@ -200,16 +209,18 @@ def Photoshop(func=None):
     from yurlungur.adapters import photoshop
     if func is None:
         try:
-            return photoshop.app
-        except WindowsError:
+            return photoshop.app.isRunning()
+        except Exception:
             return False
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
-            photoshop.app
-            return func(*args, **kwargs)
-        except WindowsError:
+            if photoshop.app.isRunning():
+                return func(*args, **kwargs)
+            else:
+                raise WindowsError
+        except Exception:
             return False
 
     return wrapper
@@ -287,12 +298,14 @@ def _Substance():
     }
     return d[platform.system()]
 
+
 def _Photoshop():
     d = {
         "Windows": "C:/Program Files/Adobe/Adobe Photoshop CC 2019",
         "Darwin": "/Applications/Photoshop.app/Contents",
     }
     return d[platform.system()]
+
 
 def _Max():
     """find 3dsMax app"""
@@ -304,7 +317,7 @@ def _Blender():
     d = {
         "Linux": "",
         "Windows": "C:/Program Files/Blender Foundation/Blender",
-        "Darwin": "/Applications/Blender/blender.app/Contents/MacOS/blender"
+        "Darwin": "/Applications/Blender2.8/blender.app/Contents/MacOS/blender"
     }
     return d[platform.system()]
 
@@ -316,8 +329,3 @@ def _Unreal():
         "Darwin": ""
     }
     return d[platform.system()]
-
-__all__ = [
-    "Windows", "Linux", "MacOS",
-    "Maya", "Houdini", "Blender",
-]
