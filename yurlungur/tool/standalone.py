@@ -8,7 +8,6 @@ import tempfile
 
 import yurlungur as yr
 from yurlungur.core import env
-from yurlungur.tool import editor
 
 local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
 __all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
@@ -44,9 +43,9 @@ def hython(pystr):
 
 
 def bpython(pystr):
-    assert os.path.getsize(env.BlenderBin)
+    assert os.path.getsize(env._Blender())
     subprocess.call(
-        "{0}.blender --python-expr {1} -b".format(env.BlenderBin, pystr)
+        "{0}.blender --python-expr {1} -b".format(env._Blender(), pystr)
     )
 
 
@@ -139,6 +138,7 @@ def _cli(args):
 
 
 def main(args=[]):
+    from yurlungur.tool import editor
     widget = editor.View()
     yr.ui.show(widget)
 
