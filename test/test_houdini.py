@@ -23,6 +23,10 @@ class TestHoudini(unittest.TestCase):
     def test_file(self):
         yr.standalone.hython("import yurlungur as yr; yr.YFile.save('temp.hip')")
 
+    def test_pdg(self):
+        """PDG, Qt, yurlungur"""
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()

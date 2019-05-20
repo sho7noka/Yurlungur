@@ -11,6 +11,8 @@ from yurlungur.core.env import _Photoshop
 class TestPhotoshop(unittest.TestCase):
 
     def test_cmds(self):
+        print yr.YObject("aaa").create(kind="layer/black")
+
         with yr.UndoGroup("undo"):
             yr.application.activate()
             node = yr.YObject("nnn")
@@ -41,9 +43,3 @@ class TestPhotoshop(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-# from ScriptingBridge import SBApplication
-# app = SBApplication.applicationWithBundleIdentifier_("com.apple.itunes")
-# p = {'name': 'Testing'}
-# playlist = app.classForScriptingClass_("playlist").alloc().initWithProperties_(p)
-# app.sources()[0].playlists().insertObject_atIndex_(playlist, 0)

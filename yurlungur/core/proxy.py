@@ -283,8 +283,10 @@ class YObject(_YObject):
             return meta.fusion.GetCurrentComp().FindTool(self.name).GetAttrs()
 
         if getattr(meta, "doc", False):
-            return tuple(
-                [p for p, _ in inspect.getmembers(meta.photoshop.Photoshop.ArtLayer) if "_" not in p])
+            try:
+                return tuple([p for p, _ in inspect.getmembers(meta.photoshop.Photoshop.ArtLayer) if "_" not in p])
+            except AttributeError:
+                return tuple(k for k in meta.ps.Document()._doc.layers()[0].properties())
 
         if getattr(meta, "uclass", False):
             return meta.ue4.uname(self.name).component_tags()
@@ -337,13 +339,16 @@ class YObject(_YObject):
             return YNode(meta.fusion.GetCurrentComp().AddTool(*args, **kwargs).Name)
 
         if getattr(meta, "doc", False):
-            ps = getattr(meta.photoshop.Photoshop, "ps%s" % args[0], meta.doc.psNormalLayer)
-            if ps:
+            try:
+                ps = getattr(meta.photoshop.Photoshop, "ps%s" % args[0], meta.doc.psNormalLayer)
                 layer = meta.doc.artLayers.Add()
                 layer.name = self.name
                 return setattr(layer, "Kind", ps)
-            else:
-                raise YException
+            except AttributeError:
+                k = kwargs.update({"name": self.name})
+                layer = meta.classForScriptingClass_("art layer").alloc().initWithProperties_(kwargs)
+                meta.ps.Document()._doc.artLayers().addObject_(layer)
+                return YObject(self.name)
 
         if getattr(meta, "uclass", False):
             factory = getattr(meta, self.name + "Factory")
