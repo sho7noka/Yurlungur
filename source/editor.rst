@@ -11,12 +11,12 @@ Also IronPython is not bind with __future__ modules.
 
 print 文は Python3 ではエラーになり、それを回避するための
 __future__ モジュールも Unity Asset 内の IronPython ではサポートされないため、
-`yurlungur.log(*args)` の使用をお勧めします。
+`yurlungur.pprint(*args)` の使用をお勧めします。
 
 
 .. code-block:: python
 
-    yurlungur.log(*args)
+    yurlungur.pprint(*args)
 
 内部処理に pformat を使っているため、ログが見切れるような
 長いリストでも視認性は損なわれません。
@@ -32,7 +32,7 @@ contextManager で制御されたUndoGroup で
 
 .. code-block:: python
 
-    with yr.UndoGroup:
+    with yr.UndoGroup("undo"):
         yr.YNode("hoge").delete()
 
 
@@ -46,11 +46,22 @@ Qt.py をラッピングしているので、Maya/Houdini といった
 大型スタジオで使われるアプリケーションのバージョンを気にすることなく
 Python から Qt を使うことが出来ます。
 
+それぞれのDCCアプリケーション特有のウィンドウを取得して
+Qt parent に渡すことができます。
+
+.. code-block:: python
+
+    Parent = yr.ui.widgetPtr()
+    widget = QWidget(parent)
+
+
+
+スタンドアロン起動の際にも他に宣言すべき決まりごとはありません。
 
 .. code-block:: python
 
     widget = QWidget()
-    yr.qt.show(widget)
+    yr.ui.show(widget)
 
 
 ゲームエンジンはQtを内蔵しません。
