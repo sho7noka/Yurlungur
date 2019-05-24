@@ -49,6 +49,25 @@ def __import__(name, globals=None, locals=None, fromlist=None):
         return False
 
 
+def config(file):
+    """
+    Maya.env / usersetup.mel
+    init_unreal.py
+    setup.ms
+    nuke.py
+    substance
+    photoshop.py
+    """
+    with open(file, "w") as f:
+        f.write("")
+    return
+    
+    
+class Environ(object):
+    def __getitem__(self):
+        return 
+
+
 def Qt(func=None):
     try:
         import yurlungur.Qt as Qt
