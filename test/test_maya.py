@@ -1,7 +1,6 @@
-import doctest
-import unittest
-
+# -*- coding: utf-8 -*-
 import sys
+import unittest
 
 sys.path.append('../yurlungur')
 

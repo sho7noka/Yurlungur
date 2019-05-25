@@ -36,22 +36,23 @@ def mayapy(pystr):
 
 
 def hython(pystr):
-    assert os.path.getsize(env.HoudiniBin)
+    assert os.path.getsize(env._Houdini())
     subprocess.call(
-        "{0}/hython -c\"import sys; sys.path.append('{1}');{2}\"".format(env.HoudiniBin, local, pystr)
+        "{0}/hython -c\"import sys; sys.path.append('{1}');{2}\"".format(env._Houdini(), local, pystr)
     )
 
 
 def bpython(pystr):
     assert os.path.getsize(env._Blender())
+    print ("{0} --python-expr \"{1}\" -b".format(env._Blender(), pystr))
     subprocess.call(
-        "{0}.blender --python-expr {1} -b".format(env._Blender(), pystr)
+        "{0} --python-expr \"{1}\" -b".format(env._Blender(), pystr)
     )
 
 
 def maxpy(pystr):
     # http://help.autodesk.com/view/3DSMAX/2019/ENU/?guid=GUID-96D3ABE3-32CA-491D-9CAD-0A0576346E54
-    assert os.path.getsize(env.MaxBin)
+    assert os.path.getsize(env._Max())
     subprocess.call(
         "{0}/3dsmaxpy -c \"{1};{2}\"".format(env.MaxBin, sys.path.append(yr), pystr)
     )

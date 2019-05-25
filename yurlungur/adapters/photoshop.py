@@ -1,7 +1,10 @@
 # coding: utf-8
+import platform
 from yurlungur.core import env
 
-if env.Windows():
+is_Windows = platform.system() == "Windows"
+
+if is_Windows:
     if not env.__import__("comtypes"):
         import pip
 
@@ -21,7 +24,7 @@ if env.Windows():
     psd = Photoshop
 
 
-elif env.Mac():
+elif platform.system() == "Darwin":
     if not env.__import__("ScriptingBridge"):
         import pip
 
@@ -44,17 +47,17 @@ class Document(object):
     """
 
     def __init__(self):
-        self._doc = app.activeDocument if env.Windows() else app.currentDocument()
+        self._doc = app.activeDocument if is_Windows else app.currentDocument()
 
     def __repr__(self):
-        return self._doc.name if env.Windows() else self._doc.name()
+        return self._doc.name if is_Windows else self._doc.name()
 
     def __getitem__(self, val):
         if isinstance(val, int):
-            self._doc = app.documents[val] if env.Windows() else app.documents()[val]
+            self._doc = app.documents[val] if is_Windows else app.documents()[val]
 
         if isinstance(val, str):
-            if env.Windows():
+            if is_Windows:
                 for i, doc in enumerate(app.documents):
                     if doc.name == val:
                         self._doc = app.documents[i]
@@ -77,21 +80,21 @@ class Layer(object):
     def __init__(self, document):
         self._doc = document
         self._layer = (
-            self._doc.activeLayer if env.Windows() else self._doc.currentLayer()
+            self._doc.activeLayer if is_Windows else self._doc.currentLayer()
         )
 
     def __repr__(self):
-        return str(self._layer.name if env.Windows() else self._layer.name())
+        return str(self._layer.name if is_Windows else self._layer.name())
 
     def __getitem__(self, val):
         if isinstance(val, int):
             self._layer = (
                 self._doc.artLayers[val]
-                if env.Windows() else self._doc.artLayers()[val]
+                if is_Windows else self._doc.artLayers()[val]
             )
 
         if isinstance(val, str):
-            if env.Windows():
+            if is_Windows:
                 for layer in self._doc.artLayers:
                     if layer.name == val:
                         self._layer = layer
@@ -114,17 +117,15 @@ def do(cmd):
     photoshop script runner
     """
     assert len(cmd) == 4 and ("'" not in cmd)
-
-    if env.Mac():
+    if is_Windows:
+        app.DoJavaScript("""
+            executeAction(charIDToTypeID("%s"), undefined, DialogModes.NO);
+        """ % cmd)
+    else:
         import os
 
         osa = "osascript -e "
         osa += "'tell application \"%s\" " % str(app).split("\"")[1]
         osa += "to do javascript "
         osa += "\"executeAction(charIDToTypeID(\\\"%s\\\"), undefined, DialogModes.NO);\"'" % cmd
-
         os.system(osa)
-    else:
-        app.DoJavaScript("""
-            executeAction(charIDToTypeID("%s"), undefined, DialogModes.NO);
-        """ % cmd)

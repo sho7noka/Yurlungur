@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import sys
-
 try:
     import time
     import traceback
     import functools
     import threading
     import contextlib
+    import platform
     import multiprocessing
 except ImportError:
     pass
@@ -54,7 +54,7 @@ class UndoGroup(object):
             meta.fusion.StartUndo()
         elif env.Photoshop():
             self.label = (
-                meta.doc.activeHistoryState if env.Windows()
+                meta.doc.activeHistoryState if Windows()
                 else meta.doc.currentHistoryState().get()
             )
 
@@ -69,7 +69,7 @@ class UndoGroup(object):
             meta.fusion.EndUndo()
         elif env.Photoshop():
             from yurlungur.adapters import photoshop
-            if env.Windows():
+            if Windows():
                 meta.doc.activeHistoryState = self.label
             else:
                 meta.doc.currentHistoryState().setTo_(self.label)
@@ -167,3 +167,39 @@ def __worker(func):
                 func.release()
 
     return func
+
+
+def Windows(func=None):
+    if func is None:
+        return platform.system() == "Windows"
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if platform.system() == "Windows":
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def Linux(func=None):
+    if func is None:
+        return platform.system() == "Linux"
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if platform.system() == "Linux":
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def Mac(func=None):
+    if func is None:
+        return platform.system() == "Darwin"
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if platform.system() == "Darwin":
+            return func(*args, **kwargs)
+
+    return wrapper

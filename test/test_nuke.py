@@ -16,3 +16,7 @@ class TestResolve(unittest.TestSuite):
             b = nuke.toNode("aaa")
             k = nuke.Array_Knob("name", "label")
             b.addKnob(k)
+
+
+if __name__ == '__main__':
+    unittest.main()

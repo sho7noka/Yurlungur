@@ -82,3 +82,10 @@ else:
         application = exApplication("photoshop")
 
 __all__ = ["application", "exApplication"]
+
+
+class YException(NotImplementedError):
+    """
+    >>> raise NotImplementedError(application)
+    """
+    pass

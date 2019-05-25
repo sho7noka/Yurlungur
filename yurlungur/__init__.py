@@ -4,9 +4,6 @@ assert sys.version_info > (2, 7), ('yurlungur currently requires Python 2.7 late
 sys.dont_write_bytecode = True
 
 from yurlungur.core import *  # noQA
-from yurlungur.core.math import (
-    YVector, YColor, YMatrix
-)
 from yurlungur.tool import ui
 
 __all__ = []

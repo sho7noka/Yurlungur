@@ -4,9 +4,8 @@ import unittest
 
 sys.path.append('../yurlungur')
 
-import yurlungur as yr
 from yurlungur.core import application
-
+from yurlungur.core.proxy import YVector
 
 class TestCore(unittest.TestSuite):
 
@@ -14,7 +13,7 @@ class TestCore(unittest.TestSuite):
         self.assertTrue(application == "standalone")
 
     def test_vector(self):
-        self.assertTrue(yr.YVector() == yr.YVector())
+        self.assertTrue(YVector() == YVector())
 
 
 if __name__ == '__main__':
