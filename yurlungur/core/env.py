@@ -17,11 +17,11 @@ def __import__(name, globals=None, locals=None, fromlist=None):
 
     try:
         if "DaVinci" in name:
-            if Windows():
+            if platform.system() == "Windows":
                 resolve = "%PROGRAMDATA%\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting\\Modules"
-            if Mac():
+            if platform.system() == "Darwin":
                 resolve = "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Developer/Scripting/Modules"
-            if Linux():
+            if platform.system() == "Linux":
                 resolve = "/opt/resolve/Developer/Scripting/Modules"
             sys.path.append(resolve)
     except NameError:
@@ -99,42 +99,6 @@ def Numpy(func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if is_numpy:
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
-def Windows(func=None):
-    if func is None:
-        return platform.system() == "Windows"
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if platform.system() == "Windows":
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
-def Linux(func=None):
-    if func is None:
-        return platform.system() == "Linux"
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if platform.system() == "Linux":
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
-def Mac(func=None):
-    if func is None:
-        return platform.system() == "Darwin"
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if platform.system() == "Darwin":
             return func(*args, **kwargs)
 
     return wrapper
@@ -303,8 +267,8 @@ def _Houdini():
     """find Houdini app"""
     d = {
         "Linux": "/usr/autodesk/maya2017-x64",
-        "Windows": "C:/Program Files/Side Effects Software/Houdini 16.5.323/bin",
-        "Darwin": "/Applications/Houdini/Houdini16.5.473/Houdini.app/Contents",
+        "Windows": "C:/Program Files/Side Effects Software/Houdini Houdini17.5.173/bin",
+        "Darwin": "/Applications/Houdini/Houdini17.5.173/Frameworks/Houdini.framework/Versions/Current/Resources/bin",
     }
     return os.environ.get("HIP") or d[platform.system()]
 

@@ -11,6 +11,7 @@ from yurlungur.core.env import _Substance
 @unittest.skipUnless(_Substance(), "Substance is not found")
 class TestSubstance(unittest.TestCase):
 
+    @unittest.skip("only runtime")
     def test_cmds(self):
         with yr.UndoGroup("undo"):
             print(dir(yr))
@@ -25,6 +26,7 @@ class TestSubstance(unittest.TestCase):
             node.disconnect("unique_filter_output")
             print(node.parent())
 
+    @unittest.skip("only runtime")
     def test_file(self):
         yr.YFile.open("")
 

@@ -3,13 +3,17 @@
 try:
     import os
     import inspect
+    import cmath
     from functools import partial, total_ordering
 except ImportError:
     total_ordering = dir
 
-from yurlungur.core.wrapper import YException, _YObject, _YAttr
+from yurlungur.core.app import YException
+from yurlungur.core.env import Blender, Numpy
 from yurlungur.core.deco import trace
-from yurlungur.core.math import YVector, YColor, YMatrix
+from yurlungur.core.wrapper import (
+    _YObject, _YAttr, _YVector, _YMatrix, _YColors
+)
 from yurlungur.tool.meta import meta
 
 
@@ -124,9 +128,15 @@ class YObject(_YObject):
     @trace
     def __getattr__(self, val):
         if getattr(meta, "SDNode", False):
-            prop = meta.graph.getNodeFromId(self.name).getPropertyFromId(
-                val, meta.sd.SDPropertyCategory.Input
-            )
+            try:
+                prop = meta.graph.getNodeFromId(self.name).getPropertyFromId(
+                    val, meta.sd.SDPropertyCategory.Input
+                )
+            except Exception:
+                prop = meta.graph.getNodeFromId(self.name).getPropertyFromId(
+                    "$%s" % val, meta.sd.SDPropertyCategory.Input
+                )
+
             return YAttr(
                 meta.graph.getNodeFromId(self.name).getPropertyValue(prop).get(),
                 self.name,
@@ -909,7 +919,7 @@ class YAttr(_YAttr):
         pass
 
     @staticmethod
-    def des(self):
+    def rmv(self):
         pass
 
     @trace
@@ -1078,7 +1088,10 @@ class YFile(_YObject):
             try:
                 return os.path.join(meta.doc.path, meta.doc.name)
             except AttributeError:
-                return meta.doc.filePath().absoluteString()
+                path = meta.doc.filePath()
+                if path:
+                    return path.absoluteString()
+                return 
 
         if getattr(meta, "wind_type", False):
             return meta.module._MarvelousDesigner__module_obj.GetSaveFilePath()
@@ -1112,3 +1125,49 @@ class YFile(_YObject):
 
     def reference(self):
         raise YException
+
+
+class YVector(_YVector):
+    def __init__(self, *args, **kwargs):
+        if Blender():
+            super(YVector, self).__init__()
+            self.vector = [self.x, self.y, self.z]
+        else:
+            super(YVector, self).__init__(*args, **kwargs)
+            self.vector = args
+
+    @Numpy
+    def array(self):
+        import numpy as np
+        return np.array(self.vector, dtype=np.float16)
+
+    def identify(self):
+        return
+
+    def dot(self, a, b, norm=False):
+        if norm:  # 正規化オプション
+            a = self.normalize(a)
+            b = self.normalize(b)
+        dot = (a[0] * b[0]) + (a[1] * b[1])
+        return dot
+
+    def cross(self, a, b):
+        return
+
+    @Numpy
+    def normalize(self, a):
+        length = self.length(a)
+        return [a[0] / length, a[1] / length]
+
+    def length(self):
+        return cmath.sqrt(self.x ** 2 + self.y ** 2)
+
+
+class YMatrix(_YMatrix):
+    def __init__(self, *args, **kwargs):
+        super(YMatrix, self).__init__(*args, **kwargs)
+
+
+class YColor(_YColors):
+    def __init__(self, *args, **kwargs):
+        super(YColor, self).__init__(*args, **kwargs)

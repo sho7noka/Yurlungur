@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import unittest
 
@@ -10,16 +11,17 @@ from yurlungur.core.env import _Houdini
 class TestHoudini(unittest.TestCase):
 
     def test_hou(self):
-        standalone.hython("import yurlungur as yr; print yr.name, yr.version")
+        print yr.name, yr.version
 
     def test_node(self):
-        standalone.hython("import yurlungur as yr; print yr.YNode('obj')")
+        print yr.YObject('obj')
 
     def test_attr(self):
-        standalone.hython("import yurlungur as yr; yr.YNode('obj').create('geo').tx.set(5)")
+        yr.YObject('obj').create('geo')
 
+    @unittest.skipIf(_Houdini(), "")
     def test_file(self):
-        standalone.hython("import yurlungur as yr; yr.YFile.save('temp.hip')")
+        yr.YFile.save('temp.hip')
 
     def test_pdg(self):
         """PDG, Qt, yurlungur"""

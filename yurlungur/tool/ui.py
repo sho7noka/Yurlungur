@@ -22,6 +22,12 @@ elif "MarvelousDesigner" in str(yurlungur.application):
     from PythonQt.QtGui import *
 
 
+@env.Unreal
+def UWidget():
+    import unreal
+    unreal
+
+
 @env.Qt
 def widgetPtr():
     """
@@ -101,46 +107,6 @@ def show(view):
             view.show()
 
         sys.exit(app.exec_())
-
-
-class OpenGL(object):
-    """
-    >>> yurlungur.ui.OpenGL()
-    """
-
-    def __getattr__(self, item):
-        def _getGL(mod):
-            for cmd, _ in inspect.getmembers(mod):
-                if fnmatch.fnmatch(item, "".join(["*", cmd])):
-                    setattr(
-                        self, cmd, (lambda str: dict(inspect.getmembers(mod))[str])(cmd)
-                    )
-                    return getattr(self, item)
-
-        _tmp = []
-
-        if env.Maya():
-            from maya import OpenMayaRender as _mgl
-
-            _tmp.extend(_mgl, _mgl.MHardwareRenderer.theRenderer().glFunctionTable())
-
-        if env.Blender():
-            import bgl
-
-            _tmp.extend(bgl)
-
-        for gl in _tmp:
-            if _getGL(gl):
-                return _getGL(gl)
-
-        try:
-            from OpenGL import GL as gl
-
-            return gl
-        except ImportError:
-            import ctypes
-
-            return ctypes.cdll.OpenGL32
 
 
 class __GCProtector(object):

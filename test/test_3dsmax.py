@@ -1,19 +1,20 @@
-import doctest
-import unittest
+# -*- coding: utf-8 -*-
 import sys
+import unittest
 
 sys.path.append('../yurlungur')
 
 import yurlungur as yr
-from yurlungur.core.env import installed, Max
+from yurlungur.core.env import _Max
 from yurlungur.tool import standalone
 
 
-@unittest.skipUnless(installed("Max"), "Max is not found")
+@unittest.skipUnless(_Max(), "Max is not found")
 class TestMax(unittest.TestCase):
     def test_env(self):
-        assert Max()
+        assert _Max()
 
+    @unittest.skip("only runtime")
     def test_Max(self):
         standalone.maxpy("import yurlungur as yr; print yr.name")
 

@@ -7,8 +7,7 @@ except ImportError:
 
 from yurlungur.core.proxy import YNode, YFile
 from yurlungur.tool.meta import meta
-from yurlungur.core.wrapper import YException
-
+from yurlungur.core.app import YException
 
 __all__ = ["file", "cmd"]
 
