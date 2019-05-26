@@ -25,7 +25,6 @@ elif "MarvelousDesigner" in str(yurlungur.application):
 @env.Unreal
 def UWidget():
     import unreal
-    unreal
 
 
 @env.Qt

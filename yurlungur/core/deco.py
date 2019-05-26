@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+
 try:
     import time
     import traceback
@@ -13,22 +14,6 @@ except ImportError:
 
 from yurlungur.tool.meta import meta
 from yurlungur.core import env, logger
-
-# assign UndoGroup
-if env.Houdini():
-    UndoGroup = meta.undos.group
-
-if env.Unreal():
-    UndoGroup = meta.ScopedEditorTransaction
-
-if env.Max():
-    UndoGroup = functools.partial(meta.undo, True)
-
-if env.Nuke():
-    UndoGroup = meta.Undo
-
-if env.Substance():
-    UndoGroup = meta.sd.UndoGroup
 
 
 class UndoGroup(object):
@@ -74,6 +59,23 @@ class UndoGroup(object):
             else:
                 meta.doc.currentHistoryState().setTo_(self.label)
             photoshop.do("undo")
+
+
+# assign UndoGroup
+if env.Houdini():
+    UndoGroup = meta.undos.group
+
+if env.Unreal():
+    UndoGroup = meta.ScopedEditorTransaction
+
+if env.Max():
+    UndoGroup = functools.partial(meta.undo, True)
+
+if env.Nuke():
+    UndoGroup = meta.Undo
+
+if env.Substance():
+    UndoGroup = meta.sd.UndoGroup
 
 
 def cache(func, *args, **kwargs):

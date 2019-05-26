@@ -45,11 +45,7 @@ class YObject(_YObject):
             node_id = ""
             for node in meta.graph.getNodes():
                 d = node.getDefinition()
-                if (
-                        d.getId() == self.item
-                        or d.getLabel() == self.item
-                        or node.getIdentifier() == self.item
-                ):
+                if (d.getId() == self.item or d.getLabel() == self.item or node.getIdentifier() == self.item):
                     node_id = node.getIdentifier()
                     break
             return node_id if node_id else meta.graph.getIdentifier()

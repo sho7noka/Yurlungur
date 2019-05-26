@@ -13,6 +13,26 @@ local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filenam
 __all__ = map(lambda x: x[0], inspect.getmembers(sys.modules[__name__], inspect.isclass))
 
 
+def set(module):
+    """
+    set external application
+    :param module:
+    :return:
+
+    >>> yr.application.set(module)
+    """
+    from yurlungur.core import app
+
+    if module == "photoshop":
+        from yurlungur.adapters import photoshop
+
+        app.application = photoshop.app
+    else:
+        app.application = env.__import__(module)
+
+    assert app.application
+
+
 def mayapy(pystr):
     assert os.path.getsize(env.MayaBin)
 
