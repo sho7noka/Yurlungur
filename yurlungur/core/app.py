@@ -2,24 +2,6 @@
 import sys
 from yurlungur.core.env import __import__
 
-
-def exApplication(module=""):
-    if module == "photoshop":
-        from yurlungur.adapters import photoshop
-
-        application = photoshop.app
-
-    elif __import__(module):
-        application = __import__(module)
-
-    else:
-        from yurlungur.tool import standalone
-
-        application = standalone
-
-    return application
-
-
 application = sys.executable
 
 if "maya" in application:
@@ -32,10 +14,15 @@ elif __import__("hou"):
 
     application = hou
 
-elif "3dsmax" in application:
-    import pymxs
+elif "Nuke" in application:
+    import nuke
 
-    application = pymxs
+    application = nuke
+
+elif "UE4Editor" in application:
+    import unreal
+
+    application = unreal
 
 elif "blender" in application:
     import bpy
@@ -47,41 +34,21 @@ elif "Substance" in application:
 
     application = sdapi
 
-elif "MarvelousDesigner" in application:
-    from MarvelousDesigner import MarvelousDesigner
+elif "3dsmax" in application:
+    import pymxs
 
-    application = MarvelousDesigner()
+    application = pymxs
+
+elif "MarvelousDesigner" in application:
+    import MarvelousDesigner.MarvelousDesigner
+
+    application = MarvelousDesigner.MarvelousDesigner()
     application.initialize()
 
-elif "UE4Editor" in application:
-    import unreal
-
-    application = unreal
-
-elif "Nuke" in application:
-    import nuke
-
-    application = nuke
-
-elif __import__("DaVinciResolveScript"):
-    import DaVinciResolveScript
-
-    application = DaVinciResolveScript
-
 else:
-    import platform
+    from yurlungur.tool import standalone
 
-    if platform.python_implementation() == "IronPython":
-        import clr
-
-        clr.AddReferenceByPartialName("UnityEngine")
-        import UnityEngine
-
-        application = UnityEngine
-    else:
-        application = exApplication("photoshop")
-
-__all__ = ["application", "exApplication"]
+    application = standalone
 
 
 class YException(NotImplementedError):

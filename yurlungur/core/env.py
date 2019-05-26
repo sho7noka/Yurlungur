@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+
 try:
     import os
     import functools
@@ -15,6 +16,10 @@ def __import__(name, globals=None, locals=None, fromlist=None):
     except KeyError:
         pass
 
+    if platform.python_implementation() == "IronPython":
+        import clr
+        clr.AddReferenceByPartialName(name)
+
     try:
         if "DaVinci" in name:
             if platform.system() == "Windows":
@@ -23,7 +28,10 @@ def __import__(name, globals=None, locals=None, fromlist=None):
                 resolve = "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Developer/Scripting/Modules"
             if platform.system() == "Linux":
                 resolve = "/opt/resolve/Developer/Scripting/Modules"
+
             sys.path.append(resolve)
+            name = "DaVinciResolveScript"
+
     except NameError:
         pass
 
@@ -61,11 +69,11 @@ def config(file):
     with open(file, "w") as f:
         f.write("")
     return
-    
-    
+
+
 class Environ(object):
     def __getitem__(self):
-        return 
+        return
 
 
 def Qt(func=None):
@@ -189,9 +197,9 @@ def Substance(func=None):
 
 
 def Photoshop(func=None):
-    from yurlungur.adapters import photoshop
     if func is None:
         try:
+            from yurlungur.adapters import photoshop
             return photoshop.app.isRunning()
         except Exception:
             return False
@@ -199,6 +207,7 @@ def Photoshop(func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
+            from yurlungur.adapters import photoshop
             if photoshop.app.isRunning():
                 return func(*args, **kwargs)
             else:
