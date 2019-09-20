@@ -16,6 +16,7 @@ class TestHoudini(unittest.TestCase):
     def test_node(self):
         print yr.YObject('obj')
 
+    @unittest.skip("only runtime")
     def test_attr(self):
         yr.YObject('obj').create('geo')
 
