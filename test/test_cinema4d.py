@@ -10,9 +10,11 @@ from yurlungur.core.env import installed, C4D
 
 @unittest.skipUnless(installed("c4d"), "C4D is not found")
 class TestC4D(unittest.TestCase):
+    @unittest.skip("only runtime")
     def test_env(self):
         assert C4D()
 
+    @unittest.skip("only runtime")
     def test_c4d(self):
         yr.standalone.c4dpy("import yurlungur as yr; print yr.name")
 
