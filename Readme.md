@@ -1,6 +1,6 @@
 # Yurlungur
 
-|       | Windows | Unix | code |
+|       | Windows | Linux/macOS | code |
 | ----- | ------ | --- | --- |
 | OS | [![Build status](https://ci.appveyor.com/api/projects/status/46vinb8jd1jbbhdg?svg=true)](https://ci.appveyor.com/project/sho7noka/yurlungur) | [![Build Status](https://travis-ci.org/sho7noka/Yurlungur.svg?branch=dev)](https://travis-ci.org/sho7noka/Yurlungur) | [![codecov](https://codecov.io/gh/sho7noka/Yurlungur/branch/dev/graph/badge.svg)](https://codecov.io/gh/sho7noka/Yurlungur) |
 
@@ -24,14 +24,13 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 | ---- | --- | --- | --- |
 | Maya (2016~) | ○ | ○ | ☓ |
 | Houdini (16~) | ○ | ○ | ☓ |
-| Nuke Studio | ○ | ○ | ☓ |
-| 3dsMax (2017~) | ○ | ○ | ☓ |
-| Photoshop (CC~) | ○ | ○ | - |
-| Marvelous Designer 8 (WIP) | ○ | ○ | - |
-| Blender (2.8) | ○ | ○ | ☓ |
 | Substance (2018.1.2~) | ○ | ○ | - |
-| Davinci Resolve (15~) | ○ | ○ | ☓ |
+| 3dsMax (2017~) | ○ | ○ | ☓ |
 | Unreal Engine (4.22~) | ○ | ○ | ☓ |
+| Photoshop (CC~) | ○ | ○ | - |
+| Nuke Studio (10~) | ○ | ○ | ☓ |
+| Davinci Resolve (15~) | ○ | ○ | ☓ |
+| Cinema 4D (R21~) | ○ | ○ | ☓ |
 
 ### Installing
 ```bash

@@ -1,10 +1,7 @@
 # coding: utf-8
-import platform
-from yurlungur.core import env
+from yurlungur.core import env, deco
 
-is_Windows = platform.system() == "Windows"
-
-if is_Windows:
+if deco.Windows():
     if not env.__import__("comtypes"):
         import pip
 
@@ -24,7 +21,7 @@ if is_Windows:
     psd = Photoshop
 
 
-elif platform.system() == "Darwin":
+elif deco.Mac():
     if not env.__import__("ScriptingBridge"):
         import pip
 
@@ -47,17 +44,17 @@ class Document(object):
     """
 
     def __init__(self):
-        self._doc = app.activeDocument if is_Windows else app.currentDocument()
+        self._doc = app.activeDocument if deco.Windows() else app.currentDocument()
 
     def __repr__(self):
-        return self._doc.name if is_Windows else self._doc.name()
+        return self._doc.name if deco.Windows() else self._doc.name()
 
     def __getitem__(self, val):
         if isinstance(val, int):
-            self._doc = app.documents[val] if is_Windows else app.documents()[val]
+            self._doc = app.documents[val] if deco.Windows() else app.documents()[val]
 
         if isinstance(val, str):
-            if is_Windows:
+            if deco.Windows():
                 for i, doc in enumerate(app.documents):
                     if doc.name == val:
                         self._doc = app.documents[i]
@@ -80,21 +77,21 @@ class Layer(object):
     def __init__(self, document):
         self._doc = document
         self._layer = (
-            self._doc.activeLayer if is_Windows else self._doc.currentLayer()
+            self._doc.activeLayer if deco.Windows() else self._doc.currentLayer()
         )
 
     def __repr__(self):
-        return str(self._layer.name if is_Windows else self._layer.name())
+        return str(self._layer.name if deco.Windows() else self._layer.name())
 
     def __getitem__(self, val):
         if isinstance(val, int):
             self._layer = (
                 self._doc.artLayers[val]
-                if is_Windows else self._doc.artLayers()[val]
+                if deco.Windows() else self._doc.artLayers()[val]
             )
 
         if isinstance(val, str):
-            if is_Windows:
+            if deco.Windows():
                 for layer in self._doc.artLayers:
                     if layer.name == val:
                         self._layer = layer
@@ -117,7 +114,7 @@ def do(cmd):
     photoshop script runner
     """
     assert len(cmd) == 4 and ("'" not in cmd)
-    if is_Windows:
+    if deco.Windows():
         app.DoJavaScript("""
             executeAction(charIDToTypeID("%s"), undefined, DialogModes.NO);
         """ % cmd)

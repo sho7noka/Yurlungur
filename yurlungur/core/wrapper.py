@@ -15,16 +15,11 @@ class MetaAttr(type):
 
 class YMObject(object):
     """command wrapper for any application"""
+
     if env.Substance():
         from yurlungur.adapters import substance as sd
         graph = sd.graph
         manager = sd.manager
-
-    if env.Davinci():
-        resolve = env.__import__("DaVinciResolveScript").scriptapp("Resolve")
-        if resolve:
-            fusion = resolve.Fusion()
-            manager = resolve.GetProjectManager()
 
     if env.Unreal():
         from yurlungur.adapters import ue4
@@ -32,6 +27,15 @@ class YMObject(object):
         assets = ue4.GetEditorAssetLibrary()
         levels = ue4.GetEditorLevelLibrary()
         tools = ue4.tools
+
+    if env.C4D():
+        doc = app.application.documents.GetActiveDocument()
+
+    if env.Davinci():
+        resolve = env.__import__("DaVinciResolveScript").scriptapp("Resolve")
+        if resolve:
+            fusion = resolve.Fusion()
+            manager = resolve.GetProjectManager()
 
     if env.Photoshop():
         from yurlungur.adapters import photoshop as ps
@@ -92,17 +96,15 @@ if env.Maya():
             meta.loadPlugin(plugin, qt=1)
 
 elif env.Houdini() or env.Unreal():
-    from yurlungur.tool.meta import meta
-
     _YVector = type('_YVector', (
-        meta.Vector if hasattr(meta, "Vector") else meta.Vector3,
+        app.application.Vector if hasattr(app.application, "Vector") else app.application.Vector3,
     ), dict())
 
     _YMatrix = type('_YMatrix', (
-        meta.Matrix if hasattr(meta, "Matrix") else meta.Matrix4,
+        app.application.Matrix if hasattr(app.application, "Matrix") else app.application.Matrix4,
     ), dict())
 
-    _YColors = type('_YColors', (meta.Color,), dict())
+    _YColors = type('_YColors', (app.application.Color,), dict())
 
 elif env.Blender():
     import mathutils
@@ -110,12 +112,6 @@ elif env.Blender():
     _YVector = type('_YVector', (mathutils.Vector,), dict())
     _YMatrix = type('_YMatrix', (mathutils.Matrix,), dict())
     _YColors = type('_YColors', (mathutils.Color,), dict())
-
-elif env.Substance():
-    from yurlungur.tool.meta import meta
-    # _YVector = type('_YVector', (meta.SDValueVector,), dict())
-    # _YMatrix = type('_YMatrix', (meta.SDValueMatrix,), dict())
-    # _YColor = type('_YColors', (meta.SDValueColorRGBA,), dict())
 
 elif env.Nuke():
     import _nukemath
@@ -129,3 +125,8 @@ elif env.Max():
     _YVector = type('_YVector', (MaxPlus.Point3,), dict())
     _YMatrix = type('_YMatrix', (MaxPlus.Matrix3,), dict())
     _YColors = type('_YColors', (MaxPlus.Color,), dict())
+
+elif env.Substance():
+    _YVector = type('_YVector', (app.application.SDValueVector,), dict())
+    _YMatrix = type('_YMatrix', (app.application.SDValueMatrix,), dict())
+    _YColors = type('_YColors', (app.application.SDValueColorRGBA,), dict())

@@ -37,6 +37,8 @@ class GuiLogHandler(Handler):
                 meta.error(msg)
             elif env.Max():
                 meta.print_(msg, True, False)
+            elif env.C4D():
+                meta.modules.net.SetErrorLevel(False, False, True)
 
         elif record.levelno > INFO:
             if env.Maya():
@@ -51,6 +53,8 @@ class GuiLogHandler(Handler):
                 meta.warning(msg)
             elif env.Max():
                 meta.print_(msg, True, False)
+            elif env.C4D():
+                meta.modules.net.SetErrorLevel(False, True, False)
 
         else:
             if env.Maya():
@@ -65,6 +69,8 @@ class GuiLogHandler(Handler):
                 meta.debug(msg)
             elif env.Max():
                 meta.print_(msg, False, True)
+            elif env.C4D():
+                meta.modules.net.SetErrorLevel(True, False, False)
 
 
 try:

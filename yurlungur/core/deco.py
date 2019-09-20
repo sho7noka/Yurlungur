@@ -15,70 +15,153 @@ except ImportError:
 from yurlungur.tool.meta import meta
 from yurlungur.core import env, logger
 
-
-class UndoGroup(object):
-    """
-    undoGroup with script
-.
-    >>> import yurlungur
-    >>> with yurlungur.UndoGroup("undo group"):
-    >>>     for node in "hoge", "fuga", "piyo":
-    >>>         yurlungur.YNode(node).delete()
-    """
-
-    def __init__(self, label):
-        self.label = label
-
-    def __enter__(self):
-        if env.Maya():
-            meta.undoInfo(ock=1)
-        elif env.Blender():
-            self.label = meta.context.user_preferences.edit.use_global_undo
-            meta.context.user_preferences.edit.use_global_undo = False
-        elif env.Davinci():
-            meta.fusion.StartUndo()
-        elif env.Photoshop():
-            self.label = (
-                meta.doc.activeHistoryState if Windows()
-                else meta.doc.currentHistoryState().get()
-            )
-
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        if env.Maya():
-            meta.undoInfo(cck=1)
-        elif env.Blender():
-            meta.context.user_preferences.edit.use_global_undo = self.label
-        elif env.Davinci():
-            meta.fusion.EndUndo()
-        elif env.Photoshop():
-            from yurlungur.adapters import photoshop
-            if Windows():
-                meta.doc.activeHistoryState = self.label
-            else:
-                meta.doc.currentHistoryState().setTo_(self.label)
-            photoshop.do("undo")
-
-
 # assign UndoGroup
 if env.Houdini():
     UndoGroup = meta.undos.group
 
-if env.Unreal():
+elif env.Unreal():
     UndoGroup = meta.ScopedEditorTransaction
 
-if env.Max():
+elif env.Max():
     UndoGroup = functools.partial(meta.undo, True)
 
-if env.Nuke():
+elif env.Nuke():
     UndoGroup = meta.Undo
 
-if env.Substance():
+elif env.Substance():
     UndoGroup = meta.sd.UndoGroup
+
+else:
+    class UndoGroup(object):
+        """
+        undoGroup for with statements.
+    .
+        >>> import yurlungur
+        >>> with yurlungur.UndoGroup("undo group"):
+        >>>     for node in "hoge", "fuga", "piyo":
+        >>>         yurlungur.YNode(node).delete()
+        """
+
+        def __init__(self, label):
+            self.label = label
+
+        def __enter__(self):
+            if env.Maya():
+                meta.undoInfo(ock=1)
+            elif env.Blender():
+                self.label = meta.context.user_preferences.edit.use_global_undo
+                meta.context.user_preferences.edit.use_global_undo = False
+            elif env.C4D():
+                meta.doc.StartUndo()
+            elif env.Davinci():
+                meta.fusion.StartUndo()
+            elif env.Photoshop():
+                self.label = (
+                    meta.doc.activeHistoryState if Windows()
+                    else meta.doc.currentHistoryState().get()
+                )
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            if env.Maya():
+                meta.undoInfo(cck=1)
+            elif env.Blender():
+                meta.context.user_preferences.edit.use_global_undo = self.label
+            elif env.C4D():
+                meta.doc.EndUndo()
+            elif env.Davinci():
+                meta.fusion.EndUndo()
+            elif env.Photoshop():
+                from yurlungur.adapters import photoshop
+                if Windows():
+                    meta.doc.activeHistoryState = self.label
+                else:
+                    meta.doc.currentHistoryState().setTo_(self.label)
+                photoshop.do("undo")
+
+
+@contextlib.contextmanager
+def threads(func):
+    """
+    with statements for threads.
+    available for Maya, Houdini, Nuke, 3dsMax, Substance and Cinema 4D
+    >>>
+    :param func:
+    :return:
+    """
+
+    # https://developers.maxon.net/docs/Cinema4DPythonSDK/html/modules/c4d.threading/index.html
+    if env.C4D():
+        from c4d.threading import C4DThread
+        class _Thread(C4DThread):
+            def Main(self):
+                func()
+
+        t = _Thread()
+        t.Start()
+        # Do some other operations here
+        t.Wait(True)
+
+    elif env.Substance():
+        class _Thread(threading.Thread):
+            def run(self):
+                func()
+                return
+
+        t = _Thread()
+        t.start()
+
+    else:
+        t = threading.Thread(target=__worker, args=(func,))
+        t.daemon = True
+        t.start()
+        t.join()
+
+
+def __worker(func):
+    """
+    thread runner
+    :param func:
+    :return:
+    """
+    if env.Maya():
+        import maya.utils as utils
+        utils.executeDeferred(func)
+
+    # https://forums.odforce.net/topic/22570-execute-in-main-thread-with-results/
+    elif env.Houdini():
+        import hdefereval
+
+        n = 0
+        while n < multiprocessing.cpu_count() + 1:
+            hdefereval.executeInMainThreadWithResult(func)
+            n += 1
+
+    elif env.Nuke():
+        meta.executeInMainThreadWithResult(func)
+
+    elif env.Max():
+        try:
+            func.acquire()
+            with meta.mxstoken():
+                func()
+        except:
+            raise
+        finally:
+            if func.locked():
+                func.release()
+
+    return func
 
 
 def cache(func, *args, **kwargs):
+    """
+    Substance, Blender and Davinch use lcu_cache at Python3.
+    :param func:
+    :param args:
+    :param kwargs:
+    :return:
+    """
     saved = {}
 
     @functools.wraps(func)
@@ -93,6 +176,11 @@ def cache(func, *args, **kwargs):
 
 
 def trace(func):
+    """
+
+    :param func:
+    :return:
+    """
     try:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -110,6 +198,11 @@ def trace(func):
 
 
 def timer(func):
+    """
+
+    :param func:
+    :return:
+    """
     import yurlungur
 
     @functools.wraps(func)
@@ -126,49 +219,6 @@ def timer(func):
         return ret
 
     return wrapper
-
-
-@contextlib.contextmanager
-def threads(func):
-    """
-    Maya, Houdini, 3dsMax, Substance and Nuke
-    >>>
-    :param func:
-    :return:
-    """
-    t = threading.Thread(target=__worker, args=(func,))
-    t.start()
-    t.join()
-
-
-def __worker(func):
-    """
-    thread runner
-    :param func:
-    :return:
-    """
-    if env.Maya():
-        import maya.utils as utils
-        utils.executeDeferred(func)
-
-    elif env.Houdini():
-        meta
-
-    elif env.Nuke():
-        meta.executeInMainThreadWithResult(func)
-
-    elif env.Max():
-        try:
-            func.acquire()
-            with meta.mxstoken():
-                func
-        except:
-            raise
-        finally:
-            if func.locked():
-                func.release()
-
-    return func
 
 
 def Windows(func=None):

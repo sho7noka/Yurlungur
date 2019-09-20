@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 try:
     import os
     import inspect
@@ -18,7 +17,7 @@ from yurlungur.tool.meta import meta
 
 
 class YObject(_YObject):
-    """base class
+    """document base object
     >>> obj = YObject("pCone")
     >>> obj("cone")
     """
@@ -62,6 +61,9 @@ class YObject(_YObject):
         if getattr(meta, "data", False):
             return meta.data.objects[self.name].id_data or 0
 
+        if getattr(meta, "C4DAtom", False):
+            return meta.doc.SearchObject(self.item).GetGUID()
+
         if getattr(meta, "knob", False):
             return meta.toNode(self.name)["name"].value() or 0
 
@@ -91,6 +93,9 @@ class YObject(_YObject):
         if getattr(meta, "data", False):
             meta.data.objects[self.item].name = "".join(args)
             return "".join(args)
+
+        if getattr(meta, "C4DAtom", False):
+            return meta.doc.SearchObject(self.item).SetName(args[0])
 
         if getattr(meta, "knob", False):
             meta.toNode(self.item).setName(args[0], **kwargs)
@@ -162,6 +167,9 @@ class YObject(_YObject):
         if getattr(meta, "data", False):
             return YAttr(meta.data.objects[self.name].name, self.name, val)
 
+        if getattr(meta, "C4DAtom", False):
+            return YAttr(meta.doc.SearchObject(self.name)[getattr(meta, val)], self.name, val)
+
         if getattr(meta, "knob", False):
             return YAttr(meta.toNode(self.name)[val], self.name, val)
 
@@ -225,6 +233,9 @@ class YObject(_YObject):
         if getattr(meta, "data", False):
             return YAttr(meta.data.objects[self.name].name, self.name, val)
 
+        if getattr(meta, "C4DAtom", False):
+            return YAttr(meta.doc.SearchObject(self.name)[getattr(meta, val)], self.name, val)
+
         if getattr(meta, "knob", False):
             return YAttr(meta.toNode(self.name)[val], self.name, val)
 
@@ -281,6 +292,17 @@ class YObject(_YObject):
 
         if getattr(meta, "data", False):
             return tuple(inspect.getmembers(meta.data.objects[self.name]))
+
+        if getattr(meta, "C4DAtom", False):
+            attrs = []
+            ids = {}  # {v.lower(): v for v in dir(app.application) if v.isupper()}
+            for k, v in ids.items():
+                try:
+                    meta.doc.SearchObject(self.name)[getattr(meta, v)]
+                    attrs.append(k)
+                except AttributeError:
+                    pass
+            return tuple(attrs)
 
         if getattr(meta, "knob", False):
             return tuple([knob.name() for knob in meta.toNode(self.name).allKnobs()])
@@ -341,6 +363,24 @@ class YObject(_YObject):
             except AttributeError:
                 getattr(meta.ops.object, str(self).lower() + "_add")(*args, **kwargs)
 
+        if getattr(meta, "C4DAtom", False):
+            # object
+            if args[0][0] == "O":
+                obj = meta.BaseObject(getattr(meta, args[0]))
+                meta.doc.InsertObject(obj)
+
+            # tag
+            if args[0][0] == "T":
+                obj = meta.doc.SearchObject(self.name).MakeTag(getattr(meta, args[0]))
+
+            # material
+            if args[0][0] == "M":
+                obj = meta.BaseMaterial(getattr(meta, args[0]))
+                meta.doc.InsertMaterial(obj)
+
+            meta.EventAdd()
+            return YNode(obj.GetName())
+
         if getattr(meta, "fusion", False):
             return YNode(meta.fusion.GetCurrentComp().AddTool(*args, **kwargs).Name)
 
@@ -388,7 +428,10 @@ class YObject(_YObject):
             return meta.runtime.delete(meta.runtime.getnodebyname(self.name))
 
         if getattr(meta, "data", False):
-            return meta.context.scene.objects.unlink(meta.data.objects[self.name])
+            return meta.context.collection.objects.unlink(meta.data.objects[self.name])
+
+        if getattr(meta, "C4DAtom", False):
+            return meta.doc.SearchObject(self.item).Remove()
 
         if getattr(meta, "fusion", False):
             return meta.fusion.GetCurrentComp().FindTool(self.name).Delete()
@@ -422,6 +465,15 @@ class YObject(_YObject):
             return YNode(
                 meta.runtime.instance(meta.runtime.getnodebyname(self.name)).name
             )
+
+        if getattr(meta, "data", False):
+            return
+
+        if getattr(meta, "C4DAtom", False):
+            obj = meta.InstanceObject()
+            obj.SetReferenceObject(meta.doc.SearchObject(self.name))
+            meta.doc.InsertObject(obj)
+            return obj.GetName()
 
         if getattr(meta, "hda", False):
             return meta.node(self.name).copyTo(*args, **kwarg)
@@ -482,6 +534,11 @@ class YObject(_YObject):
                 else:
                     return meta.runtime.execute("$")
 
+        if getattr(meta, "C4DAtom", False):
+            if len(args) == 0 and len(kwargs) == 0:
+                meta.doc.SetActiveObject(meta.doc.SearchObject(args[0]), meta.SELECTION_NEW)
+            return meta.doc.GetActiveObject().GetName()
+
         if getattr(meta, "knob", False):
             if len(args) == 0 and len(kwargs) == 0:
                 return meta.selectedNodes()
@@ -539,6 +596,10 @@ class YObject(_YObject):
             return getattr(meta.runtime, "hide" if on else "unhide")(
                 meta.runtime.getnodebyname(self.name)
             )
+
+        if getattr(meta, "C4DAtom", False):
+            return setattr(
+                meta.doc.SearchObject(self.item)[meta.ID_BASEOBJECT_VISIBILITY_EDITOR], on)
 
         if getattr(meta, "fusion", False):
             return (
@@ -620,6 +681,10 @@ class YNode(YObject):
                 _parent = meta.runtime.getnodebyname(self.item).parent
                 return YNode(_parent.name) if _parent else None
 
+        # https://developers.maxon.net/docs/Cinema4DPythonSDK/html/modules/c4d.documents/BaseDocument/index.html?highlight=getactiveobject#BaseDocument.GetObjects
+        if getattr(meta, "C4DAtom", False):
+            return meta.doc.SearchObject(self.name)
+
         if getattr(meta, "knob", False):
             index = meta.toNode(self.name).inputs() - 1
             return YNode(meta.toNode(self.name).input(index).name())
@@ -661,6 +726,9 @@ class YNode(YObject):
                 for i in range(children.count):
                     nodes.append(children[i].name)
                 return nodes
+
+        if getattr(meta, "C4DAtom", False):
+            return meta.doc.SearchObject(self.item)
 
         if getattr(meta, "doc", False):
             return [
@@ -877,6 +945,10 @@ class YAttr(_YAttr):
                 args[0].tolist() if hasattr(args[0], "T") else args[0],
             )
 
+        if getattr(meta, "C4DAtom", False):
+            meta.doc.SearchObject(self.obj)[getattr(meta, self.val)] = args[0]
+            return args[0]
+
         if getattr(meta, "knob", False):
             return meta.toNode(self.obj)[self.val].setValue(args[0], **kwargs)
 
@@ -1014,6 +1086,10 @@ class YFile(_YObject):
         if getattr(meta, "data", False):
             return cls(meta.ops.wm.open_mainfile(*args, **kwargs))
 
+        if getattr(meta, "C4DAtom", False):
+            meta.documents.LoadFile(*args)
+            return cls(args[0])
+
         if getattr(meta, "knob", False):
             return meta.scriptOpen(*args, **kwargs)
 
@@ -1064,6 +1140,12 @@ class YFile(_YObject):
         if getattr(meta, "data", False):
             return meta.ops.wm.save_mainfile(*args, **kwargs)
 
+        if getattr(meta, "C4DAtom", False):
+            meta.documents.SaveDocument(
+                meta.doc, args[0], meta.SAVEDOCUMENTFLAGS_NONE, meta.FORMAT_C4DEXPORT
+            )
+            return cls(args[0])
+
         if getattr(meta, "knob", False):
             return meta.scriptSave(*args, **kwargs)
 
@@ -1087,7 +1169,7 @@ class YFile(_YObject):
                 path = meta.doc.filePath()
                 if path:
                     return path.absoluteString()
-                return 
+                return
 
         if getattr(meta, "wind_type", False):
             return meta.module._MarvelousDesigner__module_obj.GetSaveFilePath()
@@ -1104,6 +1186,9 @@ class YFile(_YObject):
         if getattr(meta, "data", False):
             return meta.data.filepath
 
+        if getattr(meta, "C4DAtom", False):
+            return meta.doc.GetDocumentPath() + meta.doc.GetDocumentName()
+
         if getattr(meta, "knob", False):
             return meta.scriptName()
 
@@ -1119,51 +1204,54 @@ class YFile(_YObject):
 
         raise YException
 
-    def reference(self):
-        raise YException
+
+if getattr(meta, "C4DAtom", False):
+    YVector = meta.Vector
+    YMatrix = meta.Matrix
+    YColor = meta.Vector
+
+else:
+    class YVector(_YVector):
+        def __init__(self, *args, **kwargs):
+            if Blender():
+                super(YVector, self).__init__()
+                self.vector = [self.x, self.y, self.z]
+            else:
+                super(YVector, self).__init__(*args, **kwargs)
+                self.vector = args
+
+        @Numpy
+        def array(self):
+            import numpy as np
+            return np.array(self.vector, dtype=np.float16)
+
+        def identify(self):
+            return
+
+        def dot(self, a, b, norm=False):
+            if norm:  # 正規化オプション
+                a = self.normalize(a)
+                b = self.normalize(b)
+            dot = (a[0] * b[0]) + (a[1] * b[1])
+            return dot
+
+        def cross(self, a, b):
+            return
+
+        @Numpy
+        def normalize(self, a):
+            length = self.length(a)
+            return [a[0] / length, a[1] / length]
+
+        def length(self):
+            return cmath.sqrt(self.x ** 2 + self.y ** 2)
 
 
-class YVector(_YVector):
-    def __init__(self, *args, **kwargs):
-        if Blender():
-            super(YVector, self).__init__()
-            self.vector = [self.x, self.y, self.z]
-        else:
-            super(YVector, self).__init__(*args, **kwargs)
-            self.vector = args
-
-    @Numpy
-    def array(self):
-        import numpy as np
-        return np.array(self.vector, dtype=np.float16)
-
-    def identify(self):
-        return
-
-    def dot(self, a, b, norm=False):
-        if norm:  # 正規化オプション
-            a = self.normalize(a)
-            b = self.normalize(b)
-        dot = (a[0] * b[0]) + (a[1] * b[1])
-        return dot
-
-    def cross(self, a, b):
-        return
-
-    @Numpy
-    def normalize(self, a):
-        length = self.length(a)
-        return [a[0] / length, a[1] / length]
-
-    def length(self):
-        return cmath.sqrt(self.x ** 2 + self.y ** 2)
+    class YMatrix(_YMatrix):
+        def __init__(self, *args, **kwargs):
+            super(YMatrix, self).__init__(*args, **kwargs)
 
 
-class YMatrix(_YMatrix):
-    def __init__(self, *args, **kwargs):
-        super(YMatrix, self).__init__(*args, **kwargs)
-
-
-class YColor(_YColors):
-    def __init__(self, *args, **kwargs):
-        super(YColor, self).__init__(*args, **kwargs)
+    class YColor(_YColors):
+        def __init__(self, *args, **kwargs):
+            super(YColor, self).__init__(*args, **kwargs)

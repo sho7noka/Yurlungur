@@ -4,7 +4,7 @@ assert sys.version_info > (2, 7), ('yurlungur currently requires Python 2.7 late
 sys.dont_write_bytecode = True
 
 from yurlungur.core import *  # noQA
-from yurlungur.tool import ui
+from yurlungur.tool import meta, ui
 
 __all__ = []
 __version__ = "0.9.6"

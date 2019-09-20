@@ -13,6 +13,7 @@ __all__ = ["file", "cmd"]
 
 
 class Command(object):
+    """plugin system"""
     @staticmethod
     def register(func):
         pass
@@ -129,12 +130,32 @@ def _fbxExporter(cls, *args, **kwargs):
     raise YException
 
 
+def _gltfImporter(cls, *args, **kwargs):
+    pass
+
+
+def _gltfExporter(cls, *args, **kwargs):
+    pass
+
+
+def _usdImporter(cls, *args, **kwargs):
+    pass
+
+
+def _usdExporter(cls, *args, **kwargs):
+    pass
+
+
 # Monkey-Patch
 file = YFile()
 YFile.abcImporter = _alembicImporter
 YFile.abcExporter = _alembicExporter
 YFile.fbxImporter = _fbxImporter
 YFile.fbxExporter = _fbxExporter
+# YFile.gltfImporter = _gltfImporter
+# YFile.gltfExporter = _gltfExporter
+# YFile.usdImporter = _usdImporter
+# YFile.usdExporter = _usdExporter
 
 cmd = Command()
 Command.ls = _ls
