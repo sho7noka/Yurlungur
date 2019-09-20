@@ -71,4 +71,5 @@ def uname(item):
 
     raise Exception
 
+
 tools = unreal.AssetToolsHelpers.get_asset_tools()

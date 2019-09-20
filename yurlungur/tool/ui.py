@@ -22,11 +22,6 @@ elif "MarvelousDesigner" in str(yurlungur.application):
     from PythonQt.QtGui import *
 
 
-@env.Unreal
-def UWidget():
-    import unreal
-
-
 @env.Qt
 def widgetPtr():
     """

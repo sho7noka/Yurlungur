@@ -70,6 +70,11 @@ def bpython(pystr):
     )
 
 
+def c4dpy(pystr):
+    assert os.path.getsize(env._Cinema4D())
+    subprocess.call(" ".join(env._Cinema4D(), "-c", pystr))
+
+
 def maxpy(pystr):
     # http://help.autodesk.com/view/3DSMAX/2019/ENU/?guid=GUID-96D3ABE3-32CA-491D-9CAD-0A0576346E54
     assert os.path.getsize(env._Max())
