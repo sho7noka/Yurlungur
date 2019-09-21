@@ -31,8 +31,6 @@ class GuiLogHandler(Handler):
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Error)
             elif env.Unreal():
                 meta.log_error(msg)
-            elif env.Unity():
-                meta.Debug.LogError(msg)
             elif env.Nuke():
                 meta.error(msg)
             elif env.Max():
@@ -47,8 +45,6 @@ class GuiLogHandler(Handler):
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Warning)
             elif env.Unreal():
                 meta.log_warning(msg)
-            elif env.Unity():
-                meta.Debug.LogWarning(msg)
             elif env.Nuke():
                 meta.warning(msg)
             elif env.Max():
@@ -63,8 +59,6 @@ class GuiLogHandler(Handler):
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Message)
             elif env.Unreal():
                 meta.log(msg)
-            elif env.Unity():
-                meta.Debug.Log(msg)
             elif env.Nuke():
                 meta.debug(msg)
             elif env.Max():

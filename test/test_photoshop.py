@@ -16,11 +16,11 @@ class TestPhotoshop(unittest.TestCase):
         # print yr.YObject("aaa").create(kind="layer/black")
         with yr.UndoGroup("undo"):
             node = yr.YObject("nnn")
-            print node.opacity
-            print node.name
+            print (node.opacity)
+            print (node.name)
             node.hide()
             node.select("aaa")
-            print yr.YFile().current
+            print (yr.YFile().current)
 
     @unittest.skipIf(not Windows(), "only windows")
     def test_layer(self):

@@ -11,10 +11,10 @@ from yurlungur.core.env import _Houdini
 class TestHoudini(unittest.TestCase):
 
     def test_hou(self):
-        print yr.name, yr.version
+        print (yr.name, yr.version)
 
     def test_node(self):
-        print yr.YObject('obj')
+        print (yr.YObject('obj'))
 
     @unittest.skip("only runtime")
     def test_attr(self):
