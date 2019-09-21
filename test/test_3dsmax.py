@@ -21,17 +21,17 @@ class TestMax(unittest.TestCase):
     @unittest.skip("only runtime")
     def test_cmds(self):
         box = yr.YNode().create('box')
-        print box.name, box.id, box.attr('Width'), box.attrs
+        print (box.name, box.id, box.attr('Width'), box.attrs)
 
-        print box.create('Mirror', offset=0.1)
+        print (box.create('Mirror', offset=0.1))
         box.width.set(10)
         box.pos.set(yr.YVector(1, 100, 1))
         box.select()
         box('aaa')
         box = yr.YNode('aaa')
-        print box.geometry()
+        print (box.geometry())
         box2 = box.instance()
-        print box2.geometry()
+        print (box2.geometry())
 
         yr.meta.eval('$%s.width = 20' % box.name)
 

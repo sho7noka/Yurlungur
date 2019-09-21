@@ -12,8 +12,8 @@ class TestResolve(unittest.TestSuite):
 
     def test_aaa(self):
         projects = resolve.Projects()
-        print projects.timelines.tracks.comps
-        print projects["Hellow"].timelines["g"].tracks
+        print (projects.timelines.tracks.comps)
+        print (projects["Hellow"].timelines["g"].tracks)
 
     def test_fscript(self):
         # comp起点とfusion起点の２つ
@@ -29,7 +29,7 @@ class TestResolve(unittest.TestSuite):
         mg1 = comp.Merge({"Background": bg1, "Foreground": pl1})
         comp.FindTool("MediaOut1").Input.ConnectTo(mg1.Output)
         for n in comp.ActiveTool.GetChildrenList().values():
-            print n.Name
+            print (n.Name)
         # print comp.FindTool("MediaOut1").GetInputList()
         # comp.FindTool("MediaOut1").Input.ConnectTo()
         # print yr.YNode(mg1.Name).parent(), yr.YNode(mg1.Name).children()
@@ -37,9 +37,9 @@ class TestResolve(unittest.TestSuite):
 
     def test_fusion(self):
         mg1 = yr.YNode().create("Merge")
-        print yr.YNode(mg1).children()
+        print (yr.YNode(mg1).children())
         paint = yr.YNode().create("Paint", 2, 1)
-        print paint.id, paint.name, paint.attrs
+        print (paint.id, paint.name, paint.attrs)
         paint.hide()
         paint.instance()
         paint.select()

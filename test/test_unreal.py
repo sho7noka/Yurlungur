@@ -16,21 +16,21 @@ class TestUnreal(unittest.TestCase):
     def test_read(self):
         with yr.UndoGroup("undo"):
             node = yr.YNode("Wall2")
-            print node.name
-            print node.id
-            print node.hidden
-            print node.attr("hidden")
-            print node.geometry()
+            print (node.name)
+            print (node.id)
+            print (node.hidden)
+            print (node.attr("hidden"))
+            print (node.geometry())
 
     def test_write(self):
         with yr.UndoGroup("undo"):
             yr.YNode("").create()
             yr.YNode("Wall1").select()
             yr.YNode("Wall1").instance()
-            node.delete()
+            # node.delete()
 
     def test_file(self):
-        print yr.YFile().current
+        print (yr.YFile().current)
         yr.YFile().save()
         yr.YFile().open()
 
