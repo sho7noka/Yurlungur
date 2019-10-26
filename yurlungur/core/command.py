@@ -152,13 +152,14 @@ YFile.abcImporter = _alembicImporter
 YFile.abcExporter = _alembicExporter
 YFile.fbxImporter = _fbxImporter
 YFile.fbxExporter = _fbxExporter
-# YFile.gltfImporter = _gltfImporter
-# YFile.gltfExporter = _gltfExporter
-# YFile.usdImporter = _usdImporter
-# YFile.usdExporter = _usdExporter
 
 cmd = Command()
 Command.ls = _ls
 Command.rm = _rm
 Command.glob = _glob
 Command.select = _select
+
+# YFile.gltfImporter = _gltfImporter
+# YFile.gltfExporter = _gltfExporter
+# YFile.usdImporter = _usdImporter
+# YFile.usdExporter = _usdExporter

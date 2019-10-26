@@ -2,6 +2,14 @@
 import sys
 from yurlungur.core.env import __import__
 
+
+class YException(NotImplementedError):
+    """
+    >>> raise NotImplementedError(application)
+    """
+    pass
+
+
 application = sys.executable
 
 if "maya" in application:
@@ -14,30 +22,34 @@ elif __import__("hou"):
 
     application = hou
 
+elif "Nuke" in application:
+    import nuke
+
+    application = nuke
+
+# Photoshop
+
 elif "Substance" in application:
     import sd.api as sdapi
 
     application = sdapi
 
-elif "3dsmax" in application:
-    import pymxs
+elif "Cinema 4D" in application:
+    import c4d
 
-    application = pymxs
+    application = c4d
 
 elif "UE4Editor" in application:
     import unreal
 
     application = unreal
 
-elif "Nuke" in application:
-    import nuke
+elif "3dsmax" in application:
+    import pymxs
 
-    application = nuke
+    application = pymxs
 
-elif "Cinema 4D" in application:
-    import c4d
-
-    application = c4d
+# Davinci
 
 elif "Blender" in application:
     import bpy
@@ -56,8 +68,21 @@ else:
     application = standalone
 
 
-class YException(NotImplementedError):
+def use(module):
     """
-    >>> raise NotImplementedError(application)
+    set external application
+    :param module:
+    :return:
+    >>> import yurlungur
+    >>> yurlungur.use("hou")
     """
-    pass
+    from yurlungur.core import env
+
+    if module == "photoshop":
+        from yurlungur.adapters import photoshop
+
+        application = photoshop.app
+    else:
+        application = env.__import__(module)
+
+    assert application, "application is not found."
