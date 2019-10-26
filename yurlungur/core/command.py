@@ -18,10 +18,6 @@ class Command(object):
     def register(func):
         pass
 
-    @staticmethod
-    def unregister(func):
-        pass
-
     @classmethod
     def list(cls):
         return [obj for obj in dir(cls) if not obj.startswith("_")]
