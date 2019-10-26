@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
-import keyword
-from code import InteractiveInterpreter
-
 try:
     from yurlungur.Qt import QtGui, QtWidgets, QtCore
 except ImportError:
     raise NotImplementedError("Qt is not found")
+
+import os
+import sys
+import keyword
+from code import InteractiveInterpreter
 
 
 def _PrintToErr(line):
