@@ -16,20 +16,20 @@ from yurlungur.tool.meta import meta
 from yurlungur.core import env, logger
 
 # assign UndoGroup
-if env.Houdini():
+if env.UE4():
+    UndoGroup = meta.ScopedEditorTransaction
+
+elif env.Houdini():
     UndoGroup = meta.undos.group
 
-elif env.Unreal():
-    UndoGroup = meta.ScopedEditorTransaction
+elif env.Substance():
+    UndoGroup = meta.sd.UndoGroup
 
 elif env.Max():
     UndoGroup = functools.partial(meta.undo, True)
 
 elif env.Nuke():
     UndoGroup = meta.Undo
-
-elif env.Substance():
-    UndoGroup = meta.sd.UndoGroup
 
 else:
     class UndoGroup(object):
@@ -48,36 +48,113 @@ else:
         def __enter__(self):
             if env.Maya():
                 meta.undoInfo(ock=1)
-            elif env.Blender():
-                self.label = meta.context.user_preferences.edit.use_global_undo
-                meta.context.user_preferences.edit.use_global_undo = False
-            elif env.C4D():
-                meta.doc.StartUndo()
-            elif env.Davinci():
-                meta.fusion.StartUndo()
+
             elif env.Photoshop():
                 self.label = (
                     meta.doc.activeHistoryState if Windows()
                     else meta.doc.currentHistoryState().get()
                 )
+
+            elif env.C4D():
+                meta.doc.StartUndo()
+
+            elif env.Davinci():
+                meta.fusion.StartUndo()
+
+            elif env.Blender():
+                self.label = meta.context.user_preferences.edit.use_global_undo
+                meta.context.user_preferences.edit.use_global_undo = False
+
             return self
 
         def __exit__(self, exc_type, exc_value, traceback):
             if env.Maya():
                 meta.undoInfo(cck=1)
-            elif env.Blender():
-                meta.context.user_preferences.edit.use_global_undo = self.label
-            elif env.C4D():
-                meta.doc.EndUndo()
-            elif env.Davinci():
-                meta.fusion.EndUndo()
+
             elif env.Photoshop():
-                from yurlungur.adapters import photoshop
                 if Windows():
                     meta.doc.activeHistoryState = self.label
                 else:
                     meta.doc.currentHistoryState().setTo_(self.label)
+
+                from yurlungur.adapters import photoshop
                 photoshop.do("undo")
+
+            elif env.C4D():
+                meta.doc.EndUndo()
+
+            elif env.Davinci():
+                meta.fusion.EndUndo()
+
+            elif env.Blender():
+                meta.context.user_preferences.edit.use_global_undo = self.label
+
+
+def cache(func, *args, **kwargs):
+    """
+    Substance, Blender and Davinch use lcu_cache at Python3.
+    :param func:
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    saved = {}
+
+    @functools.wraps(func)
+    def wrapper(*args):
+        if args in saved:
+            return saved[args]
+        result = func(*args)
+        saved[args] = result
+        return result
+
+    return wrapper if sys.version_info < (3, 2) else functools.lcu_cache(*args, **kwargs)
+
+
+def trace(func):
+    """
+
+    :param func:
+    :return:
+    """
+    try:
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except:
+                if hasattr(logger.logger, "warning"):
+                    logger.logger.warning(traceback.format_exc())
+                else:
+                    logger.logger.log(traceback.format_exc(), logger.Warning)
+    except (NameError, ImportError):
+        wrapper = func
+
+    return wrapper
+
+
+def timer(func):
+    """
+
+    :param func:
+    :return:
+    """
+    import yurlungur
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        yurlungur.logger.pprint(
+            '{0} start'.format(func.__name__)
+        )
+        start_time = time.clock()
+        ret = func(*args, **kwargs)
+        end_time = time.clock()
+        yurlungur.logger.pprint(
+            '\n{0}: {1:,f}s'.format("total: ", (end_time - start_time))
+        )
+        return ret
+
+    return wrapper
 
 
 @contextlib.contextmanager
@@ -152,73 +229,6 @@ def __worker(func):
                 func.release()
 
     return func
-
-
-def cache(func, *args, **kwargs):
-    """
-    Substance, Blender and Davinch use lcu_cache at Python3.
-    :param func:
-    :param args:
-    :param kwargs:
-    :return:
-    """
-    saved = {}
-
-    @functools.wraps(func)
-    def wrapper(*args):
-        if args in saved:
-            return saved[args]
-        result = func(*args)
-        saved[args] = result
-        return result
-
-    return wrapper if sys.version_info < (3, 2) else functools.lcu_cache(*args, **kwargs)
-
-
-def trace(func):
-    """
-
-    :param func:
-    :return:
-    """
-    try:
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            try:
-                return func(*args, **kwargs)
-            except:
-                if hasattr(logger.logger, "warning"):
-                    logger.logger.warning(traceback.format_exc())
-                else:
-                    logger.logger.log(traceback.format_exc(), logger.Warning)
-    except (NameError, ImportError):
-        wrapper = func
-
-    return wrapper
-
-
-def timer(func):
-    """
-
-    :param func:
-    :return:
-    """
-    import yurlungur
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        yurlungur.logger.pprint(
-            '{0} start'.format(func.__name__)
-        )
-        start_time = time.clock()
-        ret = func(*args, **kwargs)
-        end_time = time.clock()
-        yurlungur.logger.pprint(
-            '\n{0}: {1:,f}s'.format("total: ", (end_time - start_time))
-        )
-        return ret
-
-    return wrapper
 
 
 def Windows(func=None):

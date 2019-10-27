@@ -2,25 +2,15 @@
 import sys
 
 try:
+    import inspect
+    import multiprocessing
+    import subprocess
+    import tempfile
     import os
     import functools
     import platform
 except ImportError:
     pass
-
-
-def __config__(file):
-    """
-    Maya.env / usersetup.mel
-    init_unreal.py
-    setup.ms
-    nuke.py
-    substance
-    photoshop.py
-    """
-    with open(file, "w") as f:
-        f.write("")
-    return
 
 
 def __import__(name, globals=None, locals=None, fromlist=None):
@@ -62,6 +52,108 @@ def __import__(name, globals=None, locals=None, fromlist=None):
         return False
 
 
+class App(object):
+    """"""
+
+    def __init__(self, name):
+        d = {
+            "maya": _Maya(), "photoshop": _Photoshop(), "ue4": _Unreal(),
+            "houdini": _Houdini(), "substance": _Substance(), "3dsmax": _Max(),
+            "nuke": _Nuke(), "c4d": _Cinema4D(), "davinci": None,
+            "modo": None, "blender": _Blender(), "unity": None,
+        }
+        self.app_name = d[name]
+
+    def run(self):
+        self.pop = subprocess.Popen(self.app_name, shell=False)
+        self.pop.communicate()
+
+    def shell(self, cmd):
+        local = os.path.abspath(os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename)))
+        path = "import sys; sys.path.append(\"%s\");" % local
+
+        if self.app_name == "maya":
+            exe = sys.executable
+            multiprocessing.set_executable(
+                os.path.join(os.path.dirname(exe), "mayapy")
+            )
+
+            multiprocessing.process.ORIGINAL_DIR = os.path.join(
+                os.path.dirname(exe),
+                "../Python/Lib/site-packages"
+            )
+            po = multiprocessing.Pool(4)
+            _cmd = "{0}/bin/mayapy -c \"{1};{2};{3}\"".format(
+                self.app_name, "import maya.standalone;maya.standalone.initialize(name='python')",
+                "import sys; sys.path.append('{0}');".format(local) + cmd, "maya.standalone.uninitialize()"
+            )
+
+        elif "c4d" in self.app_name:
+            self.app_name.replace("Cinema 4D", "c4dpy")
+
+        elif "Blender" in self.app_name:
+            _cmd = "{0} --python-expr '{1}' -b".format(self.app_name, path + cmd)
+
+        elif "UE4" in self.app_name:
+            with tempfile.NamedTemporaryFile(delete=False) as tf:
+                with open(os.path.join(tf, 'testfile.py'), 'w+b') as fp:
+                    fp.write(cmd)
+                    _app = os.path.join(os.path.dirname(self.app_name), "UE4Editor-Cmd")
+                    _cmd = " ".join([_app, "-run=pythonscript -script={0}".format(fp)])
+
+        else:
+            _cmd = " ".join([self.app_name, "-c", path + cmd])
+
+        os.system(_cmd)
+
+    def end(self):
+        self.pop.terminate()
+
+    @property
+    def _actions(self):
+        """
+        action list
+        :return: run, shell, end
+        """
+        return self.run, self.shell, self.end
+
+
+def Qt(func=None):
+    try:
+        import yurlungur.Qt as Qt
+        is_Qt = any([Qt])
+    except ImportError:
+        return False
+
+    if func is None:
+        return is_Qt
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if is_Qt:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def Numpy(func=None):
+    try:
+        import numpy as nm
+        is_numpy = True
+    except ImportError:
+        return False
+
+    if func is None:
+        return nm
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if is_numpy:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
 def Maya(func=None):
     if func is None:
         return "maya" in sys.executable
@@ -69,6 +161,40 @@ def Maya(func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if "maya" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def Photoshop(func=None):
+    if func is None:
+        try:
+            from yurlungur.adapters import photoshop
+            return photoshop.app.isRunning()
+        except Exception:
+            return False
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            from yurlungur.adapters import photoshop
+            if photoshop.app.isRunning():
+                return func(*args, **kwargs)
+            else:
+                raise WindowsError
+        except Exception:
+            return False
+
+    return wrapper
+
+
+def UE4(func=None):
+    if func is None:
+        return "UE4" in sys.executable
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "UE4" in sys.executable:
             return func(*args, **kwargs)
 
     return wrapper
@@ -110,40 +236,6 @@ def Max(func=None):
     return wrapper
 
 
-def Unreal(func=None):
-    if func is None:
-        return "UE4" in sys.executable
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if "UE4" in sys.executable:
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
-def Photoshop(func=None):
-    if func is None:
-        try:
-            from yurlungur.adapters import photoshop
-            return photoshop.app.isRunning()
-        except Exception:
-            return False
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            from yurlungur.adapters import photoshop
-            if photoshop.app.isRunning():
-                return func(*args, **kwargs)
-            else:
-                raise WindowsError
-        except Exception:
-            return False
-
-    return wrapper
-
-
 def Nuke(func=None):
     if func is None:
         return "Nuke" in sys.executable
@@ -151,18 +243,6 @@ def Nuke(func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if "Nuke" in sys.executable:
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
-def Davinci(func=None):
-    if func is None:
-        return __import__("DaVinciResolveScript")
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if __import__("DaVinciResolveScript"):
             return func(*args, **kwargs)
 
     return wrapper
@@ -180,6 +260,95 @@ def C4D(func=None):
     return wrapper
 
 
+def Davinci(func=None):
+    if func is None:
+        return __import__("DaVinciResolveScript")
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if __import__("DaVinciResolveScript"):
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def _Maya(v=2018):
+    d = {
+        "Linux": "/usr/autodesk/maya%d-x64" % v,
+        "Windows": "C:/Program Files/Autodesk/Maya%d" % v,
+        "Darwin": "/Applications/Autodesk/maya%d/Maya.app/Contents" % v,
+    }
+    return os.environ.get("MAYA_LOCATION") or d[platform.system()]
+
+
+def _Photoshop(v=2018):
+    d = {
+        "Windows": "C:/Program Files/Adobe/Adobe Photoshop CC %s.exe" % v,
+        "Darwin": "/Applications/Adobe Photoshop CC {0}/Adobe Photoshop CC {0}.app/Contents/MacOS/Adobe Photoshop CC {0}".format(
+            v),
+    }
+    return d[platform.system()]
+
+
+def _Unreal(v=4.22):
+    d = {
+        "Linux": "",
+        "Windows": "C:/Program Files/Epic Games/UE_%s/Engine/Binaries/Win64/UE4Editor.exe" % v,
+        "Darwin": "/Users/Shared/Epic Games/UE_%s/Engine/Binaries/Mac/UE4Editor.app/Contents/MacOS/UE4Editor" % v
+    }
+    return d[platform.system()]
+
+
+def _Houdini(v="17.5.173"):
+    d = {
+        "Linux": "/usr/autodesk/maya2017-x64",
+        "Windows": "C:/Program Files/Side Effects Software/Houdini Houdini%s/bin" % v,
+        "Darwin": "/Applications/Houdini/Houdini%s/Frameworks/Houdini.framework/Versions/Current/Resources/bin" % v,
+    }
+    return os.environ.get("HIP") or d[platform.system()]
+
+
+def _Substance():
+    d = {
+        "Linux": "/usr/autodesk/maya2017-x64",
+        "Windows": "C:/Program Files/Side Effects Software/Houdini 16.5.323/bin",
+        "Darwin": "/Applications/Substance Designer.app/Contents/MacOS/Substance Designer",
+    }
+    return d[platform.system()]
+
+
+def _Max(v=2018):
+    return os.environ.get("ADSK_3DSMAX_X64_%d" % v) or "C:/Program Files/Autodesk/3ds Max %d/3dsmax.exe" % v
+
+
+def _Nuke():
+    d = {
+        "Linux": "",
+        "Windows": "",
+        "Darwin": ""
+    }
+    return d[platform.system()]
+
+
+def _Cinema4D(v=21):
+    d = {
+        "Windows": "C:/Cinema/R%d/Cinema 4D.exe" % v,
+        "Darwin": "/Applications/Maxon Cinema 4D R%d/Cinema 4D.app/Contents/MacOS/Cinema 4D" % v
+    }
+    return d[platform.system()]
+
+
+def _Davinci():
+    d = {
+        "Linux": "",
+        "Windows": "",
+        "Darwin": "/Applications/DaVinci Resolve Studio.app/Contents/MacOS/Resolve"
+    }
+    return d[platform.system()]
+
+
+########################################################################################
+
 def Blender(func=None):
     if func is None:
         return "blender" in sys.executable
@@ -192,126 +361,31 @@ def Blender(func=None):
     return wrapper
 
 
-def installed(app):
-    _app = app.lower()
-
-    if _app == "maya":
-        return os.path.exists(_Maya())
-    if _app == "houdini":
-        return os.path.exists(_Houdini())
-    if _app == "unreal":
-        return os.path.exists(_Unreal())
-    if _app == "blender":
-        return os.path.exists(_Blender())
-    if _app == "max":
-        return os.path.exists(_Max())
-    if _app == "substance":
-        return os.path.exists(_Substance())
-    if _app == "photoshop":
-        return os.path.exists(_Photoshop())
-    if _app == "c4d":
-        return os.path.exists(_Cinema4D())
-
-    return False
-
-
-def Qt(func=None):
-    try:
-        import yurlungur.Qt as Qt
-        is_Qt = any([Qt])
-    except ImportError:
-        return False
-
-    if func is None:
-        return is_Qt
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if is_Qt:
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
-def Numpy(func=None):
-    try:
-        import numpy as nm
-        is_numpy = True
-    except ImportError:
-        return False
-
-    if func is None:
-        return nm
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if is_numpy:
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
-def _Maya():
-    d = {
-        "Linux": "/usr/autodesk/maya2017-x64",
-        "Windows": "C:/Program Files/Autodesk/Maya2018",
-        "Darwin": "/Applications/Autodesk/maya2018/Maya.app/Contents",
-    }
-    return os.environ.get("MAYA_LOCATION") or d[platform.system()]
-
-
-def _Houdini():
-    d = {
-        "Linux": "/usr/autodesk/maya2017-x64",
-        "Windows": "C:/Program Files/Side Effects Software/Houdini Houdini17.5.173/bin",
-        "Darwin": "/Applications/Houdini/Houdini17.5.173/Frameworks/Houdini.framework/Versions/Current/Resources/bin",
-    }
-    return os.environ.get("HIP") or d[platform.system()]
-
-
-def _Substance():
-    d = {
-        "Linux": "/usr/autodesk/maya2017-x64",
-        "Windows": "C:/Program Files/Side Effects Software/Houdini 16.5.323/bin",
-        "Darwin": "/Applications/Substance Designer.app/Contents",
-    }
-    return d[platform.system()]
-
-
-def _Photoshop():
-    d = {
-        "Windows": "C:/Program Files/Adobe/Adobe Photoshop CC 2019",
-        "Darwin": "/Applications/Photoshop.app/Contents",
-    }
-    return d[platform.system()]
-
-
-def _Max():
-    return os.environ.get("ADSK_3DSMAX_X64_2019") or "C:/Program Files/Autodesk/3ds Max 2019"
-
-
 def _Blender():
     d = {
         "Linux": "",
         "Windows": "C:/Program Files/Blender Foundation/Blender",
-        "Darwin": "/Applications/Blender2.8/blender.app/Contents/MacOS/blender"
+        "Darwin": "/Applications/Blender.app/Contents/MacOS/Blender"
     }
     return d[platform.system()]
 
 
-def _Unreal():
-    d = {
-        "Linux": "",
-        "Windows": "C:/Program Files/Epic Games/UE_4.20/Engine/Binaries/Win64",
-        "Darwin": ""
-    }
-    return d[platform.system()]
+def Unity(func=None):
+    if func is None:
+        return "Unity" in sys.executable
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "Unity" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
 
 
-def _Cinema4D():
+def _Unity(v="2019.3.0b7"):
+    # https://docs.unity3d.com/ja/2019.1/Manual/CommandLineArguments.html
     d = {
-        "Linux": "",
-        "Windows": "C:/Cinema/R21/c4dpy.exe",
-        "Darwin": "/Applications/Maxon Cinema 4D R21/c4dpy.app/Contents/MacOS/c4dpy"
+        "Windows": "C:\Program Files\Unity\Editor\Unity.exe",
+        "Darwin": "/Applications/Unity/Hub/Editor/%s/Unity.app/Contents/MacOS/Unity" % v
     }
     return d[platform.system()]

@@ -559,9 +559,7 @@ class YObject(_YObject):
             else:
                 try:
                     return setattr(
-                        meta.doc,
-                        "ActiveLayer",
-                        meta.doc.artLayers[self.name],
+                        meta.doc, "ActiveLayer", meta.doc.artLayers[self.name],
                     )
                 except TypeError:
                     return meta.doc.currentLayer().setTo_(meta.ps.Document().layers[self.name])
@@ -584,6 +582,9 @@ class YObject(_YObject):
                     return
                 else:
                     return meta.editor.set_actor_selection_state(uname, *args)
+
+        if getattr(meta, "GameObject", False):
+            meta.GameObject.find(self.name)
 
         raise YException
 
@@ -981,14 +982,6 @@ class YAttr(_YAttr):
                 )
 
         raise YException
-
-    @staticmethod
-    def add(self):
-        pass
-
-    @staticmethod
-    def rmv(self):
-        pass
 
     @trace
     def lock(self, on):
