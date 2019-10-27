@@ -15,7 +15,6 @@ except ImportError:
 class GuiLogHandler(Handler):
     def __init__(self, *args, **kwargs):
         super(GuiLogHandler, self).__init__(*args, **kwargs)
-
         if env.Maya():
             import maya.OpenMaya as om
             self.MGlobal = om.MGlobal
@@ -27,42 +26,57 @@ class GuiLogHandler(Handler):
         if record.levelno > WARNING:
             if env.Maya():
                 self.MGlobal.displayError(msg)
+
+            elif env.UE4():
+                meta.log_error(msg)
+
             elif env.Houdini():
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Error)
-            elif env.Unreal():
-                meta.log_error(msg)
-            elif env.Nuke():
-                meta.error(msg)
+
             elif env.Max():
                 meta.print_(msg, True, False)
+
+            elif env.Nuke():
+                meta.error(msg)
+
             elif env.C4D():
                 meta.modules.net.SetErrorLevel(False, False, True)
 
         elif record.levelno > INFO:
             if env.Maya():
                 self.MGlobal.displayWarning(msg)
+
+            elif env.UE4():
+                meta.log_warning(msg)
+
             elif env.Houdini():
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Warning)
-            elif env.Unreal():
-                meta.log_warning(msg)
-            elif env.Nuke():
-                meta.warning(msg)
+
             elif env.Max():
                 meta.print_(msg, True, False)
+
+            elif env.Nuke():
+                meta.warning(msg)
+
             elif env.C4D():
                 meta.modules.net.SetErrorLevel(False, True, False)
 
         else:
             if env.Maya():
                 self.MGlobal.displayInfo(msg)
+
+            elif env.UE4():
+                meta.log(msg)
+
             elif env.Houdini():
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Message)
-            elif env.Unreal():
-                meta.log(msg)
-            elif env.Nuke():
-                meta.debug(msg)
+
             elif env.Max():
                 meta.print_(msg, False, True)
+
+            elif env.Nuke():
+                meta.debug(msg)
+
             elif env.C4D():
                 meta.modules.net.SetErrorLevel(True, False, False)
 
@@ -88,4 +102,4 @@ except:
 
 
 def pprint(*msgs):
-    logger.log(pformat(*msgs))
+    print (pformat(msgs))
