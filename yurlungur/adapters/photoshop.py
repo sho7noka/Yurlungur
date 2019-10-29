@@ -1,16 +1,15 @@
 # coding: utf-8
-from yurlungur.core import env, deco
+import os
+from yurlungur.core import deco, env
 
 if deco.Windows():
     if not env.__import__("comtypes"):
         import pip
 
-        if getattr(pip, "main", False):
-            pip.main(["install", "comtypes"])
-        else:
-            from pip import _internal
+        if not getattr(pip, "main", False):
+            from pip import _internal as pip
 
-            _internal.main(["install", "comtypes"])
+        pip.main(["install", "comtypes"])
 
     from comtypes.client import GetActiveObject
     from comtypes.gen import Photoshop
@@ -20,17 +19,14 @@ if deco.Windows():
         setattr(app, "isRunning", True)
     psd = Photoshop
 
-
 elif deco.Mac():
     if not env.__import__("ScriptingBridge"):
         import pip
 
-        if getattr(pip, "main", False):
-            pip.main(["install", "pyobjc-framework-ScriptingBridge"])
-        else:
-            from pip import _internal
+        if not getattr(pip, "main", False):
+            from pip import _internal as pip
 
-            _internal.main(["install", "pyobjc-framework-ScriptingBridge"])
+        pip.main(["install", "pyobjc-framework-ScriptingBridge"])
 
     from ScriptingBridge import SBApplication
 
@@ -105,22 +101,17 @@ class Layer(object):
         self._layer.delete()
 
 
-class File(object):
-    pass
-
-
 def do(cmd):
     """
     photoshop script runner
     """
     assert len(cmd) == 4 and ("'" not in cmd)
+
     if deco.Windows():
         app.DoJavaScript("""
             executeAction(charIDToTypeID("%s"), undefined, DialogModes.NO);
         """ % cmd)
     else:
-        import os
-
         osa = "osascript -e "
         osa += "'tell application \"%s\" " % str(app).split("\"")[1]
         osa += "to do javascript "

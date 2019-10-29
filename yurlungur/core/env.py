@@ -275,7 +275,7 @@ def Davinci(func=None):
 def _Maya(v=2018):
     d = {
         "Linux": "/usr/autodesk/maya%d-x64" % v,
-        "Windows": "C:/Program Files/Autodesk/Maya%d" % v,
+        "Windows": "C:/Program Files/Autodesk/Maya%d/bin/maya.exe" % v,
         "Darwin": "/Applications/Autodesk/maya%d/Maya.app/Contents" % v,
     }
     return os.environ.get("MAYA_LOCATION") or d[platform.system()]
@@ -283,7 +283,7 @@ def _Maya(v=2018):
 
 def _Photoshop(v=2018):
     d = {
-        "Windows": "C:/Program Files/Adobe/Adobe Photoshop CC %s.exe" % v,
+        "Windows": "C:/Program Files/Adobe/Adobe Photoshop CC %d/Photoshop.exe" % v,
         "Darwin": "/Applications/Adobe Photoshop CC {0}/Adobe Photoshop CC {0}.app/Contents/MacOS/Adobe Photoshop CC {0}".format(
             v),
     }
@@ -301,7 +301,7 @@ def _Unreal(v=4.22):
 
 def _Houdini(v="17.5.173"):
     d = {
-        "Linux": "/usr/autodesk/maya2017-x64",
+        "Linux": "/usr/local/bin/houdini",
         "Windows": "C:/Program Files/Side Effects Software/Houdini Houdini%s/bin" % v,
         "Darwin": "/Applications/Houdini/Houdini%s/Frameworks/Houdini.framework/Versions/Current/Resources/bin" % v,
     }
@@ -311,7 +311,7 @@ def _Houdini(v="17.5.173"):
 def _Substance():
     d = {
         "Linux": "/usr/autodesk/maya2017-x64",
-        "Windows": "C:/Program Files/Side Effects Software/Houdini 16.5.323/bin",
+        "Windows": "C:/Program Files/Allegorithmic/Substance Designer/Substance Designer.exe",
         "Darwin": "/Applications/Substance Designer.app/Contents/MacOS/Substance Designer",
     }
     return d[platform.system()]
@@ -363,7 +363,7 @@ def Blender(func=None):
 
 def _Blender():
     d = {
-        "Linux": "",
+        "Linux": "/usr/bin/blender",
         "Windows": "C:/Program Files/Blender Foundation/Blender",
         "Darwin": "/Applications/Blender.app/Contents/MacOS/Blender"
     }

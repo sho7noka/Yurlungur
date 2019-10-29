@@ -1,6 +1,11 @@
 # coding: utf-8
-from hiero import core
 
+try:
+    from hiero import core
+except ImportError:
+    from yurlungur.core.env import App as _
+
+    run, shell, end = _("nuke")._actions
 
 class Project(object):
     def __init__(self, project):
