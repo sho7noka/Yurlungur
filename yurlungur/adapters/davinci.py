@@ -1,6 +1,5 @@
 # coding: utf-8
 import os
-from yurlungur.tool.meta import meta
 
 
 class Render(object):
@@ -32,6 +31,7 @@ class Render(object):
 class Projects(object):
 
     def __init__(self):
+        from yurlungur.tool.meta import meta
         self.manager = meta.resolve.GetProjectManager()
         self.project = self.manager.GetCurrentProject()
         self.projects = self.manager.GetProjectsInCurrentFolder()

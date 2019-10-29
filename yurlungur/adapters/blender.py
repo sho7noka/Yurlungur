@@ -1,5 +1,10 @@
 # coding: utf-8
-import bpy
+try:
+    import bpy
+except ImportError:
+    from yurlungur.core.env import App as _
+
+    run, shell, end = _("blender")._actions
 
 
 class Project(object):
