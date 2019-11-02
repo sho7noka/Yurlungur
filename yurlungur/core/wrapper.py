@@ -67,6 +67,10 @@ class YMObject(object):
 
         return getattr(yurlungur, item, False)
 
+    @property
+    def module(self):
+        return app.application
+
     def eval(self, script):
         if env.Maya():
             import maya.mel as mel
@@ -83,11 +87,7 @@ class YMObject(object):
             return MaxPlus.Core.EvalMAXScript(script)
 
         if env.Davinci() and self.resolve:
-            self.fusion.GetCurrentComp().Execute(script)
-
-    @property
-    def module(self):
-        return app.application
+            return self.fusion.GetCurrentComp().Execute(script)
 
 
 # Dynamic Class
