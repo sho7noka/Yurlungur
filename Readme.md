@@ -23,14 +23,16 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 |       | Node | Attribute | Anim |
 | ---- | --- | --- | --- |
 | Maya (2016~) | ○ | ○ | ☓ |
+| Photoshop (CC~) | ○ | ○ | - |
+| Unreal Engine (4.22~) | ○ | ○ | ☓ |
 | Houdini (16~) | ○ | ○ | ☓ |
 | Substance (2018.1.2~) | ○ | ○ | - |
 | 3dsMax (2017~) | ○ | ○ | ☓ |
-| Unreal Engine (4.22~) | ○ | ○ | ☓ |
-| Photoshop (CC~) | ○ | ○ | - |
-| Nuke Studio (10~) | ○ | ○ | ☓ |
-| Davinci Resolve (15~) | ○ | ○ | ☓ |
+| Nuke (10~) | ○ | ○ | ☓ |
 | Cinema 4D (R21~) | ○ | ○ | ☓ |
+| Davinci Resolve (15~) | ○ | ○ | ☓ |
+
+available for modo, Blender and Unity.
 
 ### Installing
 ```bash
@@ -60,12 +62,7 @@ setAttr "foo.bar" 1;
 # yurlungur
 import yurlungur as yr
 yr.YNode("foo").bar.set(1)
-```
-
-## TODO
-- [x] basic api
-- [x] github.io
-- [x] UE4 
+``` 
 
 ## contribution
 lets see [CONTRIBUTING](./CONTRIBUTING.md).

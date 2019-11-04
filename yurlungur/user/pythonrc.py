@@ -12,6 +12,8 @@ if EGG not in sys.path:
 import pydevd
 
 try:
+    import hrpyc
+    hrpyc.start_server()
     # import hrpyc
     # hrpyc.start_server(port=PORT, use_thread=False)
 
@@ -38,12 +40,10 @@ def test():
     before = "before"
     after = "after"
 
-
-print(before)
-print(after)
-
 # hou sever side
-# import hrpyc
-# connection, hou = hrpyc.import_remote_module()
-
-# http://www.sidefx.com/docs/houdini/hom/rpc.html
+sys.path += [
+    "C:/Program Files/Side Effects Software/Houdini 17.5.293/houdini/python2.7libs",
+    "C:/Program Files/Side Effects Software/Houdini 17.5.293/python27/lib/site-packages",
+]
+import hrpyc
+connection, hou = hrpyc.import_remote_module()
