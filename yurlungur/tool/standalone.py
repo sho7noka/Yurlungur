@@ -42,7 +42,6 @@ def _cli(args):
 
     if arguments.command:
         cmd, app = arguments.command
-
         try:
             getattr(sys.modules[__name__], app).shell(cmd)
         except AttributeError:

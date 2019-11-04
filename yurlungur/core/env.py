@@ -9,6 +9,7 @@ try:
     import os
     import functools
     import platform
+    import code
 except ImportError:
     pass
 
@@ -64,51 +65,6 @@ class App(object):
         }
         self.app_name = d[name]
 
-    def run(self):
-        self.pop = subprocess.Popen(self.app_name, shell=False)
-        self.pop.communicate()
-
-    def shell(self, cmd):
-        local = os.path.abspath(os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename)))
-        path = "import sys; sys.path.append(\"%s\");" % local
-
-        if self.app_name == "maya":
-            exe = sys.executable
-            multiprocessing.set_executable(
-                os.path.join(os.path.dirname(exe), "mayapy")
-            )
-
-            multiprocessing.process.ORIGINAL_DIR = os.path.join(
-                os.path.dirname(exe),
-                "../Python/Lib/site-packages"
-            )
-            po = multiprocessing.Pool(4)
-            _cmd = "{0}/bin/mayapy -c \"{1};{2};{3}\"".format(
-                self.app_name, "import maya.standalone;maya.standalone.initialize(name='python')",
-                "import sys; sys.path.append('{0}');".format(local) + cmd, "maya.standalone.uninitialize()"
-            )
-
-        elif "c4d" in self.app_name:
-            self.app_name.replace("Cinema 4D", "c4dpy")
-
-        elif "Blender" in self.app_name:
-            _cmd = "{0} --python-expr '{1}' -b".format(self.app_name, path + cmd)
-
-        elif "UE4" in self.app_name:
-            with tempfile.NamedTemporaryFile(delete=False) as tf:
-                with open(os.path.join(tf, 'testfile.py'), 'w+b') as fp:
-                    fp.write(cmd)
-                    _app = os.path.join(os.path.dirname(self.app_name), "UE4Editor-Cmd")
-                    _cmd = " ".join([_app, "-run=pythonscript -script={0}".format(fp)])
-
-        else:
-            _cmd = " ".join([self.app_name, "-c", path + cmd])
-
-        os.system(_cmd)
-
-    def end(self):
-        self.pop.terminate()
-
     @property
     def _actions(self):
         """
@@ -116,6 +72,89 @@ class App(object):
         :return: run, shell, end
         """
         return self.run, self.shell, self.end
+
+    def run(self):
+        try:
+            self.pop = subprocess.Popen(self.app_name, shell=False)
+            self.pop.communicate()
+        except (KeyboardInterrupt, SystemExit):
+            self.end()
+
+    def end(self):
+        self.pop.terminate()
+
+    def shell(self, cmd):
+        """
+        https://qiita.com/it_ks/items/ae1d0ae01d831c2fc9ae
+        :param cmd:
+        :return:
+        """
+        if "maya" in self.app_name:
+            # https://knowledge.autodesk.com/ja/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2018/JPN/Maya-Scripting/files/GUID-83799297-C629-48A8-BCE4-061D3F275215-htm.html
+            exe = sys.executable
+            multiprocessing.set_executable(
+                os.path.join(os.path.dirname(exe), "mayapy")
+            )
+            multiprocessing.process.ORIGINAL_DIR = os.path.join(
+                os.path.dirname(exe),
+                "../Python/Lib/site-packages"
+            )
+            po = multiprocessing.Pool(4)
+
+            _cmd = "mayapy -i -c \"import maya.standalone;maya.standalone.initialize(name='python');%s\"" % cmd
+
+        elif "UE4" in self.app_name:
+            # https://docs.unrealengine.com/ja/Engine/Editor/ScriptingAndAutomation/Python/index.html
+            with tempfile.NamedTemporaryFile(delete=False) as tf:
+                with open(os.path.join(tf, 'testfile.py'), 'w+b') as fp:
+                    fp.write(cmd)
+                    _app = os.path.join(os.path.dirname(self.app_name), "UE4Editor-Cmd")
+                    _cmd = " ".join([_app, "-run=pythonscript -script={0}".format(fp)])
+
+        elif "houdini" in self.app_name:
+            # https://www.sidefx.com/ja/docs/houdini/hom/commandline.html
+            _cmd = "hython -i -c \"import hou;%s\"" % cmd
+
+        elif "3dsmax" in self.app_name:
+            # http://help.autodesk.com/view/3DSMAX/2018/ENU/?guid=__developer_about_the_3ds_max_python_api_html
+            pass
+
+        elif "substance" in self.app_name:
+            # https://docs.substance3d.com/sat
+            pass
+
+        elif "nuke" in self.app_name:
+            # https://learn.foundry.com/nuke/8.0/content/user_guide/configuring_nuke/command_line_operations.html
+            _cmd = self.app_name + " -t"
+
+        elif "c4d" in self.app_name:
+            # https://developers.maxon.net/docs/Cinema4DPythonSDK/html/manuals/introduction/python_c4dpy.html
+            self.app_name.replace("Cinema 4D", "c4dpy")
+
+        elif "davinci" in self.app_name:
+            # https://www.steakunderwater.com/wesuckless/viewtopic.php?t=2012
+            pass
+
+        elif "Blender" in self.app_name:
+            # https://docs.blender.org/manual/en/latest/advanced/command_line/arguments.html#python-options
+            _cmd = "{0} --python-expr '{1}' -b".format(self.app_name, cmd)
+
+        elif "unity" in self.app_name:
+            pass
+
+        try:
+            _cmd = " ".join([self.app_name, "-c", cmd])
+            os.system(_cmd)
+        except (KeyboardInterrupt, SystemExit):
+            return
+        # maya.standalone.uninitialize()
+        # hou.releaseLicense()
+
+        __import__("yurlungur")
+        variables = globals().copy()
+        variables.update(locals())
+        shell = code.InteractiveConsole(variables)
+        shell.interact()
 
 
 def Qt(func=None):
@@ -274,7 +313,7 @@ def Davinci(func=None):
 
 def _Maya(v=2018):
     d = {
-        "Linux": "/usr/autodesk/maya%d-x64" % v,
+        "Linux": "/usr/Autodesk/maya%d-x64/bin/maya" % v,
         "Windows": "C:/Program Files/Autodesk/Maya%d/bin/maya.exe" % v,
         "Darwin": "/Applications/Autodesk/maya%d/Maya.app/Contents" % v,
     }
@@ -283,6 +322,7 @@ def _Maya(v=2018):
 
 def _Photoshop(v=2018):
     d = {
+        "Linux": None,
         "Windows": "C:/Program Files/Adobe/Adobe Photoshop CC %d/Photoshop.exe" % v,
         "Darwin": "/Applications/Adobe Photoshop CC {0}/Adobe Photoshop CC {0}.app/Contents/MacOS/Adobe Photoshop CC {0}".format(
             v),
@@ -303,7 +343,7 @@ def _Houdini(v="17.5.173"):
     d = {
         "Linux": "/usr/local/bin/houdini",
         "Windows": "C:/Program Files/Side Effects Software/Houdini Houdini%s/bin" % v,
-        "Darwin": "/Applications/Houdini/Houdini%s/Frameworks/Houdini.framework/Versions/Current/Resources/bin" % v,
+        "Darwin": "/Applications/Houdini/Houdini%s/Utilities/Houdini Terminal %s.app" % v,
     }
     return os.environ.get("HIP") or d[platform.system()]
 
@@ -332,6 +372,7 @@ def _Nuke():
 
 def _Cinema4D(v=21):
     d = {
+        "Linux": None,
         "Windows": "C:/Cinema/R%d/Cinema 4D.exe" % v,
         "Darwin": "/Applications/Maxon Cinema 4D R%d/Cinema 4D.app/Contents/MacOS/Cinema 4D" % v
     }
@@ -385,7 +426,8 @@ def Unity(func=None):
 def _Unity(v="2019.3.0b7"):
     # https://docs.unity3d.com/ja/2019.1/Manual/CommandLineArguments.html
     d = {
-        "Windows": "C:\Program Files\Unity\Editor\Unity.exe",
+        "Linux": None,
+        "Windows": "C:/Program Files/Unity/Editor/Unity.exe",
         "Darwin": "/Applications/Unity/Hub/Editor/%s/Unity.app/Contents/MacOS/Unity" % v
     }
     return d[platform.system()]
