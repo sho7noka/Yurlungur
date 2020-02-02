@@ -5,13 +5,13 @@ import unittest
 sys.path.append('../yurlungur')
 
 import yurlungur as yr
-from yurlungur.adapters import resolve
+from yurlungur.adapters import davinci
 
 
 class TestResolve(unittest.TestSuite):
 
     def test_aaa(self):
-        projects = resolve.Projects()
+        projects = davinci.Projects()
         print (projects.timelines.tracks.comps)
         print (projects["Hellow"].timelines["g"].tracks)
 
@@ -23,7 +23,7 @@ class TestResolve(unittest.TestSuite):
         # mcomp = fusion.LoadComp(fpath)
         # pprint.pprint(mcomp.GetAttrs()['COMPS_FileName'])
         # mcomp.Save(), mcomp.Print(), mcomp.Close(), mcomp.Lock(), mcomp.Unlock(), mcomp.Paste()
-        comp = resolve.Fusion().GetCurrentComp()
+        comp = davinci.Fusion().GetCurrentComp()
         bg1 = comp.Background()
         pl1 = comp.Plasma()
         mg1 = comp.Merge({"Background": bg1, "Foreground": pl1})

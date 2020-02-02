@@ -9,8 +9,23 @@ try:
     import contextlib
     import platform
     import multiprocessing
+    from contextlib2 import ContextDecorator
+
 except ImportError:
-    pass
+    class ContextDecorator(object):
+        def __call__(self, fn):
+            @functools.wraps(fn)
+            def decorator(*args, **kw):
+                with self:
+                    return fn(*args, **kw)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, type, value, tb):
+            # Do whatever cleanup.
+            if any((type, value, tb)):
+                raise type, value, tb
 
 from yurlungur.tool.meta import meta
 from yurlungur.core import env, logger
@@ -32,7 +47,7 @@ elif env.Nuke():
     UndoGroup = meta.Undo
 
 else:
-    class UndoGroup(object):
+    class UndoGroup(ContextDecorator):
         """
         undoGroup for with statements.
     .

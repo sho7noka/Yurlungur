@@ -33,9 +33,9 @@ def enableHouModule():
             sys.setdlopenflags(old_dlopen_flags)
 
 
-enableHouModule()
+# enableHouModule()
 
 # 123.cmd/pyや456.cmd/pyの初期化スクリプトを実行させたいのであれば、以下の行のコメントを外します。そうすればhouが読み込まれます。
-import hou
+# import hou
 
-hou.__runUserDefinedCode()
+# hou.__runUserDefinedCode()

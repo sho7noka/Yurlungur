@@ -5,7 +5,7 @@ import unittest
 sys.path.append('../yurlungur')
 
 import yurlungur as yr
-from yurlungur.core.env import installed, C4D
+from yurlungur.core.env import C4D
 
 
 @unittest.skipUnless(installed("c4d"), "C4D is not found")
