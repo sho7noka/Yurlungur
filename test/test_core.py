@@ -15,6 +15,9 @@ class TestCore(unittest.TestSuite):
     def test_vector(self):
         self.assertTrue(YVector() == YVector())
 
+    def test_cli(self):
+        import yurlungur
+        print(yurlungur.blender.shell("print(2)"))
 
 if __name__ == '__main__':
     unittest.main()

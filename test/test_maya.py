@@ -5,12 +5,13 @@ import unittest
 sys.path.append('../yurlungur')
 
 import yurlungur as yr
-from yurlungur.core.env import installed, Maya
+from yurlungur.core.env import _Maya
 
-@unittest.skipUnless(installed("maya"), "Maya is not found")
+
+@unittest.skipUnless(_Maya(), "Maya is not found")
 class TestMaya(unittest.TestCase):
     def test_env(self):
-        assert Maya()
+        assert _Maya()
 
     def test_maya(self):
         yr.standalone.mayapy("import yurlungur as yr; print yr.name")

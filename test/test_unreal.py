@@ -5,13 +5,13 @@ import unittest
 sys.path.append('../yurlungur')
 
 import yurlungur as yr
-from yurlungur.core.env import installed, Unreal
+from yurlungur.core.env import _Unreal
 
 
-@unittest.skipUnless(installed("unreal"), "Unreal is not found")
+@unittest.skipUnless(_Unreal(), "Unreal is not found")
 class TestUnreal(unittest.TestCase):
     def test_app(self):
-        raise Unreal()
+        assert _Unreal()
 
     def test_read(self):
         with yr.UndoGroup("undo"):
@@ -33,6 +33,24 @@ class TestUnreal(unittest.TestCase):
         print (yr.YFile().current)
         yr.YFile().save()
         yr.YFile().open()
+
+    def test_bridge(self):
+        import yurlungur as yr
+
+        yr.use("unity")
+
+        # application = unity
+        yr.unity.run()
+        gobj = yr.Yobject("obj").create()
+        gobj.order = 1
+        f = yr.YFile().export()
+        yr.unity.end()
+
+        # yr.YFile.
+        # import
+        # (f)
+        gobj.name = "aaa"
+        yr.maya.shell("ls")
 
 
 if __name__ == '__main__':
