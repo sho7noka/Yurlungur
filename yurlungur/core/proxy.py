@@ -73,6 +73,9 @@ class YObject(_YObject):
         if getattr(meta, "uclass", False):
             return meta.ue4.uname(self.name).get_name() or 0
 
+        if getattr(meta, "Debug", False):
+            return meta.engine.GameObject.Find(self.name).GetInstanceID() or 0
+
         raise YException
 
     @trace
@@ -113,9 +116,6 @@ class YObject(_YObject):
             except AttributeError:
                 return meta.doc.currentLayer().setValue_forKey_(args[0], "name")
 
-        if getattr(meta, "wind_type", False):
-            return meta.module
-
         if getattr(meta, "uclass", False):
             uname = meta.ue4.uname(self.name)
             if type(uname) == str:
@@ -125,6 +125,17 @@ class YObject(_YObject):
                 return YNode(args[0])
             else:
                 return uname.set_actor_label(args[0])
+
+        if getattr(meta, "Debug", False):
+            go = meta.engine.GameObject.Find(self.name)
+            if go:
+                go.name = args[0]
+            else:
+                meta.editor.AssetDatabase.RenameAsset(self.name, args[0])
+                asset = meta.editor.AssetDatabase.LoadAssetAtPath(*args[1:])
+                meta.editor.EditorUtility.SetDirty(asset)
+
+            return YNode(args[0])
 
     @trace
     def __getattr__(self, val):
@@ -145,7 +156,8 @@ class YObject(_YObject):
             )
 
         if getattr(meta, "getAttr", False):
-            return YAttr(meta.getAttr(self.name + "." + val), self.name, val)
+            return YAttr(
+                meta.getAttr(self.name + "." + val), self.name, val)
 
         if getattr(meta, "hda", False):
             parm = meta.node(self.name).parm(val) or meta.node(self.name).parmTuple(val)
@@ -165,13 +177,16 @@ class YObject(_YObject):
                 )
 
         if getattr(meta, "data", False):
-            return YAttr(meta.data.objects[self.name].name, self.name, val)
+            return YAttr(
+                meta.data.objects[self.name].name, self.name, val)
 
         if getattr(meta, "C4DAtom", False):
-            return YAttr(meta.doc.SearchObject(self.name)[getattr(meta, val)], self.name, val)
+            return YAttr(
+                meta.doc.SearchObject(self.name)[getattr(meta, val)], self.name, val)
 
         if getattr(meta, "knob", False):
-            return YAttr(meta.toNode(self.name)[val], self.name, val)
+            return YAttr(
+                meta.toNode(self.name)[val], self.name, val)
 
         if getattr(meta, "fusion", False):
             return YAttr(
@@ -188,9 +203,6 @@ class YObject(_YObject):
 
             return YAttr(getattr(layer, val), self.name, val)
 
-        if getattr(meta, "wind_type", False):
-            return YAttr(meta.module, self.name, val)
-
         if getattr(meta, "uclass", False):
             try:
                 return YAttr(
@@ -201,6 +213,13 @@ class YObject(_YObject):
                     meta.ue4.uname(self.name).root_component.get_editor_property(val),
                     self.name, val,
                 )
+
+        if getattr(meta, "Debug", False):
+            obj = meta.engine.GameObject.Find(self.name)
+            for com in obj.GetComponentsInChildren(meta.engine.Component):
+                if val in dir(obj.GetComponent(com.GetType())):
+                    return YAttr(obj.GetComponent(com.GetType()), self.name, val)
+            return None
 
         raise YException
 
@@ -231,13 +250,16 @@ class YObject(_YObject):
             )
 
         if getattr(meta, "data", False):
-            return YAttr(meta.data.objects[self.name].name, self.name, val)
+            return YAttr(
+                meta.data.objects[self.name].name, self.name, val)
 
         if getattr(meta, "C4DAtom", False):
-            return YAttr(meta.doc.SearchObject(self.name)[getattr(meta, val)], self.name, val)
+            return YAttr(
+                meta.doc.SearchObject(self.name)[getattr(meta, val)], self.name, val)
 
         if getattr(meta, "knob", False):
-            return YAttr(meta.toNode(self.name)[val], self.name, val)
+            return YAttr(
+                meta.toNode(self.name)[val], self.name, val)
 
         if getattr(meta, "fusion", False):
             return YAttr(
@@ -254,9 +276,6 @@ class YObject(_YObject):
 
             return YAttr(getattr(layer, val), self.name, val)
 
-        if getattr(meta, "wind_type", False):
-            return YAttr(meta.module, self.name, val)
-
         if getattr(meta, "uclass", False):
             try:
                 return YAttr(
@@ -268,6 +287,13 @@ class YObject(_YObject):
                     self.name,
                     val,
                 )
+
+        if getattr(meta, "Debug", False):
+            obj = meta.engine.GameObject.Find(self.name)
+            for com in obj.GetComponentsInChildren(meta.engine.Component):
+                if val in dir(obj.GetComponent(com.GetType())):
+                    return YAttr(obj.GetComponent(com.GetType()), self.name, val)
+            return None
 
         raise YException
 
@@ -318,6 +344,13 @@ class YObject(_YObject):
 
         if getattr(meta, "uclass", False):
             return meta.ue4.uname(self.name).component_tags()
+
+        if getattr(meta, "Debug", False):
+            obj = meta.engine.GameObject.Find(self.name)
+            attrs = dir(obj)
+            for com in obj.GetComponentsInChildren(meta.engine.Component):
+                attrs.extend(dir(obj.GetComponent(com.GetType())))
+            return list(set([attr for attr in attrs if not attr.startswith("__")]))
 
         raise YException
 
@@ -410,6 +443,18 @@ class YObject(_YObject):
             else:
                 return
 
+        if getattr(meta, "Debug", False):
+            go = meta.engine.GameObject.Find(self.name)
+            cm = getattr(meta.engine, args[0])
+            meta.engine.Debug.Log(str(cm))
+
+            if go and isinstance(cm, meta.engine.Component):
+                meta.engine.Debug.Log(1)
+                component = go.AddComponent(cm)
+                return YObject(component.name)
+            else:
+                return meta.editor.AssetDatabase.CreateAsset(*args)
+
         raise YException
 
     @trace
@@ -448,6 +493,13 @@ class YObject(_YObject):
                 return meta.assets.delete_asset(uname)
             else:
                 return uname.destroy_actor()
+
+        if getattr(meta, "Debug", False):
+            go = meta.engine.GameObject.Find(self.name)
+            if go:
+                return meta.engine.GameObject.DestroyImmediate(go)
+            else:
+                return meta.editor.AssetDatabase.DeleteAsset(self.name)
 
         raise YException
 
@@ -502,6 +554,16 @@ class YObject(_YObject):
                 )
             else:
                 return
+
+        if getattr(meta, "Debug", False):
+            go = meta.engine.GameObject.Find(self.name)
+            if go:
+                return go.Instantiate(go, *args)
+            else:
+                meta.editor.AssetDatabase.CopyAsset(self.name, args[0])
+                asset = meta.editor.AssetDatabaseLoadAssetAtPath(*args[1:])
+                meta.editor.EditorUtility.SetDirty(asset)
+                return YObject(asset.name)
 
         raise YException
 
@@ -583,8 +645,8 @@ class YObject(_YObject):
                 else:
                     return meta.editor.set_actor_selection_state(uname, *args)
 
-        if getattr(meta, "GameObject", False):
-            meta.GameObject.find(self.name)
+        if getattr(meta, "Debug", False):
+            return [YNode(go.name) for go in meta.editor.Selection.gameObjects]
 
         raise YException
 
@@ -620,38 +682,10 @@ class YObject(_YObject):
                 "visible", not on
             )
 
-        raise YException
-
-    @trace
-    def geometry(self):
-        if getattr(meta, "ls", False):
-            from yurlungur.core.wrapper import OM
-            dag = OM.MGlobal.getSelectionListByName(self.name).getDagPath(0)
-            return OM.MFnMesh(dag)
-
-        if getattr(meta, "hda", False):
-            return meta.node(self.name).geometry()
-
-        if getattr(meta, "uclass", False):
-            c_actor = meta.ue4.uname(self.name).get_class()
-            if c_actor == meta.StaticMeshActor or c_actor == meta.SkeletalMeshActor:
-                return meta.ue4.uname(self.name)
-
-            return None
+        if getattr(meta, "Debug", False):
+            return meta.engine.GameObject.Find(self.name).SetActive(not on)
 
         raise YException
-
-
-class YNode(YObject):
-    """relationship object"""
-
-    def __init__(self, item=None):
-        super(YNode, self).__init__(item)
-        self.item = item
-
-        if self.item and getattr(meta, "SDNode", False):
-            self._inputs = meta.graph.getNodeFromId(self.name).getProperties(meta.sd.SDPropertyCategory.Input)
-            self._outputs = meta.graph.getNodeFromId(self.name).getProperties(meta.sd.SDPropertyCategory.Output)
 
     def parent(self, *args, **kwarg):
         if getattr(meta, "SDNode", False):
@@ -672,7 +706,7 @@ class YNode(YObject):
                 )
 
         if getattr(meta, "hda", False):
-            return YNode(meta.node(self.name).parent().path())
+            return YNode(meta.node(self.item).parent().path())
 
         if getattr(meta, "runtime", False):
             if len(args) > 0:
@@ -698,6 +732,15 @@ class YNode(YObject):
 
         if getattr(meta, "uclass", False):
             return YNode(meta.ue4.uname(self.name).get_parent_actor().get_name())
+
+        if getattr(meta, "Debug", False):
+            transform = meta.engine.GameObject.Find(self.item).transform
+            if len(args) > 0:
+                parent = meta.engine.GameObject.Find(args[0]).transform
+                transform.SetParent(parent, *args[1:])
+                return YObject(parent.name)
+            else:
+                return YObject(transform.parent.name) if transform.parent else None
 
         raise YException
 
@@ -734,16 +777,64 @@ class YNode(YObject):
         if getattr(meta, "doc", False):
             return [
                 YNode(layer.name)
-                for layer in meta.doc.LayerSets[self.name].layers
+                for layer in meta.doc.LayerSets[self.item].layers
             ]
 
         if getattr(meta, "uclass", False):
             return [
                 YNode(actor.get_name())
-                for actor in meta.ue4.uname(self.name).get_all_child_actors()
+                for actor in meta.ue4.uname(self.item).get_all_child_actors()
             ]
 
+        if getattr(meta, "Debug", False):
+            transform = meta.engine.GameObject.Find(self.item).transform
+            return [YObject(transform.GetChild(i).name) for i in range(transform.childCount)]
+
         raise YException
+
+    @trace
+    def geom(self):
+        """geometry or ndarray"""
+        if Numpy():
+            import numpy
+
+        if getattr(meta, "ls", False):
+            from yurlungur.core.wrapper import OM
+            dag = OM.MGlobal.getSelectionListByName(self.name).getDagPath(0)
+            return OM.MFnMesh(dag)
+
+        if getattr(meta, "hda", False):
+            return meta.node(self.name).geometry()
+
+        if getattr(meta, "uclass", False):
+            c_actor = meta.ue4.uname(self.name).get_class()
+            if c_actor == meta.StaticMeshActor or c_actor == meta.SkeletalMeshActor:
+                return meta.ue4.uname(self.name)
+
+            return None
+
+        raise YException
+
+    @trace
+    def anim(self):
+        """keyframes or otio"""
+        raise YException
+
+    @trace
+    def data(self):
+        """shader or pil"""
+        raise YException
+
+
+class YNode(YObject):
+    """relationship object"""
+
+    def __init__(self, item=None):
+        super(YNode, self).__init__(item)
+        self.item = item
+        if self.item and getattr(meta, "SDNode", False):
+            self._inputs = meta.graph.getNodeFromId(self.name).getProperties(meta.sd.SDPropertyCategory.Input)
+            self._outputs = meta.graph.getNodeFromId(self.name).getProperties(meta.sd.SDPropertyCategory.Output)
 
     @trace
     def connect(self, *args, **kwargs):
@@ -881,6 +972,9 @@ class YAttr(_YAttr):
         if getattr(meta, "SDNode", False):
             return self._values[0]
 
+        if getattr(meta, "Debug", False):
+            return getattr(self._values[0], self.val)
+
         if ":" in str(self._values[0]):
             try:
                 return getattr(self._values[0], self.val)
@@ -923,7 +1017,8 @@ class YAttr(_YAttr):
             return meta.graph.getNodeFromId(self.obj).setPropertyValue(prop, sd_value)
 
         if getattr(meta, "setAttr", False):
-            return meta.setAttr(self.obj + "." + self.val, *args, **kwargs)
+            return meta.setAttr(
+                self.obj + "." + self.val, *args, **kwargs)
 
         if getattr(meta, "hda", False):
             parm = meta.node(self.obj).parm(self.val) or meta.node(self.obj).parmTuple(
@@ -951,7 +1046,9 @@ class YAttr(_YAttr):
             return args[0]
 
         if getattr(meta, "knob", False):
-            return meta.toNode(self.obj)[self.val].setValue(args[0], **kwargs)
+            return meta.toNode(self.obj)[self.val].setValue(
+                args[0], **kwargs
+            )
 
         if getattr(meta, "fusion", False):
             return setattr(
@@ -968,9 +1065,6 @@ class YAttr(_YAttr):
                 except TypeError:
                     return meta.ps.Document().layers[self.obj].setValue_forKey_(args[0], self.val)
 
-        if getattr(meta, "wind_type", False):
-            return meta.module._MarvelousDesigner__module_obj.SaveFile(*args, **kwargs)
-
         if getattr(meta, "uclass", False):
             try:
                 return meta.ue4.uname(self.obj).set_editor_property(self.val, args[0])
@@ -980,6 +1074,12 @@ class YAttr(_YAttr):
                 return meta.ue4.uname(self.obj).root_component.set_editor_property(
                     self.val, args[0]
                 )
+
+        if getattr(meta, "Debug", False):
+            obj = meta.engine.GameObject.Find(self.obj)
+            for com in obj.GetComponentsInChildren(meta.engine.Component):
+                if self.val in dir(obj.GetComponent(com.GetType())):
+                    return setattr(obj.GetComponent(com.GetType()), self.val, args[0])
 
         raise YException
 
@@ -1096,6 +1196,9 @@ class YFile(_YObject):
         if getattr(meta, "uclass", False):
             return cls(file.abcImporter(*args, **kwargs))
 
+        if getattr(meta, "Debug", False):
+            return cls(meta.editor.AssetDatabase.ImportAsset(*args, **kwargs))
+
         raise YException
 
     @classmethod
@@ -1148,6 +1251,9 @@ class YFile(_YObject):
         if getattr(meta, "uclass", False):
             return meta.tools.export_assets(*args, **kwargs)
 
+        if getattr(meta, "Debug", False):
+            return
+
         raise YException
 
     @property
@@ -1194,6 +1300,9 @@ class YFile(_YObject):
             else:
                 return meta.assets.list_assets(
                     "/Game", recursive=True, include_folder=True)
+
+        if getattr(meta, "Debug", False):
+            return meta.editor.AssetDatabase.GetAssetOrScenePath()
 
         raise YException
 

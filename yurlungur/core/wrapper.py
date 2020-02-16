@@ -35,6 +35,11 @@ class YMObject(object):
         levels = ue4.GetEditorLevelLibrary()
         tools = ue4.tools
 
+    if env.Unity():
+        from yurlungur.adapters import unity
+        editor = unity.UnityEditor
+        engine = unity.UnityEngine
+
     if env.Substance():
         from yurlungur.adapters import substance as sd
         graph = sd.graph
@@ -89,6 +94,10 @@ class YMObject(object):
         if env.Davinci() and self.resolve:
             return self.fusion.GetCurrentComp().Execute(script)
 
+        if env.Unity():
+            from yurlungur.adapters import unity
+            return unity.EvalScript(script)
+
 
 # Dynamic Class
 _YObject = MetaObject("YObject", (object,), {"__doc__": MetaObject.__doc__})
@@ -108,14 +117,18 @@ if env.Maya():
         for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
             meta.loadPlugin(plugin, qt=1)
 
-elif env.Houdini() or env.UE4():
+elif env.Houdini() or env.UE4() or env.Unity():
     _YVector = type('_YVector', (
         app.application.Vector if hasattr(app.application, "Vector") else app.application.Vector3,
     ), dict())
 
-    _YMatrix = type('_YMatrix', (
-        app.application.Matrix if hasattr(app.application, "Matrix") else app.application.Matrix4,
-    ), dict())
+    if env.Unity():
+        pass
+        # _YMatrix = type('_YMatrix', (app.application.Matrix4x4), dict())
+    else:
+        _YMatrix = type('_YMatrix', (
+            app.application.Matrix if hasattr(app.application, "Matrix") else app.application.Matrix4,
+        ), dict())
 
     _YColors = type('_YColors', (app.application.Color,), dict())
 

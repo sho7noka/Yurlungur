@@ -27,14 +27,14 @@ class GuiLogHandler(Handler):
             if env.Maya():
                 self.MGlobal.displayError(msg)
 
-            elif env.UE4():
-                meta.log_error(msg)
-
             elif env.Houdini():
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Error)
 
-            elif env.Max():
-                meta.print_(msg, True, False)
+            elif env.UE4():
+                meta.log_error(msg)
+
+            elif env.Unity():
+                meta.engine.Debug.LogError(msg)
 
             elif env.Nuke():
                 meta.error(msg)
@@ -42,18 +42,21 @@ class GuiLogHandler(Handler):
             elif env.C4D():
                 meta.modules.net.SetErrorLevel(False, False, True)
 
+            elif env.Max():
+                meta.print_(msg, True, False)
+
         elif record.levelno > INFO:
             if env.Maya():
                 self.MGlobal.displayWarning(msg)
 
-            elif env.UE4():
-                meta.log_warning(msg)
-
             elif env.Houdini():
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Warning)
 
-            elif env.Max():
-                meta.print_(msg, True, False)
+            elif env.UE4():
+                meta.log_warning(msg)
+
+            elif env.Unity():
+                meta.engine.Debug.LogWarning(msg)
 
             elif env.Nuke():
                 meta.warning(msg)
@@ -61,24 +64,30 @@ class GuiLogHandler(Handler):
             elif env.C4D():
                 meta.modules.net.SetErrorLevel(False, True, False)
 
+            elif env.Max():
+                meta.print_(msg, True, False)
+
         else:
             if env.Maya():
                 self.MGlobal.displayInfo(msg)
 
-            elif env.UE4():
-                meta.log(msg)
-
             elif env.Houdini():
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Message)
 
-            elif env.Max():
-                meta.print_(msg, False, True)
+            elif env.UE4():
+                meta.log(msg)
+
+            elif env.Unity():
+                meta.engine.Debug.Log(msg)
 
             elif env.Nuke():
                 meta.debug(msg)
 
             elif env.C4D():
                 meta.modules.net.SetErrorLevel(True, False, False)
+
+            elif env.Max():
+                meta.print_(msg, False, True)
 
 
 try:
@@ -94,10 +103,11 @@ try:
 
         logger = getLogger(yurlungur.__name__)
         logger.setLevel(INFO)
+
         handler = GuiLogHandler()
         logger.addHandler(handler)
         basicConfig(level=INFO, stream=sys.stdout)
-except:
+except Exception:
     pass
 
 
