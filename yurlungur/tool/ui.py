@@ -17,10 +17,6 @@ if env.Qt():
     from yurlungur.Qt.QtGui import *
     from yurlungur.Qt.QtWidgets import *
 
-elif "MarvelousDesigner" in str(yurlungur.application):
-    from PythonQt.QtCore import *
-    from PythonQt.QtGui import *
-
 
 @env.Qt
 def widgetPtr():

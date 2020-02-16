@@ -29,9 +29,9 @@ class TestMax(unittest.TestCase):
         box.select()
         box('aaa')
         box = yr.YNode('aaa')
-        print (box.geometry())
+        print (box.geom())
         box2 = box.instance()
-        print (box2.geometry())
+        print (box2.geom())
 
         yr.meta.eval('$%s.width = 20' % box.name)
 

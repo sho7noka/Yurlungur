@@ -22,45 +22,40 @@ elif __import__("hou"):
 
     application = hou
 
-elif "Nuke" in application:
-    import nuke
-
-    application = nuke
-
-# Photoshop
-
 elif "Substance" in application:
     import sd.api as sdapi
 
     application = sdapi
-
-elif "Cinema 4D" in application:
-    import c4d
-
-    application = c4d
-
-elif "UE4Editor" in application:
-    import unreal
-
-    application = unreal
-
-elif "3dsmax" in application:
-    import pymxs
-
-    application = pymxs
-
-# Davinci
 
 elif "Blender" in application:
     import bpy
 
     application = bpy
 
-elif "MarvelousDesigner" in application:
-    import MarvelousDesigner.MarvelousDesigner
+elif "UE4Editor" in application:
+    import unreal
 
-    application = MarvelousDesigner.MarvelousDesigner()
-    application.initialize()
+    application = unreal
+
+elif __import__("UnityEngine"):
+    import UnityEngine
+
+    application = UnityEngine
+
+elif "Nuke" in application:
+    import nuke
+
+    application = nuke
+
+elif "Cinema 4D" in application:
+    import c4d
+
+    application = c4d
+
+elif "3dsmax" in application:
+    import pymxs
+
+    application = pymxs
 
 else:
     from yurlungur.tool import standalone

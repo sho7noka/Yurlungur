@@ -20,7 +20,7 @@ class TestUnreal(unittest.TestCase):
             print (node.id)
             print (node.hidden)
             print (node.attr("hidden"))
-            print (node.geometry())
+            print (node.geom())
 
     def test_write(self):
         with yr.UndoGroup("undo"):

@@ -21,36 +21,45 @@ def __import__(name, globals=None, locals=None, fromlist=None):
     except KeyError:
         pass
 
-    if platform.python_implementation() == "IronPython":
-        import clr
-        clr.AddReferenceByPartialName(name)
-
     try:
-        if "DaVinci" in name:
-            if platform.system() == "Windows":
-                resolve = "%PROGRAMDATA%\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting\\Modules"
-            if platform.system() == "Darwin":
-                resolve = "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Developer/Scripting/Modules"
-            if platform.system() == "Linux":
-                resolve = "/opt/resolve/Developer/Scripting/Modules"
-
-            sys.path.append(resolve)
+        if "DaVinci" not in name:
+            raise NameError
+        else:
             name = "DaVinciResolveScript"
+
+        if platform.system() == "Windows":
+            resolve = "%PROGRAMDATA%\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting\\Modules"
+        if platform.system() == "Darwin":
+            resolve = "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Developer/Scripting/Modules"
+        if platform.system() == "Linux":
+            resolve = "/opt/resolve/Developer/Scripting/Modules"
+        sys.path.append(resolve)
 
     except NameError:
         pass
 
-    try:
-        import imp
-    except ImportError:
-        from importlib import import_module
-        return import_module(name)
+    if "clr" in sys.modules:
+        import clr
+        clr.AddReference("System.IO")
+        import System.IO
+
+        # https://pythonnet.github.io/ or https://ironpython.net/
+        try:
+            clr.AddReference(name)
+        except System.IO.FileNotFoundException:
+            pass
 
     try:
+        import imp
         fp, pathname, description = imp.find_module(name)
         return imp.load_module(name, fp, pathname, description)
+
     except ImportError:
-        return False
+        try:
+            from importlib import import_module
+            return import_module(name)
+        except ImportError:
+            return False
 
 
 class App(object):
@@ -140,7 +149,8 @@ class App(object):
             _cmd = "{0} --python-expr '{1}' -b".format(self.app_name, cmd)
 
         elif "unity" in self.app_name:
-            pass
+            # https://docs.unity3d.com/jp/460/Manual/CommandLineArguments.html
+            _cmd = "-batchmode -executeMethod"
 
         try:
             _cmd = " ".join([self.app_name, "-c", cmd])
@@ -205,40 +215,6 @@ def Maya(func=None):
     return wrapper
 
 
-def Photoshop(func=None):
-    if func is None:
-        try:
-            from yurlungur.adapters import photoshop
-            return photoshop.app.isRunning()
-        except Exception:
-            return False
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            from yurlungur.adapters import photoshop
-            if photoshop.app.isRunning():
-                return func(*args, **kwargs)
-            else:
-                raise WindowsError
-        except Exception:
-            return False
-
-    return wrapper
-
-
-def UE4(func=None):
-    if func is None:
-        return "UE4" in sys.executable
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if "UE4" in sys.executable:
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
 def Houdini(func=None):
     if func is None:
         return __import__("hou")
@@ -263,13 +239,37 @@ def Substance(func=None):
     return wrapper
 
 
-def Max(func=None):
+def Blender(func=None):
     if func is None:
-        return "3dsmax" in sys.executable
+        return "blender" in sys.executable
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if "3dsmax" in sys.executable:
+        if "blender" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def UE4(func=None):
+    if func is None:
+        return "UE4" in sys.executable
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "UE4" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def Unity(func=None):
+    if func is None:
+        return __import__("UnityEngine")
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if __import__("UnityEngine"):
             return func(*args, **kwargs)
 
     return wrapper
@@ -311,6 +311,40 @@ def Davinci(func=None):
     return wrapper
 
 
+def Photoshop(func=None):
+    if func is None:
+        try:
+            from yurlungur.adapters import photoshop
+            return photoshop.app.isRunning()
+        except Exception:
+            return False
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            from yurlungur.adapters import photoshop
+            if photoshop.app.isRunning():
+                return func(*args, **kwargs)
+            else:
+                raise WindowsError
+        except Exception:
+            return False
+
+    return wrapper
+
+
+def Max(func=None):
+    if func is None:
+        return "3dsmax" in sys.executable
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "3dsmax" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
 def _Maya(v=2018):
     d = {
         "Linux": "/usr/Autodesk/maya%d-x64/bin/maya" % v,
@@ -320,12 +354,29 @@ def _Maya(v=2018):
     return os.environ.get("MAYA_LOCATION") or d[platform.system()]
 
 
-def _Photoshop(v=2018):
+def _Houdini(v="17.5.173"):
     d = {
-        "Linux": None,
-        "Windows": "C:/Program Files/Adobe/Adobe Photoshop CC %d/Photoshop.exe" % v,
-        "Darwin": "/Applications/Adobe Photoshop CC {0}/Adobe Photoshop CC {0}.app/Contents/MacOS/Adobe Photoshop CC {0}".format(
-            v),
+        "Linux": "/opt/hfs%s/houdini" % v,
+        "Windows": "C:/Program Files/Side Effects Software/Houdini Houdini%s/bin/houdini.exe" % v,
+        "Darwin": "/Applications/Houdini/Houdini%s/Utilities/Houdini Terminal %s.app" % (v, v),
+    }
+    return os.environ.get("HIP") or d[platform.system()]
+
+
+def _Substance():
+    d = {
+        "Linux": "/usr/autodesk/maya2017-x64",
+        "Windows": "C:/Program Files/Allegorithmic/Substance Designer/Substance Designer.exe",
+        "Darwin": "/Applications/Substance Designer.app/Contents/MacOS/Substance Designer",
+    }
+    return d[platform.system()]
+
+
+def _Blender():
+    d = {
+        "Linux": "/usr/bin/blender",
+        "Windows": "C:/Program Files/Blender Foundation/Blender",
+        "Darwin": "/Applications/Blender.app/Contents/MacOS/Blender"
     }
     return d[platform.system()]
 
@@ -339,20 +390,22 @@ def _Unreal(v=4.22):
     return d[platform.system()]
 
 
-def _Houdini(v="17.5.173"):
+def _Unity(v="2019.3.0f6"):
+    # https://docs.unity3d.com/ja/2019.1/Manual/CommandLineArguments.html
     d = {
-        "Linux": "/usr/local/bin/houdini",
-        "Windows": "C:/Program Files/Side Effects Software/Houdini Houdini%s/bin" % v,
-        "Darwin": "/Applications/Houdini/Houdini%s/Utilities/Houdini Terminal %s.app" % v,
+        "Linux": None,
+        "Windows": "C:/Program Files/Unity/Editor/Unity.exe",
+        "Darwin": "/Applications/Unity/Hub/Editor/%s/Unity.app/Contents/MacOS/Unity" % v
     }
-    return os.environ.get("HIP") or d[platform.system()]
+    return d[platform.system()]
 
 
-def _Substance():
+def _Photoshop(v=2018):
     d = {
-        "Linux": "/usr/autodesk/maya2017-x64",
-        "Windows": "C:/Program Files/Allegorithmic/Substance Designer/Substance Designer.exe",
-        "Darwin": "/Applications/Substance Designer.app/Contents/MacOS/Substance Designer",
+        "Linux": None,
+        "Windows": "C:/Program Files/Adobe/Adobe Photoshop CC %d/Photoshop.exe" % v,
+        "Darwin": "/Applications/Adobe Photoshop CC {0}/Adobe Photoshop CC {0}.app/Contents/MacOS/Adobe Photoshop CC {0}".format(
+            v),
     }
     return d[platform.system()]
 
@@ -384,50 +437,5 @@ def _Davinci():
         "Linux": "",
         "Windows": "",
         "Darwin": "/Applications/DaVinci Resolve Studio.app/Contents/MacOS/Resolve"
-    }
-    return d[platform.system()]
-
-
-########################################################################################
-
-def Blender(func=None):
-    if func is None:
-        return "blender" in sys.executable
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if "blender" in sys.executable:
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
-def _Blender():
-    d = {
-        "Linux": "/usr/bin/blender",
-        "Windows": "C:/Program Files/Blender Foundation/Blender",
-        "Darwin": "/Applications/Blender.app/Contents/MacOS/Blender"
-    }
-    return d[platform.system()]
-
-
-def Unity(func=None):
-    if func is None:
-        return "Unity" in sys.executable
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if "Unity" in sys.executable:
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
-def _Unity(v="2019.3.0b7"):
-    # https://docs.unity3d.com/ja/2019.1/Manual/CommandLineArguments.html
-    d = {
-        "Linux": None,
-        "Windows": "C:/Program Files/Unity/Editor/Unity.exe",
-        "Darwin": "/Applications/Unity/Hub/Editor/%s/Unity.app/Contents/MacOS/Unity" % v
     }
     return d[platform.system()]
