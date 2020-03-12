@@ -20,13 +20,9 @@ class TestHoudini(unittest.TestCase):
     def test_attr(self):
         yr.YObject('obj').create('geo')
 
-    @unittest.skipIf(_Houdini(), "")
+    @unittest.skip("")
     def test_file(self):
         yr.YFile.save('temp.hip')
-
-    def test_pdg(self):
-        """PDG, Qt, yurlungur"""
-        pass
 
 
 if __name__ == '__main__':

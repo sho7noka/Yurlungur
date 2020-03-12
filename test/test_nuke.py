@@ -4,10 +4,13 @@ import unittest
 
 sys.path.append('../yurlungur')
 import yurlungur as yr
+from yurlungur.core.env import _Nuke
 
 
+@unittest.skipUnless(_Nuke(), "Maya is not found")
 class TestResolve(unittest.TestSuite):
 
+    @unittest.skip("")
     def test_node(self):
         yr.YNode("").create("TimeWarp")
 
