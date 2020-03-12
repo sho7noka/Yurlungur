@@ -18,8 +18,8 @@ def enableHouModule():
     # そのため、houをインポートする前に、Pythonのdlopenフラグを調整します。
     if hasattr(sys, "setdlopenflags"):
         old_dlopen_flags = sys.getdlopenflags()
-        import DLFCN
-        sys.setdlopenflags(old_dlopen_flags | DLFCN.RTLD_GLOBAL)
+    #     import DLFCN
+    #     sys.setdlopenflags(old_dlopen_flags | DLFCN.RTLD_GLOBAL)
 
     try:
         import hou

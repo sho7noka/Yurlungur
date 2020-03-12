@@ -1,18 +1,16 @@
 # coding: utf-8
+
+# https://docs.unity3d.com/Packages/com.unity.scripting.python@2.0/manual/index.html
 try:
     import UnityEngine
     import UnityEditor
+
     getattr(UnityEngine, "Debug")
 
 except (ImportError, AttributeError):
     from yurlungur.core.env import App as _
 
     run, shell, end = _("unity")._actions
-
-
-class Unity(Plugbase):
-    def proxy(self):
-        pass
 
 
 def Console():
@@ -83,32 +81,4 @@ public class ExampleClass
     }
 }
 #endif
-
-
-
-
-public class MyLogHandler : ILogHandler
-{
-    public void LogFormat(LogType logType, UnityEngine.Object context, string format, params object[] args)
-    {
-        Debug.unityLogger.logHandler.LogFormat(logType, context, format, args);
-    }
-
-    public void LogException(Exception exception, UnityEngine.Object context)
-    {
-        Debug.unityLogger.LogException(exception, context);
-    }
-}
-
-public class MyGameClass : MonoBehaviour
-{
-    private static readonly string kTAG = "MyGameTag";
-    private Logger myLogger;
-
-    void Start()
-    {
-        myLogger = new Logger(new MyLogHandler());
-
-        myLogger.Log(kTAG, "MyGameClass Start.");
-    }
-}"""
+"""

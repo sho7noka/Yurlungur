@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
-
-try:
-    from functools import partial
-except ImportError:
-    pass
+from functools import partial
 
 from yurlungur.core.proxy import YNode, YFile
 from yurlungur.tool.meta import meta
 from yurlungur.core.app import YException
 
-__all__ = ["file", "cmd"]
+__all__ = ["file", "cmd", "node"]
 
 
 class Command(object):
@@ -47,6 +43,19 @@ def _select(cls, *args, **kwargs):
             node.setSelected(True, **kwargs)
 
 
+# Monkey-Patch for node
+# selection create glob list segments
+node = YNode()
+YNode.selection = _select
+YNode.parent = None
+
+cmd = Command()
+Command.ls = _ls
+Command.rm = _rm
+Command.glob = _glob
+Command.select = _select
+
+
 def _alembicImporter(cls, *args, **kwargs):
     """
     >>> f = YFile()
@@ -68,7 +77,7 @@ def _alembicImporter(cls, *args, **kwargs):
             return args[0]
 
     if hasattr(meta, 'uclass'):
-        data = unreal.AutomatedAssetImportData()
+        data = meta.AutomatedAssetImportData()
         data.set_editor_property('filenames', *args)
         for k, v in kwargs:
             data.set_editor_property(k, v)
@@ -142,20 +151,13 @@ def _usdExporter(cls, *args, **kwargs):
     pass
 
 
-# Monkey-Patch
+# Monkey-Patch for file
 file = YFile()
 YFile.abcImporter = _alembicImporter
 YFile.abcExporter = _alembicExporter
 YFile.fbxImporter = _fbxImporter
 YFile.fbxExporter = _fbxExporter
-
-cmd = Command()
-Command.ls = _ls
-Command.rm = _rm
-Command.glob = _glob
-Command.select = _select
-
-# YFile.gltfImporter = _gltfImporter
-# YFile.gltfExporter = _gltfExporter
-# YFile.usdImporter = _usdImporter
-# YFile.usdExporter = _usdExporter
+YFile.gltfImporter = _gltfImporter
+YFile.gltfExporter = _gltfExporter
+YFile.usdImporter = _usdImporter
+YFile.usdExporter = _usdExporter

@@ -1,6 +1,6 @@
 # coding: utf-8
 try:
-    import maya
+    import maya.cmds as cmds
 except ImportError:
     from yurlungur.core.env import App as _
 

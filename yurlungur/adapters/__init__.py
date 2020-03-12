@@ -1,9 +1,7 @@
-import blender
-import c4d
-import maya
-import houdini
-import nuke
-import davinci
-import ue4
-
-# read from DOCUMENTS/yurlungur
+from yurlungur.adapters import blender
+from yurlungur.adapters import c4d
+from yurlungur.adapters import maya
+from yurlungur.adapters import houdini
+from yurlungur.adapters import nuke
+from yurlungur.adapters import davinci
+from yurlungur.adapters import ue4

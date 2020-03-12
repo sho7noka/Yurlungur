@@ -8,7 +8,7 @@ import yurlungur as yr
 from yurlungur.core.env import _Blender
 
 
-@unittest.skipUnless(_Blender(), "Blender is not found")
+@unittest.skipUnless(sys.version_info > (3, 2), "Blender is Python3 over")
 class TestBlender(unittest.TestCase):
     def test_env(self):
         assert _Blender()
@@ -21,6 +21,7 @@ class TestBlender(unittest.TestCase):
         # yr.meta.file(new=1, f=1)
         node = yr.YObject("shape")
         node.attr("castsShadows").set(1)
+        yr.YNode("").create()
 
 
 if __name__ == '__main__':

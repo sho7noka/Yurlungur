@@ -5,14 +5,14 @@ import unittest
 sys.path.append('../yurlungur')
 
 import yurlungur as yr
-from yurlungur.core.env import C4D
+from yurlungur.core.env import _Cinema4D
 
 
-@unittest.skipUnless(installed("c4d"), "C4D is not found")
+@unittest.skipUnless(_Cinema4D(), "C4D is not found")
 class TestC4D(unittest.TestCase):
     @unittest.skip("only runtime")
     def test_env(self):
-        assert C4D()
+        assert _Cinema4D()
 
     @unittest.skip("only runtime")
     def test_c4d(self):
@@ -36,13 +36,5 @@ class TestC4D(unittest.TestCase):
     def test_file(self):
         pass
 
-
-def main():
-    caps = yr.YObject("立方体")
-    caps.instance()
-    # print(caps.attrs)
-    # caps.select()
-
-
 if __name__ == '__main__':
-    main()  # unittest.main()
+    unittest.main()

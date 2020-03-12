@@ -1,8 +1,10 @@
 | 	| integration (FBX) | Look (PSD) | Engine (OTIO) |
 |---|---|---|---|
-| Maya | Photoshop | Unreal Engine |
-| Houdini | Substance Designer | Nuke |
-| Blender/3dsMax | Marvelous Designer | Davinci Resolve |
+| Maya | Houdini | Substance Designer |
+| Unity | Unreal Engine | Blender |
+| Nuke | Cinema 4D | Davinci Resolve |
+
+3dsMax, Photoshop and Modo.
 
 .. csv-table:: Frozen Delights!
     :header: "Treat", "Quantity", "Description"
