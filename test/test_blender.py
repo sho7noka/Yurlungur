@@ -13,6 +13,7 @@ class TestBlender(unittest.TestCase):
     def test_env(self):
         assert _Blender()
 
+    @unittest.skip("")
     def test_cli(self):
         yr.blender.shell("import bpy; print(bpy)")
 

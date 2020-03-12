@@ -10,11 +10,13 @@ from yurlungur.adapters import davinci
 
 class TestResolve(unittest.TestSuite):
 
+    @unittest.skip("")
     def test_aaa(self):
         projects = davinci.Projects()
         print (projects.timelines.tracks.comps)
         print (projects["Hellow"].timelines["g"].tracks)
 
+    @unittest.skip("")
     def test_fscript(self):
         # comp起点とfusion起点の２つ
         # https://www.steakunderwater.com/VFXPedia/96.0.243.189/index1bea.html?title=Eyeon:Script/Reference/Applications/Fusion/Classes/Composition
@@ -35,6 +37,7 @@ class TestResolve(unittest.TestSuite):
         # print yr.YNode(mg1.Name).parent(), yr.YNode(mg1.Name).children()
         # yr.YNode("Loader1").connect()
 
+    @unittest.skip("")
     def test_fusion(self):
         mg1 = yr.YNode().create("Merge")
         print (yr.YNode(mg1).children())
