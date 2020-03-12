@@ -23,7 +23,8 @@ class TestPhotoshop(unittest.TestCase):
             node.select("aaa")
             print (yr.YFile().current)
 
-    @unittest.skipIf(not Windows(), "only windows")
+    # @unittest.skipIf(not Windows(), "only windows")
+    @unittest.skip("")
     def test_layer(self):
         yr.YObject("test").create("Normal")
         yr.YObject("test").AutoContrast()
@@ -37,7 +38,8 @@ class TestPhotoshop(unittest.TestCase):
         yr.YObject("test1").delete()
         print(yr.YObject("BBB").children())
 
-    @unittest.skipIf(not Windows(), "only windows")
+    # @unittest.skipIf(not Windows(), "only windows")
+    @unittest.skip("")
     def test_file(self):
         yr.file.save("%USER%\\Documents\\Adobe\\ccd.psd")
         yr.file.open("%USER%\\Documents\\Adobe\\ccc.psd")
