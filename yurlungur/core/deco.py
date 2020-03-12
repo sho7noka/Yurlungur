@@ -1,31 +1,33 @@
 # -*- coding: utf-8 -*-
 import sys
+import time
+import traceback
+import functools
+import threading
+import platform
+import multiprocessing
+import contextlib
 
-try:
-    import time
-    import traceback
-    import functools
-    import threading
-    import contextlib
-    import platform
-    import multiprocessing
-    from contextlib2 import ContextDecorator
+if sys.version_info > (3, 2):
+    from contextlib import ContextDecorator
+else:
+    try:
+        from contextlib2 import ContextDecorator
+    except ImportError:
+        class ContextDecorator(object):
+            def __call__(self, fn):
+                @functools.wraps(fn)
+                def decorator(*args, **kw):
+                    with self:
+                        return fn(*args, **kw)
 
-except ImportError:
-    class ContextDecorator(object):
-        def __call__(self, fn):
-            @functools.wraps(fn)
-            def decorator(*args, **kw):
-                with self:
-                    return fn(*args, **kw)
+            def __enter__(self):
+                return self
 
-        def __enter__(self):
-            return self
-
-        def __exit__(self, type, value, tb):
-            # Do whatever cleanup.
-            if any((type, value, tb)):
-                raise type, value, tb
+            def __exit__(self, type, value, tb):
+                # Do whatever cleanup.
+                if any((type, value, tb)):
+                    raise (type, value, tb)
 
 from yurlungur.tool.meta import meta
 from yurlungur.core import env, logger
@@ -77,8 +79,7 @@ else:
                 meta.fusion.StartUndo()
 
             elif env.Blender():
-                self.label = meta.context.user_preferences.edit.use_global_undo
-                meta.context.user_preferences.edit.use_global_undo = False
+                self.label = 0
 
             return self
 
@@ -87,12 +88,13 @@ else:
                 meta.undoInfo(cck=1)
 
             elif env.Photoshop():
+                from yurlungur.adapters import photoshop
+
                 if Windows():
                     meta.doc.activeHistoryState = self.label
                 else:
                     meta.doc.currentHistoryState().setTo_(self.label)
 
-                from yurlungur.adapters import photoshop
                 photoshop.do("undo")
 
             elif env.C4D():
@@ -102,7 +104,8 @@ else:
                 meta.fusion.EndUndo()
 
             elif env.Blender():
-                meta.context.user_preferences.edit.use_global_undo = self.label
+                meta.ops.ed.undo_history(item=self.label)
+                meta.ops.ed.redo()
 
 
 def cache(func, *args, **kwargs):
@@ -176,7 +179,7 @@ def timer(func):
 def threads(func):
     """
     with statements for threads.
-    available for Maya, Houdini, Nuke, 3dsMax, Substance and Cinema 4D
+    available for Maya, Houdini, Nuke, 3dsMax, Substance Blender and Cinema 4D
     >>>
     :param func:
     :return:

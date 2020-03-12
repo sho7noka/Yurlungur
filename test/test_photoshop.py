@@ -1,3 +1,4 @@
+# coding: utf-8
 import sys
 import unittest
 
@@ -35,11 +36,12 @@ class TestPhotoshop(unittest.TestCase):
         print(yr.YObject("test1").instance())
         yr.YObject("test1").delete()
         print(yr.YObject("BBB").children())
-    #
-    # def test_file(self):
-    #     yr.YFile().save("%USER%\\Documents\\Adobe\\ccd.psd")
-    #     yr.YFile().open("%USER%\\Documents\\Adobe\\ccc.psd")
-    #     print(yr.YFile().current)
+
+    @unittest.skipIf(not Windows(), "only windows")
+    def test_file(self):
+        yr.file.save("%USER%\\Documents\\Adobe\\ccd.psd")
+        yr.file.open("%USER%\\Documents\\Adobe\\ccc.psd")
+        print(yr.file.current)
 
 
 if __name__ == "__main__":

@@ -13,6 +13,7 @@ class TestUnreal(unittest.TestCase):
     def test_app(self):
         assert _Unreal()
 
+    @unittest.skip("only runtime")
     def test_read(self):
         with yr.UndoGroup("undo"):
             node = yr.YNode("Wall2")
@@ -22,6 +23,7 @@ class TestUnreal(unittest.TestCase):
             print (node.attr("hidden"))
             print (node.geom())
 
+    @unittest.skip("only runtime")
     def test_write(self):
         with yr.UndoGroup("undo"):
             yr.YNode("").create()
@@ -29,11 +31,13 @@ class TestUnreal(unittest.TestCase):
             yr.YNode("Wall1").instance()
             # node.delete()
 
+    @unittest.skip("only runtime")
     def test_file(self):
         print (yr.YFile().current)
         yr.YFile().save()
         yr.YFile().open()
 
+    @unittest.skip("only runtime")
     def test_bridge(self):
         import yurlungur as yr
 

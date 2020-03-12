@@ -1,7 +1,7 @@
 # coding: utf-8
 try:
     import bpy
-except ImportError:
+except (ImportError, SyntaxError):
     from yurlungur.core.env import App as _
 
     run, shell, end = _("blender")._actions

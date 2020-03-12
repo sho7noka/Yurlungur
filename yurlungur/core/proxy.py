@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
+import os
+import inspect
+import cmath
+from functools import partial
+
 try:
-    import os
-    import inspect
-    import cmath
-    from functools import partial, total_ordering
+    from functools import total_ordering
 except ImportError:
     total_ordering = dir
-
 from yurlungur.core.app import YException
 from yurlungur.core.env import Blender, Numpy
 from yurlungur.core.deco import trace
@@ -19,11 +20,18 @@ from yurlungur.tool.meta import meta
 class YObject(_YObject):
     """document base object
     >>> obj = YObject("pCone")
-    >>> obj("cone")
+    >>> obj.set("cone")
+    >>> obj.castShadows.set(True)
     """
 
     def __init__(self, item):
         self.item = item
+
+    def __repr__(self):
+        if getattr(meta, "SDNode", False):
+            return "id:" + self.name
+        else:
+            return self.name
 
     @property
     def name(self):
@@ -31,12 +39,6 @@ class YObject(_YObject):
             return self.id
         else:
             return self.item
-
-    def __repr__(self):
-        if getattr(meta, "SDNode", False):
-            return "id:" + self.name
-        else:
-            return self.name
 
     @property
     def id(self):
@@ -79,7 +81,7 @@ class YObject(_YObject):
         raise YException
 
     @trace
-    def __call__(self, *args, **kwargs):
+    def set(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
             meta.graph.setIdentifier(args[0])
 
@@ -297,6 +299,9 @@ class YObject(_YObject):
 
         raise YException
 
+    def __dir__(self):
+        return self.attrs
+
     @property
     def attrs(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
@@ -391,10 +396,14 @@ class YObject(_YObject):
             return YNode(_obj.name)
 
         if getattr(meta, "data", False):
-            try:
-                getattr(meta.ops.mesh, str(self).lower() + "_add")(*args, **kwargs)
-            except AttributeError:
-                getattr(meta.ops.object, str(self).lower() + "_add")(*args, **kwargs)
+            if self.name:
+                self.select(self.name)
+                return meta.ops.object.modifier_add(type=str(args[0]).upper())
+            else:
+                try:
+                    return getattr(meta.ops.mesh, args[0] + "_add")(*args[1:], **kwargs)
+                except AttributeError:
+                    return partial(meta.ops.object.add, type=str(args[0]).upper())(*args[1:], **kwargs)
 
         if getattr(meta, "C4DAtom", False):
             # object
@@ -446,10 +455,8 @@ class YObject(_YObject):
         if getattr(meta, "Debug", False):
             go = meta.engine.GameObject.Find(self.name)
             cm = getattr(meta.engine, args[0])
-            meta.engine.Debug.Log(str(cm))
 
             if go and isinstance(cm, meta.engine.Component):
-                meta.engine.Debug.Log(1)
                 component = go.AddComponent(cm)
                 return YObject(component.name)
             else:
@@ -473,6 +480,7 @@ class YObject(_YObject):
             return meta.runtime.delete(meta.runtime.getnodebyname(self.name))
 
         if getattr(meta, "data", False):
+            # meta.ops.object.modifier_remove(modifier=self.name)
             return meta.context.collection.objects.unlink(meta.data.objects[self.name])
 
         if getattr(meta, "C4DAtom", False):
@@ -503,6 +511,7 @@ class YObject(_YObject):
 
         raise YException
 
+    @trace
     def instance(self, *args, **kwarg):
         if getattr(meta, "SDNode", False):
             return meta.graph.newInstanceNode(self.name, *args, **kwarg)
@@ -519,7 +528,7 @@ class YObject(_YObject):
             )
 
         if getattr(meta, "data", False):
-            return
+            return meta.ops.object.make_local(type='SELECT_OBJECT')
 
         if getattr(meta, "C4DAtom", False):
             obj = meta.InstanceObject()
@@ -567,6 +576,7 @@ class YObject(_YObject):
 
         raise YException
 
+    @trace
     def select(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
             context = meta.sd_app.getUIMgr()
@@ -595,6 +605,12 @@ class YObject(_YObject):
                     return meta.runtime.execute("$ as array")
                 else:
                     return meta.runtime.execute("$")
+
+        if getattr(meta, "data", False):
+            if len(args) == 0 and len(kwargs) == 0:
+                return [YObject(obj.name) for obj in meta.context.selected_objects]
+            else:
+                return meta.ops.object.select_pattern(pattern=self.name)
 
         if getattr(meta, "C4DAtom", False):
             if len(args) == 0 and len(kwargs) == 0:
@@ -653,7 +669,7 @@ class YObject(_YObject):
     @trace
     def hide(self, on=True):
         if getattr(meta, "data", False):
-            return setattr(meta.data.objects[self.name], "hide", on)
+            return setattr(meta.data.objects[self.name], "hide_viewport", on)
 
         if getattr(meta, "runtime", False):
             return getattr(meta.runtime, "hide" if on else "unhide")(
@@ -687,6 +703,7 @@ class YObject(_YObject):
 
         raise YException
 
+    @trace
     def parent(self, *args, **kwarg):
         if getattr(meta, "SDNode", False):
             nodes = []
@@ -716,6 +733,12 @@ class YObject(_YObject):
                 _parent = meta.runtime.getnodebyname(self.item).parent
                 return YNode(_parent.name) if _parent else None
 
+        if getattr(meta, "data", False):
+            if len(args) > 0:
+                return setattr(meta.data.objects[self.item], "parent", meta.data.objects[args[0]])
+            else:
+                return YObject(meta.data.objects[self.item].parent.name)
+
         # https://developers.maxon.net/docs/Cinema4DPythonSDK/html/modules/c4d.documents/BaseDocument/index.html?highlight=getactiveobject#BaseDocument.GetObjects
         if getattr(meta, "C4DAtom", False):
             return meta.doc.SearchObject(self.name)
@@ -744,6 +767,7 @@ class YObject(_YObject):
 
         raise YException
 
+    @trace
     def children(self, *args, **kwarg):
         if getattr(meta, "SDNode", False):
             nodes = []
@@ -763,20 +787,27 @@ class YObject(_YObject):
         if getattr(meta, "runtime", False):
             if len(args) > 0:
                 meta.runtime.execute("append $%s.children $%s" % (self.item, args[0]))
-                return YNode(args[0])
+                return YObject(args[0])
             else:
                 nodes = []
                 children = meta.runtime.getnodebyname(self.item).children
                 for i in range(children.count):
                     nodes.append(children[i].name)
-                return nodes
+                return [YObject(node.name) for node in nodes]
+
+        if getattr(meta, "data", False):
+            children = []
+            for obj in meta.data.objects:
+                if obj.parent == meta.data.objects[self.item]:
+                    children.append(obj)
+            return [YObject(obj.name) for obj in children]
 
         if getattr(meta, "C4DAtom", False):
             return meta.doc.SearchObject(self.item)
 
         if getattr(meta, "doc", False):
             return [
-                YNode(layer.name)
+                YObject(layer.name)
                 for layer in meta.doc.LayerSets[self.item].layers
             ]
 
@@ -821,7 +852,7 @@ class YObject(_YObject):
         raise YException
 
     @trace
-    def data(self):
+    def raw_data(self):
         """shader or pil"""
         raise YException
 
@@ -967,6 +998,18 @@ class YAttr(_YAttr):
         self._values = args
         self.obj, self.val = self._values[1:]
 
+    def __getitem__(self, idx):
+        return self._values[idx]
+
+    def __repr__(self):
+        return str(self.value)
+
+    def __eq__(self, other):
+        return self.value == other.value
+
+    def __gt__(self, other):
+        return self.value >= other.value
+
     @property
     def value(self):
         if getattr(meta, "SDNode", False):
@@ -982,22 +1025,6 @@ class YAttr(_YAttr):
                 return self._values[0]()
         else:
             return self._values[0]
-
-    def __getitem__(self, idx):
-        return self._values[idx]
-
-    def __repr__(self):
-        return str(self.value)
-
-    def __eq__(self, other):
-        return self.value == other.value
-
-    def __gt__(self, other):
-        return self.value >= other.value
-
-    @trace
-    def __call__(self, *args, **kwargs):
-        self.set(*args, **kwargs)
 
     @trace
     def set(self, *args, **kwargs):
@@ -1038,7 +1065,7 @@ class YAttr(_YAttr):
             return setattr(
                 meta.data.objects[self.obj],
                 self.val,
-                args[0].tolist() if hasattr(args[0], "T") else args[0],
+                args[0].tolist() if hasattr(args[0], "T") else args,
             )
 
         if getattr(meta, "C4DAtom", False):
@@ -1084,6 +1111,24 @@ class YAttr(_YAttr):
         raise YException
 
     @trace
+    def __call__(self, *args, **kwargs):
+        """
+        helper method for set
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        self.set(*args, **kwargs)
+
+    @trace
+    def create(self):
+        pass
+
+    @trace
+    def delete(self):
+        pass
+
+    @trace
     def lock(self, on):
         if getattr(meta, "setAttr", False):
             return meta.setAttr(self.obj + "." + self.val, lock=on)
@@ -1093,6 +1138,9 @@ class YAttr(_YAttr):
 
         if getattr(meta, "knob", False):
             return meta.toNode(self.obj)[self.val].setEnabled(on)
+
+        if getattr(meta, "data", False):
+            return setattr(meta.data.objects[self.obj], "lock_" + self.val, on)
 
         raise YException
 
@@ -1141,7 +1189,10 @@ class YFile(_YObject):
 
     @property
     def name(self):
-        return os.path.basename(self.file)
+        if getattr(meta, "data", False):
+            return meta.path.basename(self.file)
+        else:
+            return os.path.basename(self.file)
 
     @property
     def path(self):
@@ -1163,10 +1214,7 @@ class YFile(_YObject):
         if getattr(meta, "doc", False):
             return meta.Open(*args, **kwargs)
 
-        if getattr(meta, "wind_type", False):
-            return meta.module._MarvelousDesigner__module_obj.OpenFile(*args, **kwargs)
-
-        if getattr(meta, "file", False):
+        if getattr(meta, "setAttr", False):
             return cls(partial(meta.file, i=1)(*args, **kwargs))
 
         if getattr(meta, "hipFile", False):
@@ -1177,7 +1225,7 @@ class YFile(_YObject):
                 return cls(args[0])
 
         if getattr(meta, "data", False):
-            return cls(meta.ops.wm.open_mainfile(*args, **kwargs))
+            return partial(meta.ops.wm.open_mainfile, filepath=args[0])(**kwargs)
 
         if getattr(meta, "C4DAtom", False):
             meta.documents.LoadFile(*args)
@@ -1220,10 +1268,7 @@ class YFile(_YObject):
             else:
                 return meta.doc.SaveAs(*args, **kwargs)
 
-        if getattr(meta, "wind_type", False):
-            return meta.module._MarvelousDesigner__module_obj.SaveFile(*args, **kwargs)
-
-        if getattr(meta, "file", False):
+        if getattr(meta, "setAttr", False):
             return cls(partial(meta.file, s=1)(*args, **kwargs))
 
         if getattr(meta, "hipFile", False):
@@ -1234,7 +1279,7 @@ class YFile(_YObject):
                 return cls(args[0])
 
         if getattr(meta, "data", False):
-            return meta.ops.wm.save_mainfile(*args, **kwargs)
+            return partial(meta.ops.wm.save_mainfile, filepath=args[0])(**kwargs)
 
         if getattr(meta, "C4DAtom", False):
             meta.documents.SaveDocument(
@@ -1270,10 +1315,7 @@ class YFile(_YObject):
                     return path.absoluteString()
                 return
 
-        if getattr(meta, "wind_type", False):
-            return meta.module._MarvelousDesigner__module_obj.GetSaveFilePath()
-
-        if getattr(meta, "file", False):
+        if getattr(meta, "setAttr", False):
             return meta.file(exn=1, q=1)
 
         if getattr(meta, "hipFile", False):
