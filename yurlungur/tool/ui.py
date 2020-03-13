@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 import sys
-import os
-import inspect
-import fnmatch
-import traceback
+
+try:
+    import os
+    import inspect
+    import fnmatch
+    import traceback
+except:
+    pass
 
 import yurlungur
 from yurlungur.core import env
@@ -14,49 +18,23 @@ if env.Qt():
     from yurlungur.Qt.QtWidgets import *
 
 
-class OpenGL(object):
-    """openGL wrapper"""
-
-    def __getattr__(self, item):
-        def _getGL(mod):
-            for cmd, _ in inspect.getmembers(mod):
-                if fnmatch.fnmatch(item, "".join(["*", cmd])):
-                    setattr(
-                        self, cmd,
-                        (lambda str: dict(inspect.getmembers(mod))[str])(cmd)
-                    )
-                    return getattr(self, item)
-
-        _tmp = []
-
-        if env.Maya():
-            from maya import OpenMayaRender as _mgl
-            _tmp.extend(_mgl, _mgl.MHardwareRenderer.theRenderer().glFunctionTable())
-
-        if env.Blender():
-            import bgl
-            _tmp.extend(bgl)
-
-        for gl in _tmp:
-            if _getGL(gl):
-                return _getGL(gl)
-
-        try:
-            from OpenGL import GL as gl
-            return gl
-        except ImportError:
-            import ctypes
-            return ctypes.cdll.OpenGL32
-
-
 @env.Qt
 def widgetPtr():
+    """
+    >>> ptr = yurlungur.ui.widgetPtr()
+    >>> view = yurlungur.Qt.QMainWindow(ptr)
+    >>> memoryview.show()
+
+    :return:
+    """
     import yurlungur.core.app
+
     app_name = yurlungur.core.application.__name__
 
     if app_name == "maya.cmds":
         from yurlungur.Qt import QtCompat
         from maya import OpenMayaUI
+
         ptr = long(OpenMayaUI.MQtUtil.mainWindow())
         return QtCompat.wrapInstance(ptr, QWidget)
 
@@ -68,6 +46,10 @@ def widgetPtr():
         import hou
         return hou.qt.mainWindow()
 
+    if app_name == "sd.api":
+        from yurlungur.adapters import substance
+        return substance.qt.getMainWindow()
+
     if app_name == "nuke":
         return QApplication.activeWindow()
 
@@ -76,18 +58,31 @@ def widgetPtr():
 
 @env.Qt
 def show(view):
+    """
+    >>> view = yurlungur.Qt.QWidget()
+    >>> yurlungur.ui.show(view)
+
+    :param view:
+    :return:
+    """
     try:
         view.deleteLater()
     except:
-        yurlungur.logger.log(view)
+        yurlungur.logger.pprint(view)
 
     try:
         __dark_view(view)
 
-        if env.Max() or env.Unreal():
-            __max_protect_show(view)
+        if env.Max():
+            __protect_show(view)
+
+        elif env.Unreal():
+            import unreal
+            unreal.parent_external_window_to_slate(view.winId())
+
         else:
             view.show()
+
     except:
         view.deleteLater()
         yurlungur.logger.warn(traceback.print_exc())
@@ -97,7 +92,7 @@ def show(view):
         __dark_view(view)
 
         if env.Max():
-            __max_protect_show(view)
+            __protect_show(view)
         else:
             view.show()
 
@@ -108,15 +103,13 @@ class __GCProtector(object):
     widgets = []
 
 
-def __max_protect_show(w):
+def __protect_show(w):
     w.setWindowFlags(Qt.WindowStaysOnTopHint)
     w.show()
     __GCProtector.widgets.append(w)
 
 
 def __dark_view(view):
-    local = os.path.dirname(
-        os.path.dirname(inspect.currentframe().f_code.co_filename)
-    )
+    local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
     with open(local + "/user/dark.css") as f:
         view.setStyleSheet("".join(f.readlines()))

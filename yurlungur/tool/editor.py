@@ -1,16 +1,17 @@
+# -*- coding: utf-8 -*-
+try:
+    from yurlungur.Qt import QtGui, QtWidgets, QtCore
+except ImportError:
+    raise NotImplementedError("Qt is not found")
+
 import os
 import sys
 import keyword
 from code import InteractiveInterpreter
 
-try:
-    from yurlungur.Qt import QtGui, QtCore
-except ImportError:
-    pass
 
-
-# just a handy debugging method
 def _PrintToErr(line):
+    """just a handy debugging method"""
     old = sys.stdout
     sys.stdout = sys.__stderr__
     print line
@@ -240,24 +241,24 @@ class Controller(QtCore.QObject):
             sys.ps2 = "... "
 
         self.textEdit = textEdit
-        self.connect(self.textEdit, QtCore.SIGNAL('destroyed()'),
+        self.connect(self.textEdit, QtCore.Signal('destroyed()'),
                      self._TextEditDestroyedSlot)
 
-        self.connect(self.textEdit, QtCore.SIGNAL("returnPressed()"),
+        self.connect(self.textEdit, QtCore.Signal("returnPressed()"),
                      self._ReturnPressedSlot)
 
-        self.connect(self.textEdit, QtCore.SIGNAL("requestComplete()"),
+        self.connect(self.textEdit, QtCore.Signal("requestComplete()"),
                      self._CompleteSlot)
 
-        self.connect(self.textEdit, QtCore.SIGNAL("requestNext()"),
+        self.connect(self.textEdit, QtCore.Signal("requestNext()"),
                      self._NextSlot)
 
-        self.connect(self.textEdit, QtCore.SIGNAL("requestPrev()"),
+        self.connect(self.textEdit, QtCore.Signal("requestPrev()"),
                      self._PrevSlot)
 
         appInstance = QtGui.QApplication.instance()
         self.connect(appInstance,
-                     QtCore.SIGNAL("appControllerQuit()"),
+                     QtCore.Signal("appControllerQuit()"),
                      self._QuitSlot)
 
         self.textEdit.setTabChangesFocus(False)
@@ -616,7 +617,7 @@ class Controller(QtCore.QObject):
         self.write(self.history[self.historyPointer])
 
 
-class View(QtGui.QTextEdit):
+class View(QtWidgets.QTextEdit):
     """View is a QTextEdit which provides some extra
     facilities to help implement an interpreter console.  In particular,
     QTextEdit does not provide for complete control over the buffer being
@@ -782,7 +783,7 @@ class View(QtGui.QTextEdit):
             cursor.movePosition(QtGui.QTextCursor.EndOfBlock)
             self.setTextCursor(cursor)
             # emit returnPressed
-            self.emit(QtCore.SIGNAL("returnPressed()"))
+            self.emit(QtCore.Signal("returnPressed()"))
 
         elif (key == QtCore.Qt.Key_Up
               or key == QtCore.Qt.Key_Down
@@ -796,9 +797,9 @@ class View(QtGui.QTextEdit):
                             or key == QtCore.Qt.Key_E))):
             if cursorInInput:
                 if (key == QtCore.Qt.Key_Up or key == QtCore.Qt.Key_P):
-                    self.emit(QtCore.SIGNAL("requestPrev()"))
+                    self.emit(QtCore.Signal("requestPrev()"))
                 if (key == QtCore.Qt.Key_Down or key == QtCore.Qt.Key_N):
-                    self.emit(QtCore.SIGNAL("requestNext()"))
+                    self.emit(QtCore.Signal("requestNext()"))
                 if (key == QtCore.Qt.Key_A):
                     self._MoveCursorToStartOfInput(False)
                 if (key == QtCore.Qt.Key_E):
@@ -829,7 +830,7 @@ class View(QtGui.QTextEdit):
 
     def AutoComplete(self):
         if self._CursorIsInInputArea():
-            self.emit(QtCore.SIGNAL("requestComplete()"))
+            self.emit(QtCore.Signal("requestComplete()"))
 
     def _MoveCursorToBeginning(self, select=False):
         if self._CursorIsInInputArea():
@@ -867,3 +868,14 @@ class View(QtGui.QTextEdit):
 
     def SelectToBottom(self):
         self._MoveCursorToEnd(True)
+
+
+def main():
+    app = QtWidgets.QApplication(sys.argv)
+    v = View()
+    v.show()
+    sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()
