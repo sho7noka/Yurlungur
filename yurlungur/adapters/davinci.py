@@ -1,18 +1,5 @@
 # coding: utf-8
 import os
-from yurlungur.tool.meta import meta
-
-
-class Base(object):
-    """
-    projects/sequences/tracks/clips
-    """
-
-    def to_object(self, val):
-        return YObject(val)
-
-    def to_file(self, val):
-        return YFile(val)
 
 
 class Render(object):
@@ -44,6 +31,7 @@ class Render(object):
 class Projects(object):
 
     def __init__(self):
+        from yurlungur.tool.meta import meta
         self.manager = meta.resolve.GetProjectManager()
         self.project = self.manager.GetCurrentProject()
         self.projects = self.manager.GetProjectsInCurrentFolder()

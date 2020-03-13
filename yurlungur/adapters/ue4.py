@@ -1,86 +1,55 @@
 # coding: utf-8
-import unreal
+# http://kinnaji.com/2019/12/16/pythoncsvoutput/
 
-editor = EditorUtil()
-assets = GetEditorAssetLibrary()
-materials = MaterialEditingLib()
-anims = GetAnimationLibrary()
+try:
+    import unreal
 
 
-def apply_lods(static_mesh):
-    number_of_vertices = unreal.EditorStaticMeshLibrary.get_number_verts(static_mesh, 0)
-    if number_of_vertices < 10:
-        return
-
-    print("treating asset: " + static_mesh.get_name())
-    print("existing LOD count: " + str(unreal.EditorStaticMeshLibrary.get_lod_count(static_mesh)))
-
-    options = unreal.EditorScriptingMeshReductionOptions()
-    options.reduction_settings = [unreal.EditorScriptingMeshReductionSettings(1.0, 1.0),
-                                  unreal.EditorScriptingMeshReductionSettings(0.8, 0.75),
-                                  unreal.EditorScriptingMeshReductionSettings(0.6, 0.5),
-                                  unreal.EditorScriptingMeshReductionSettings(0.4, 0.25)
-                                  ]
-    options.auto_compute_lod_screen_size = False
-    unreal.EditorStaticMeshLibrary.set_lods(static_mesh, options)
-    unreal.EditorAssetLibrary.save_loaded_asset(static_mesh)
-    print("new LOD count: " + str(unreal.EditorStaticMeshLibrary.get_lod_count(static_mesh)))
+    @unreal.uclass()
+    class EditorUtil(unreal.GlobalEditorUtilityBase):
+        pass
 
 
-all_assets = unreal.EditorAssetLibrary.list_assets(asset_path)
-all_assets_loaded = [unreal.EditorAssetLibrary.load_asset(a) for a in all_assets]
-static_mesh_assets = unreal.EditorFilterLibrary.by_class(all_assets_loaded, unreal.StaticMesh)
-map(apply_lods, static_mesh_assets)
-
-allAssets = assets.list_assets("/Game/", True, False)
-for asset in allAssets or []:
-    deps = assets.find_package_referencers_for_asset(asset, False)
-    if (len(deps) <= 0):
-        assets.delete_asset(asset)
-
-selectedAssets = editor.get_selected_assets()
-
-selectedAssetName = selectedAssets.get_name()
-selectedAssetPath = selectedAssets.get_path_name()
-selectedAssetClass = selectedAssets.get_class()
-allAssets = editor.list_assets(workingPath, True, False)
-
-for selectedAsset in selectedAssets:
-    selectedAsset.modify(True)
-    anims.remove_all_animation_notify_tracks(selectedAsset)
-
-editor.load_asset()
-
-import sys
-
-sys.path.append("C:/Users/sho/Downloads/Yurlungur")
-import yurlungur as yr
-
-reload(yr)
-print yr.YNode('/Game/aaaa').name
-
-if hasattr(meta, 'uclass'):
-    meta.editor.get_actor_reference(self.name)
+    @unreal.uclass()
+    class GetEditorAssetLibrary(unreal.EditorAssetLibrary):
+        pass
 
 
-@unreal.uclass()
-class EditorUtil(unreal.GlobalEditorUtilityBase):
-    pass
+    @unreal.uclass()
+    class GetEditorLevelLibrary(unreal.EditorLevelLibrary):
+        pass
 
 
-@unreal.uclass()
-class GetEditorAssetLibrary(unreal.EditorAssetLibrary):
-    pass
+    @unreal.uclass()
+    class MaterialEditingLib(unreal.MaterialEditingLibrary):
+        pass
 
 
-@unreal.uclass()
-class MaterialEditingLib(unreal.MaterialEditingLibrary):
-    pass
+    @unreal.uclass()
+    class GetAnimationLibrary(unreal.AnimationLibrary):
+        pass
 
 
-@unreal.uclass()
-class GetAnimationLibrary(unreal.AnimationLibrary):
-    pass
+    tools = unreal.AssetToolsHelpers.get_asset_tools()
+
+
+    def uname(item):
+        """compatible for asset and"""
+
+        for asset in GetEditorAssetLibrary().list_assets("/Game/"):
+            if asset.endswith(item):
+                return asset
+
+        for actor in GetEditorLevelLibrary().get_all_level_actors():
+            if item in actor.get_name():
+                return EditorUtil().get_actor_reference(actor.get_full_name().split(":")[1])
+
+        raise Exception
+
+except ImportError:
+    from yurlungur.core.env import App as _
+
+    run, shell, end = _("ue4")._actions
 
 
 class Project(object):
