@@ -1,11 +1,11 @@
 # Yurlungur
 
-|       | Windows | Unix | code |
+|       | Windows | Linux/macOS | code |
 | ----- | ------ | --- | --- |
 | OS | [![Build status](https://ci.appveyor.com/api/projects/status/46vinb8jd1jbbhdg?svg=true)](https://ci.appveyor.com/project/sho7noka/yurlungur) | [![Build Status](https://travis-ci.org/sho7noka/Yurlungur.svg?branch=dev)](https://travis-ci.org/sho7noka/Yurlungur) | [![codecov](https://codecov.io/gh/sho7noka/Yurlungur/branch/dev/graph/badge.svg)](https://codecov.io/gh/sho7noka/Yurlungur) |
 
 
-universal scripting environment with Python which Maya, Houdini and Blender.
+universal scripting environment with Python which Maya, Houdini and UnrealEngine4.
 
 ## summary
 DCC tool scripting is almost used Python, but these api isn't similarly anything.
@@ -17,55 +17,59 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 ### future
 * HOM (Houdini Object Model) like command wrapper.
 * PySide & PyQt shorten accessor.
-* Useful py-snippet for Game&Film technical artist.
+* Useful snippet for Game&VFX technical artist.
 
 ### available
-|       | Node | Attribute | Anim |
+|       | Node | Attribute | Data |
 | ---- | --- | --- | --- |
-| Maya | ○ | ○ | ☓ |
-| Houdini | ○ | ○ | ☓ |
-| Substance (2018.1.2~) | ○ | ○ | - |
-| 3dsMax (2017~) | ○ | ○ | ☓ |
-| Blender (2.8) | ○ | ○ | ☓ |
-| Nuke | ○ | ○ | - |
-| Davinci Resolve (15~) | ○ | ○ | - |
-| [Unreal Engine](https://docs.unrealengine.com/en-US/Editor/Scripting-and-Automating-the-Editor/Scripting-the-Editor-using-Python)(4.20~) | - | - | - |
+| Maya (2016~) | ○ | ○ | ☓ |
+| Substance (2018.1.2~) | ○ | ○ | ☓ |
+| Houdini (16~) | ○ | ○ | ☓ |
+| Blender (2.80~) | ○ | ○ | ☓ |
+| UE4 (4.22~) | ○ | ○ | ☓ |
+| Unity (2019.3~) | ○ | ○ | ☓ |
+| Nuke (10~) | ○ | ○ | ☓ |
+| Cinema 4D (R21~) | ○ | ○ | ☓ |
+| Davinci Resolve(&Fusion) (15~) | ○ | ○ | ☓ |
 
+available for Photoshop(require 3th party module) and 3dsMax.
 
 ### Installing
 ```bash
-pipenv install yurlungur
+$ pipenv install yurlungur
 ```
 
 #### optional
-If you use Unreal or Standalone for full supports, Yurlungur require `Qt for Python` module.
+If you use UE4 Editor or Standalone for full supports, Yurlungur recommend `Qt for Python` module.
 
 ```bash
-pipenv install PySide2
+$ pipenv install PySide2
 ```
 
 ### semantics
 
 ```python
 # Blender
+import bpy
 bpy.data.objects["foo"].bar = 1
 ```
 
-```mel
-// MEL
+```sh
+// Maya MEL
 setAttr "foo.bar" 1;
+```
+
+```cs
+// Unity C#
+using UnityEngine;
+UnityEngine.GameObject.Find("foo").bar = 1;
 ```
 
 ```python
 # yurlungur
 import yurlungur as yr
 yr.YNode("foo").bar.set(1)
-```
-
-## TODO
-- [x] basic api
-- [x] github.io
-- [ ] unreal
+``` 
 
 ## contribution
 lets see [CONTRIBUTING](./CONTRIBUTING.md).

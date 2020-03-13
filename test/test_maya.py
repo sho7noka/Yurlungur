@@ -1,20 +1,21 @@
-import doctest
-import unittest
-
+# -*- coding: utf-8 -*-
 import sys
+import unittest
 
 sys.path.append('../yurlungur')
 
 import yurlungur as yr
-from yurlungur.core.env import installed, Maya
+from yurlungur.core.env import _Maya
 
-@unittest.skipUnless(installed("maya"), "Maya is not found")
+
+@unittest.skipUnless(_Maya(), "Maya is not found")
 class TestMaya(unittest.TestCase):
     def test_env(self):
-        assert Maya()
+        assert _Maya()
 
+    @unittest.skip("only runtime")
     def test_maya(self):
-        standalone.mayapy("import yurlungur as yr; print yr.name")
+        yr.maya.run("import yurlungur as yr; print yr.name")
 
     @unittest.skip("only runtime")
     def test_cmds(self):

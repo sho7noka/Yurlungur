@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import fnmatch
+
 from yurlungur.core.proxy import YNode
 from yurlungur.tool.meta import meta
 
@@ -19,10 +20,8 @@ class _NodeType(object):
     def findNodes(self, pattern):
         if hasattr(meta, "listNodeTypes"):
             # http://help.autodesk.com/cloudhelp/2016/JPN/Maya-Tech-Docs/CommandsPython/shadingNode.html
-            categories = [
-                "geometry", "camera", "light", "utility",
-                "color", "shader", "texture", "rendering", "postprocess"
-            ]
+            categories = ["geometry", "camera", "light", "utility", "color", "shader", "texture", "rendering",
+                          "postprocess"]
             # meta.allNodeTypes(ia=1)
             for category in categories:
                 yield fnmatch.filter(meta.listNodeTypes(category), pattern)
