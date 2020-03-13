@@ -2,7 +2,7 @@
 
 |       | Windows | Linux/macOS | code |
 | ----- | ------ | --- | --- |
-| OS | [![Build status](https://ci.appveyor.com/api/projects/status/46vinb8jd1jbbhdg?svg=true)](https://ci.appveyor.com/project/sho7noka/yurlungur) | [![Build Status](https://travis-ci.org/sho7noka/Yurlungur.svg?branch=dev)](https://travis-ci.org/sho7noka/Yurlungur) | [![codecov](https://codecov.io/gh/sho7noka/Yurlungur/branch/dev/graph/badge.svg)](https://codecov.io/gh/sho7noka/Yurlungur)[![codecov](https://codecov.io/gh/sho7noka/Yurlungur/branch/dev/graph/badge.svg)](https://codecov.io/gh/sho7noka/Yurlungur) |
+| OS | [![Build status](https://ci.appveyor.com/api/projects/status/46vinb8jd1jbbhdg?svg=true)](https://ci.appveyor.com/project/sho7noka/yurlungur) | [![Build Status](https://travis-ci.org/sho7noka/Yurlungur.svg?branch=dev)](https://travis-ci.org/sho7noka/Yurlungur) | [![codecov](https://codecov.io/gh/sho7noka/Yurlungur/branch/dev/graph/badge.svg)](https://codecov.io/gh/sho7noka/Yurlungur) |
 
 
 universal scripting environment with Python which Maya, Houdini and UnrealEngine4.
@@ -23,8 +23,8 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 |       | Node | Attribute | Data |
 | ---- | --- | --- | --- |
 | Maya (2016~) | ○ | ○ | ☓ |
-| Houdini (16~) | ○ | ○ | ☓ |
 | Substance (2018.1.2~) | ○ | ○ | ☓ |
+| Houdini (16~) | ○ | ○ | ☓ |
 | Blender (2.80~) | ○ | ○ | ☓ |
 | UE4 (4.22~) | ○ | ○ | ☓ |
 | Unity (2019.3~) | ○ | ○ | ☓ |
@@ -77,5 +77,3 @@ lets see [CONTRIBUTING](./CONTRIBUTING.md).
 
 ## License
 Yurlungur is [MIT](./LICENSE.md) License.
-
-[]
