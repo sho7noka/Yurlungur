@@ -1,28 +1,28 @@
-import doctest
-import unittest
-
+# -*- coding: utf-8 -*-
 import sys
+import unittest
 
 sys.path.append('../yurlungur')
 
-from yurlungur.core.env import installed, Houdini
+import yurlungur as yr
+from yurlungur.core.env import _Houdini
 
-@unittest.skipUnless(installed("houdini"), "Houdini is not found")
+@unittest.skipUnless(_Houdini(), "Houdini is not found")
 class TestHoudini(unittest.TestCase):
-    def test_env(self):
-        self.assertTrue(installed("houdini"))
 
     def test_hou(self):
-        standalone.hython("import yurlungur as yr; print yr.name, yr.version")
+        print (yr.name, yr.version)
 
     def test_node(self):
-        standalone.hython("import yurlungur as yr; print yr.YNode('obj')")
+        print (yr.YObject('obj'))
 
+    @unittest.skip("only runtime")
     def test_attr(self):
-        standalone.hython("import yurlungur as yr; yr.YNode('obj').create('geo').tx.set(5)")
+        yr.YObject('obj').create('geo')
 
+    @unittest.skip("")
     def test_file(self):
-        standalone.hython("import yurlungur as yr; yr.YFile.save('temp.hip')")
+        yr.YFile.save('temp.hip')
 
 
 if __name__ == '__main__':
