@@ -5,7 +5,8 @@ install:
 - pip install sphinx travis-sphinx sphinxcontrib-napoleon sphinx_rtd_theme codecov
 script:
   - python setup.py test
-  - travis-sphinx --outdir docs build --source=source
+  #  - travis-sphinx --outdir docs build --source=source
+  - travis-sphinx build --source=source build
 after_success:
   - codecov
   - travis-sphinx deploy --branches "master" --message "doc Update Sphinx pages"
