@@ -6,7 +6,7 @@ install:
 script:
   - python setup.py test
   #  - travis-sphinx --outdir docs build --source=source
-  - sphinx-apidoc -F -o source/ yurlungur/
+#  - sphinx-apidoc -F -o source/ yurlungur/
   - travis-sphinx build --source=source
 after_success:
   - codecov
