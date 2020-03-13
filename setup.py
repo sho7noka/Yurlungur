@@ -14,9 +14,9 @@ setup(
     author='sho7noka',
     author_email='shosumioka@gmail.com',
     platforms="any",
-    description='universal scripting environment with Python which Maya, Houdini and UnrealEngine.',
+    description='universal scripting environment with Python which Maya, Houdini and UnrealEngine4.',
     long_description=text,
-    keywords=['maya', '3d', 'graphics', 'Game', 'VFX', 'CG', 'houdini', "unreal"],
+    keywords=['maya', '3DCG', 'graphics', 'Game', 'VFX', 'houdini', "unreal"],
 
     packages=["yurlungur"],
     include_package_data=True,

@@ -14,14 +14,6 @@ Object(Node) クラス、Attribute クラス、File クラスの基本を知れ�
 #. What = Node
 #. How = Attribute
 
-modules:
-
-.. toctree::
-    :maxdepth: 2
-
-    modules
-
-
 
 Object & Node
 --------------------------------
