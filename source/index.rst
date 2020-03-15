@@ -31,6 +31,7 @@ Chapters:
     api
     editor
     howto
+    tool
 
 
 Indices and tables
