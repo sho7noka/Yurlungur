@@ -1,16 +1,16 @@
 ===================================
-tool conf
+Editor tips
 ===================================
-yurlungur tool scripting tips.
+デコレータと  ｔ
 
 
-Log
+print
 -------------------------------
 print statement is not available in Python3.
 Also IronPython is not bind with __future__ modules.
 
 print 文は Python3 ではエラーになり、それを回避するための
-__future__ モジュールも Unity Asset 内の IronPython ではサポートされないため、
+__future__ モジュールも IronPython ではサポートされないため、
 `yurlungur.pprint(*args)` の使用をお勧めします。
 
 
@@ -37,7 +37,7 @@ contextManager で制御されたUndoGroup で
 
 
 もしUndoGroupでインデントを囲わないスクリプト処理をした場合、
-ひとつひとつ undo で戻さなければなりません。
+ひとつひとつundoを使って元に戻さなければなりません。
 
 
 GUI
