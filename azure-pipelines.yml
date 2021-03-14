@@ -6,29 +6,95 @@
 trigger:
 - dev
 
-pool:
-  vmImage: ubuntu-latest
-strategy:
-  matrix:
-    Python27:
-      python.version: '2.7'
-    Python36:
-      python.version: '3.6'
-    Python37:
-      python.version: '3.7'
+jobs:
+  - job: Linux
 
-steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '$(python.version)'
-  displayName: 'Use Python $(python.version)'
+  pool:
+    vmImage: ubuntu-latest
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: 'Install dependencies'
+  strategy:
+    matrix:
+      Python27:
+        python.version: '2.7'
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+  
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+    displayName: 'Use Python $(python.version)'
+  
+  - script: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+    displayName: 'Install dependencies'
+  
+  - script: |
+      pip install pytest pytest-azurepipelines
+      pytest
+    displayName: 'pytest'
+  
+  
+- job: Windows
 
-- script: |
-    pip install pytest pytest-azurepipelines
-    pytest
-  displayName: 'pytest'
+  pool:
+    vmImage: 'vs2017-win2016'
+
+  strategy:
+    matrix:
+      Python27:
+        python.version: '2.7'
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+
+  steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(python.version)'
+      displayName: 'Use Python $(python.version)'
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+      displayName: 'Install dependencies'
+
+    - script: |
+        pip install pytest pytest-azurepipelines
+        pytest
+      displayName: 'pytest'
+      
+      
+  - job: macOS
+
+    pool:
+      vmImage: 'macOS-10.15'
+
+    strategy:
+      matrix:
+        Python27:
+          python.version: '2.7'
+        Python36:
+          python.version: '3.6'
+        Python37:
+          python.version: '3.7'
+
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(python.version)'
+        displayName: 'Use Python $(python.version)'
+
+      - script: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+        displayName: 'Install dependencies'
+
+      - script: |
+          pip install pytest pytest-azurepipelines
+          pytest
+        displayName: 'pytest'
