@@ -6,7 +6,7 @@ from functools import partial
 from yurlungur.core.deco import trace
 from yurlungur.core.exception import YException
 from yurlungur.core.wrapper import YObject
-# from yurlungur.core.datatype import Vector, Matrix, Color
+from yurlungur.core.datatype import Vector, Matrix, Color
 from yurlungur.tool.meta import meta
 
 

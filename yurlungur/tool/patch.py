@@ -85,16 +85,16 @@ def remote_debug_listen(HOST='localhost', port=3000):
             print("Attached already, continuing...")
 
     except (ImportError, ValueError):
-        # https://pleiades.io/help/pycharm/remote-debugging-with-product.html
-        import pydevd_pycharm as pycharm
-        # pydevd.stoptrace()
-        pycharm.settrace(HOST, port=port, stdoutToServer=True, stderrToServer=True)
-        print("listen from pycharm server debug")
+        try:
+            # https://pleiades.io/help/pycharm/remote-debugging-with-product.html
+            import pydevd_pycharm as pycharm
+            # pydevd.stoptrace()
+            pycharm.settrace(HOST, port=port, stdoutToServer=True, stderrToServer=True)
+            print("listen from pycharm server debug")
 
-
-    except:
-        import traceback
-        traceback.print_exc()
+        except ImportError:
+            import traceback
+            traceback.print_exc()
 
 
 is_code, is_evd = False, False
@@ -113,10 +113,10 @@ except ImportError:
             import ptvsd as __ptvsd
 
             is_code = True
-        except:
-            import traceback
-
-            traceback.print_exc()
+        except ImportError:
+            pass
+            # import traceback
+            # traceback.print_exc()
 
 if is_code or is_evd:
     from yurlungur.tool import rpc as __rpc

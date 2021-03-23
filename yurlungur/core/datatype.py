@@ -1,32 +1,17 @@
 # -*- coding: utf-8 -*-
-from math import sqrt
+import sys
+import types
+from math import sqrt, pi as PI  #: π
 from numbers import Number
-from yurlungur.core import env
 
-_YVector, _YMatrix, _YColors = (object, object, object)
-from math import pi as PI  #: π
+from yurlungur.core import env
 
 TO_DEG = 180. / PI  #: Radians を Degrees に変換するための係数。
 TO_RAD = PI / 180.  #: Degrees を Radians に変換するための係数。
-
 # TOLERANCE = 1. / (2 ** 30)  #: DCCツールなどで一般的に使用する想定の許容誤差。
 # LOOSE_TOLERANCE = 1. / (2 ** 18)  #: DCCツールなどでの緩めの許容誤差。
 AVOID_ZERO_DIV_PRECISION = 1.e-13  #: Maya では scale=0 を設定しても matrix 値は 1.e-12 くらいで潰れずに保持するようなので、それを意識した極小値。
-
-# -*- coding: utf-8 -*-
-u"""
-簡易的なイミュータブル化ラッパー。
-"""
-import sys
-import types
-
-__all__ = [
-    'OPTIONAL_MUTATOR_DICT',
-    'CymelImmutableError',
-    'immutable',
-    'immutableType',
-    'ImmutableDict',
-]
+_MUTATOR_DICT = {}
 
 # ------------------------------------------------------------------------------
 OPTIONAL_MUTATOR_DICT = {
@@ -55,13 +40,164 @@ OPTIONAL_MUTATOR_DICT = {
     ),
 }  #: クラスごとの追加ミューテーターを把握するための辞書。適切なメンテナンスが必要。
 
+if env.Maya():
+    import maya.api.OpenMaya as _api2
+
+    _MM = _api2.MMatrix
+    _MQ = _api2.MQuaternion
+    _ME = _api2.MEulerRotation
+    _MP = _api2.MPoint
+    _MV = _api2.MVector
+    _MX = _api2.MTransformationMatrix
+    _MSpace_kTransform = _api2.MSpace.kTransform
+    _TOLERANCE = _MM.kTolerance
+
+elif env.Rumba(): # and Katana
+    try:
+        import imath
+    except ImportError:
+        import Imath as imath
+
+    _MM = imath.M33f
+    _MQ = _api2.MQuaternion
+    _ME = _api2.MEulerRotation
+    _MP = _api2.MPoint
+    _MV = imath.V3f
+    _MX = _api2.MTransformationMatrix
+    _MSpace_kTransform = _api2.MSpace.kTransform
+    _TOLERANCE = _MM.kTolerance
+
+elif env.Houdini() or env.UE4():
+    try:
+        import hou as application
+    except ImportError:
+        import unreal as application
+
+    _MV = type('_YVector', (
+        application.Vector if hasattr(application, "Vector") else application.Vector3,
+    ), dict())
+
+    _MM = type('_YMatrix', (
+        application.Matrix if hasattr(application, "Matrix") else application.Matrix4,
+    ), dict())
+
+    _MQ = _api2.MQuaternion
+    _ME = _api2.MEulerRotation
+    _MP = _api2.MPoint
+    _MX = _api2.MTransformationMatrix
+    _MSpace_kTransform = _api2.MSpace.kTransform
+    _TOLERANCE = _MM.kTolerance
+
+
+elif env.Unity():
+    import UnityEngine
+
+    _MM = UnityEngine.Matrix4x4
+    _MQ = _api2.MQuaternion
+    _ME = _api2.MEulerRotation
+    _MP = _api2.MPoint
+    _MV = UnityEngine.Vector3
+    _MX = _api2.MTransformationMatrix
+    _MSpace_kTransform = _api2.MSpace.kTransform
+    _TOLERANCE = _MM.kTolerance
+
+
+elif env.Substance():
+    import sd
+
+    _MM = sd.SDValueMatrix
+    _MQ = _api2.MQuaternion
+    _ME = _api2.MEulerRotation
+    _MP = _api2.MPoint
+    _MV = sd.SDValueVector
+    _MX = _api2.MTransformationMatrix
+    _MSpace_kTransform = _api2.MSpace.kTransform
+    _TOLERANCE = _MM.kTolerance
+
+elif env.Blender():
+    import mathutils
+
+    _MM = mathutils.Matrix
+    _MQ = _api2.MQuaternion
+    _ME = _api2.MEulerRotation
+    _MP = _api2.MPoint
+    _MV = mathutils.Vector
+    _MX = _api2.MTransformationMatrix
+    _MSpace_kTransform = _api2.MSpace.kTransform
+    _TOLERANCE = _MM.kTolerance
+
+elif env.Nuke():
+    import _nukemath
+
+    _MM = _nukemath.Matrix4
+    _MQ = _api2.MQuaternion
+    _ME = _api2.MEulerRotation
+    _MP = _api2.MPoint
+    _MV = _nukemath.Vector3
+    _MX = _api2.MTransformationMatrix
+    _MSpace_kTransform = _api2.MSpace.kTransform
+    _TOLERANCE = _MM.kTolerance
+
+elif env.Max():
+    from pymxs import runtime as rt
+
+    _MM = rt.Matrix3
+    _MQ = _api2.MQuaternion
+    _ME = _api2.MEulerRotation
+    _MP = _api2.MPoint
+    _MV = _api2.MVector
+    _MX = _api2.MTransformationMatrix
+    _MSpace_kTransform = _api2.MSpace.kTransform
+
+
+elif env.C4D():
+    import c4d
+
+    _MM = c4d.Matrix
+    _MQ = _api2.MQuaternion
+    _ME = _api2.MEulerRotation
+    _MP = _api2.MPoint
+    _MV = c4d.Vector
+    _MX = _api2.MTransformationMatrix
+    _MSpace_kTransform = _api2.MSpace.kTransform
+    _TOLERANCE = _MM.kTolerance
+
+elif env.Davinci():
+    _MM = c4d.Matrix
+    _MQ = _api2.MQuaternion
+    _ME = _api2.MEulerRotation
+    _MP = _api2.MPoint
+    _MV = c4d.Vector
+    _MX = _api2.MTransformationMatrix
+    _MSpace_kTransform = _api2.MSpace.kTransform
+    _TOLERANCE = _MM.kTolerance
+
+else:
+    # marmoset,photoshop,renderdoc
+    _MM = None
+    _MQ = None
+    _ME = None
+    _MP = None
+    _MV = None
+    _MX = None
+    _MSpace_kTransform = None
+    _TOLERANCE = None
+
+
+# __all__ = [
+#     'OPTIONAL_MUTATOR_DICT',
+#     'CymelImmutableError',
+#     'immutable',
+#     'immutableType',
+#     'ImmutableDict',
+# ]
+
 
 # ------------------------------------------------------------------------------
 class CymelImmutableError(TypeError):
     u"""
     `immutable` ラップされたオブジェクトが書き換えられた。 
     """
-
 
 # ------------------------------------------------------------------------------
 def _makeImmutableWrapper(cls, clsname):
@@ -133,7 +269,6 @@ def _makeImmutableWrapper(cls, clsname):
     globals()[clsname] = newcls
     newcls_tuple = (newcls,)
     return newcls
-
 
 _object_init = object.__init__
 _object_hash = object.__hash__
@@ -361,17 +496,6 @@ AXIS_NEG = 0x10  # X,Y,Z の軸ID（ビットフラグではない）に加算�
 AXIS_NEG_X = AXIS_NEG + AXIS_X  #: -X方向ID。
 AXIS_NEG_Y = AXIS_NEG + AXIS_Y  #: -Y方向ID。
 AXIS_NEG_Z = AXIS_NEG + AXIS_Z  #: -Z方向ID。
-import maya.api.OpenMaya as _api2
-
-_MM = _api2.MMatrix
-_MQ = _api2.MQuaternion
-_ME = _api2.MEulerRotation
-_MP = _api2.MPoint
-_MV = _api2.MVector
-_MX = _api2.MTransformationMatrix
-_MSpace_kTransform = _api2.MSpace.kTransform
-
-_TOLERANCE = _MM.kTolerance
 
 
 class EulerRotation(object):
@@ -869,7 +993,7 @@ def _newE(data, cls=E):
 _object_new = object.__new__
 
 
-class Matrix(_YMatrix):
+class Matrix(object):
     def __init__(self, *args, **kwargs):
         super(Matrix, self).__init__(*args, **kwargs)
 
@@ -2036,84 +2160,13 @@ def _newM(data, cls=M):
 
 _object_new = object.__new__
 
-if env.Rumba():  # and Katana
-    try:
-        import imath
-    except ImportError:
-        import Imath as imath
 
-    _YVector = type('_YVector', (imath.V3f,), dict())
-    _YMatrix = type('_YMatrix', (imath.M33f,), dict())
-    _YColors = type('_YColors', (imath.Color4f,), dict())
-
-elif env.Houdini() or env.UE4():
-    try:
-        import hou as application
-    except ImportError:
-        import unreal as application
-
-    _YVector = type('_YVector', (
-        application.Vector if hasattr(application, "Vector") else application.Vector3,
-    ), dict())
-
-    _YMatrix = type('_YMatrix', (
-        application.Matrix if hasattr(application, "Matrix") else application.Matrix4,
-    ), dict())
-
-    _YColors = type('_YColors', (application.Color,), dict())
-
-elif env.Unity():
-    import UnityEngine
-
-    _YVector = type('_YVector', (
-        UnityEngine.Vector if hasattr(UnityEngine, "Vector") else UnityEngine.Vector3,
-    ), dict())
-
-    _YMatrix = type('_YMatrix', (UnityEngine.Matrix4x4), dict())
-
-    _YColors = type('_YColors', (UnityEngine.Color,), dict())
-
-elif env.Substance():
-    import sd
-
-    _YVector = type('_YVector', (sd.SDValueVector,), dict())
-    _YMatrix = type('_YMatrix', (sd.SDValueMatrix,), dict())
-    _YColors = type('_YColors', (sd.SDValueColorRGBA,), dict())
-
-elif env.Blender():
-    import mathutils
-
-    _YVector = type('_YVector', (mathutils.Vector,), dict())
-    _YMatrix = type('_YMatrix', (mathutils.Matrix,), dict())
-    _YColors = type('_YColors', (mathutils.Color,), dict())
-
-elif env.Nuke():
-    import _nukemath
-
-    _YVector = type('_YVector', (_nukemath.Vector3,), dict())
-    _YMatrix = type('_YMatrix', (_nukemath.Matrix4,), dict())
-
-elif env.Max():
-    from pymxs import runtime as rt
-
-    _YVector = type('_YVector', (rt.Point3,), dict())
-    _YMatrix = type('_YMatrix', (rt.Matrix3,), dict())
-    _YColors = type('_YColors', (rt.Color,), dict())
-
-elif env.C4D():
-    import c4d
-
-    _YVector = c4d.Vector
-    _YMatrix = c4d.Matrix
-    _YColors = c4d.Vector
-
-
-class Color(_YColors):
+class Color(object):
     def __init__(self, *args, **kwargs):
         super(Color, self).__init__(*args, **kwargs)
 
 
-class Vector(_YVector):
+class Vector(object):
     __slots__ = ('__data',)
     __hash__ = None
 
