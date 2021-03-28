@@ -3,6 +3,10 @@
 TODO: bind logger
 yurlungur exceptions
 """
+import contextlib
+with contextlib.suppress(ImportError):
+    import sys
+    print(sys.executable)
 
 
 class YException(RuntimeError):
