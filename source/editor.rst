@@ -69,8 +69,8 @@ metaモジュールからそれぞれネイティブのuiモジュールを参�
 .. code-block:: python
 
     import yurlungur
-    widget = QWidget()
-    yr.Qt.show(widget)
+    widget = yurlungur.Qt.QWidget()
+    yurlungur.Qt.show(widget)
 
 
 VFXWindowをサポートした環境では、いくつかのアプリケーションでコールバックを追加するパッチを適用した
@@ -82,7 +82,7 @@ UIWindow クラスにも対応しています。
 
     import yurlungur
 
-    class MyWindow(yurlungur.UIWindow):
+    class MyWindow(yurlungur.Qt.UIWindow):
         WindowID = 'unique_window_id'
         WindowName = 'My Window'
     

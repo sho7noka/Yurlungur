@@ -1,67 +1,67 @@
 # coding: utf-8
 import sys
+import contextlib
+
 from yurlungur.core import env as _env
 from yurlungur.tool import window as _window
 
-try:
-    from yurlungur import Qt
+# dispatch for Qt
+from yurlungur import Qt
+Qt.main_window = _window.main_window
+Qt.show = _window.show
+
+# dispatch for exit
+if _env.Blender() or _env.Nuke():
+    sys.exit = None
+
+# dispatch for app
+with contextlib.suppress(ImportError):
     from vfxwindow import VFXWindow as _UIWindow
 
-    # dispatch for Qt
-    Qt.main_window = _window.main_window
-    Qt.show = _window.show
     Qt.UIWindow = _UIWindow
-
-    # dispatch app
     _UIWindow.c4d = _env.C4D()
     _UIWindow.marmoset = _env.Marmoset()
     _UIWindow.rumba = _env.Rumba()
     _UIWindow.substance_painter = _env.SPainter()
     _UIWindow.unity = _env.Unity()
 
-except ImportError:
-    _UIWindow = object
+    # https://github.com/huntfx/vfxwindow/wiki/Quick-Start#callbacks
+    if _env.Max():
+        _UIWindow.addCallback = None
 
-if _env.Blender() or _env.Nuke():
-    sys.exit = None
+    if _env.Unity():
+        _UIWindow.addCallback = None
 
-# https://github.com/huntfx/vfxwindow/wiki/Quick-Start#callbacks
-if _env.Max():
-    _UIWindow.addCallback = None
+    if _env.Substance():
+        import sd as __sd
 
-if _env.Unity():
-    _UIWindow.addCallback = None
+        app = __sd.getContext().getSDApplication()
 
-if _env.Substance():
-    import sd as __sd
+        _UIWindow.addCallbackBeforeFileLoaded = app.registerBeforeFileLoadedCallback
+        _UIWindow.addCallbackAfterFileLoaded = app.registerAfterFileLoadedCallback
+        _UIWindow.addCallbackBeforeFileSaved = app.registerBeforeFileSavedCallback
+        _UIWindow.addCallbackAfterFileSaved = app.registerAfterFileSavedCallback
+        _UIWindow.removeCallbacks = (app.unregisterCallback(uuid) for uuid in [])
 
-    app = __sd.getContext().getSDApplication()
+    if _env.SPainter():
+        import substance_painter.event as __e
 
-    _UIWindow.addCallbackBeforeFileLoaded = app.registerBeforeFileLoadedCallback
-    _UIWindow.addCallbackAfterFileLoaded = app.registerAfterFileLoadedCallback
-    _UIWindow.addCallbackBeforeFileSaved = app.registerBeforeFileSavedCallback
-    _UIWindow.addCallbackAfterFileSaved = app.registerAfterFileSavedCallback
-    _UIWindow.removeCallbacks = (app.unregisterCallback(uuid) for uuid in [])
-
-if _env.SPainter():
-    import substance_painter.event as __e
-
-    # Subscribe to project related events.
-    connections = {
-        __e.ProjectOpened: _UIWindow.addCallbackProjectOpened,
-        __e.ProjectCreated: _UIWindow.addCallbackProjectCreated,
-        __e.ProjectAboutToClose: _UIWindow.addCallbackProjectAboutToClose,
-        __e.ProjectAboutToSave: _UIWindow.addCallbackProjectAboutToSave,
-        __e.ProjectSaved: _UIWindow.addCallbackProjectSaved,
-        __e.ExportTexturesAboutToStart: _UIWindow.addCallbackExportTexturesAboutToStart,
-        __e.ExportTexturesEnded: _UIWindow.addCallbackExportTexturesEnded,
-        __e.ShelfCrawlingStarted: _UIWindow.addCallbackShelfCrawlingStarted,
-        __e.ShelfCrawlingEnded: _UIWindow.addCallbackShelfCrawlingEnded,
-        __e.ProjectEditionEntered: _UIWindow.addCallbackProjectEditionEntered,
-        __e.ProjectEditionLeft: _UIWindow.addCallbackProjectEditionLeft,
-    }
-    for event, callback in connections.items():
-        __e.DISPATCHER.connect(event, callback)
+        # Subscribe to project related events.
+        connections = {
+            __e.ProjectOpened: _UIWindow.addCallbackProjectOpened,
+            __e.ProjectCreated: _UIWindow.addCallbackProjectCreated,
+            __e.ProjectAboutToClose: _UIWindow.addCallbackProjectAboutToClose,
+            __e.ProjectAboutToSave: _UIWindow.addCallbackProjectAboutToSave,
+            __e.ProjectSaved: _UIWindow.addCallbackProjectSaved,
+            __e.ExportTexturesAboutToStart: _UIWindow.addCallbackExportTexturesAboutToStart,
+            __e.ExportTexturesEnded: _UIWindow.addCallbackExportTexturesEnded,
+            __e.ShelfCrawlingStarted: _UIWindow.addCallbackShelfCrawlingStarted,
+            __e.ShelfCrawlingEnded: _UIWindow.addCallbackShelfCrawlingEnded,
+            __e.ProjectEditionEntered: _UIWindow.addCallbackProjectEditionEntered,
+            __e.ProjectEditionLeft: _UIWindow.addCallbackProjectEditionLeft,
+        }
+        for event, callback in connections.items():
+            __e.DISPATCHER.connect(event, callback)
 
 
 def remote_debug_listen(HOST='localhost', port=3000):

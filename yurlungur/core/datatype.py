@@ -1749,41 +1749,41 @@ class Matrix(object):
             values[i] = v[2] - data[i]
         data += _MM(values)
 
-    def setAxes(self, i, vx, vy, vz, vt=V.Zero, transpose=False):
-        u"""
-        3x3部分の行や列と4行目の平行移動ベクトルをセットする。
-
-        :type vx: `.Vector`
-        :param vx: セットするX軸ベクトル。
-        :type vy: `.Vector`
-        :param vy: セットするY軸ベクトル。
-        :type vz: `.Vector`
-        :param vz: セットするZ軸ベクトル。
-        :type vt: `.Vector`
-        :param vt:
-            セットする平行移動ベクトル。
-            これだけは transpose オプションの影響を受けない。
-        :param `bool` transpose:
-            3x3部分には転置行列の軸ベクトルをセットする。
-            言い換えると False では行ベクトルを
-            True では列ベクトルをセットすることになる。
-        """
-        # Fix DoubleAccessorBug
-        if transpose:
-            m = _MM([
-                vx[0], vy[0], vz[0], 0.,
-                vx[1], vy[1], vz[1], 0.,
-                vx[2], vy[2], vz[2], 0.,
-                vt[0], vt[1], vt[2], 1.,
-            ])
-        else:
-            m = _MM([
-                vx[0], vx[1], vx[2], 0.,
-                vy[0], vy[1], vy[2], 0.,
-                vz[0], vz[1], vz[2], 0.,
-                vt[0], vt[1], vt[2], 1.,
-            ])
-        self.__data += m - self.__data
+    # def setAxes(self, i, vx, vy, vz, vt=V.Zero, transpose=False):
+    #     u"""
+    #     3x3部分の行や列と4行目の平行移動ベクトルをセットする。
+    # 
+    #     :type vx: `.Vector`
+    #     :param vx: セットするX軸ベクトル。
+    #     :type vy: `.Vector`
+    #     :param vy: セットするY軸ベクトル。
+    #     :type vz: `.Vector`
+    #     :param vz: セットするZ軸ベクトル。
+    #     :type vt: `.Vector`
+    #     :param vt:
+    #         セットする平行移動ベクトル。
+    #         これだけは transpose オプションの影響を受けない。
+    #     :param `bool` transpose:
+    #         3x3部分には転置行列の軸ベクトルをセットする。
+    #         言い換えると False では行ベクトルを
+    #         True では列ベクトルをセットすることになる。
+    #     """
+    #     # Fix DoubleAccessorBug
+    #     if transpose:
+    #         m = _MM([
+    #             vx[0], vy[0], vz[0], 0.,
+    #             vx[1], vy[1], vz[1], 0.,
+    #             vx[2], vy[2], vz[2], 0.,
+    #             vt[0], vt[1], vt[2], 1.,
+    #         ])
+    #     else:
+    #         m = _MM([
+    #             vx[0], vx[1], vx[2], 0.,
+    #             vy[0], vy[1], vy[2], 0.,
+    #             vz[0], vz[1], vz[2], 0.,
+    #             vt[0], vt[1], vt[2], 1.,
+    #         ])
+    #     self.__data += m - self.__data
 
     def mul(self, m):
         u"""
@@ -2852,9 +2852,9 @@ def _newV(data, cls=V):
     return obj
 
 
-_MV_Zero = _MV.kZeroVector
-_MQ_Identity = _MQ.kIdentity
-_MM_Identity = _MM.kIdentity
+# _MV_Zero = _MV.kZeroVector
+# _MQ_Identity = _MQ.kIdentity
+# _MM_Identity = _MM.kIdentity
 
 _ZERO3 = (0., 0., 0.)
 

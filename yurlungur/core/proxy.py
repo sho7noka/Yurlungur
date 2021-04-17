@@ -6,7 +6,6 @@ from functools import partial
 from yurlungur.core.deco import trace
 from yurlungur.core.exception import YException
 from yurlungur.core.wrapper import YObject
-from yurlungur.core.datatype import Vector, Matrix, Color
 from yurlungur.tool.meta import meta
 
 
@@ -1017,7 +1016,6 @@ class Node(Object):
 # @total_ordering
 class Attribute(YObject):
     """parametric object"""
-
     def __init__(self, *args):
         if len(args) == 0:
             self._values = [None, "none", 0]
@@ -1257,6 +1255,7 @@ class Attribute(YObject):
 
     @property
     def vector(self):
+        from yurlungur.core.datatype import Vector
         try:
             return Vector(self._values[0])
         except TypeError:
@@ -1264,6 +1263,7 @@ class Attribute(YObject):
 
     @property
     def color(self):
+        from yurlungur.core.datatype import Color
         try:
             return Color(self._values[0])
         except TypeError:
@@ -1271,6 +1271,7 @@ class Attribute(YObject):
 
     @property
     def matrix(self):
+        from yurlungur.core.datatype import Matrix
         try:
             return Matrix(self._values[0])
         except TypeError:

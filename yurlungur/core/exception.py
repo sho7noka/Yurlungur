@@ -3,31 +3,24 @@
 TODO: bind logger
 yurlungur exceptions
 """
-import contextlib
-with contextlib.suppress(ImportError):
-    import sys
-    print(sys.executable)
+import sys
 
 
 class YException(RuntimeError):
-    """
-    runtime error
-    >>> raise YException(application)
-    """
     pass
 
 
 class YEnvException(OSError):
-    """
-    env error
-    >>> raise YEnvException(application)
-    """
     pass
 
 
 class YKeyException(KeyError):
-    """
-    key error
-    >>> raise YKeyException(application)
-    """
     pass
+
+
+# available on latest application interpreter
+if sys.version_info.major > 2:
+    import contextlib
+    except_runtime = contextlib.suppress(YException)
+    except_os = contextlib.suppress(YEnvException)
+    except_key = contextlib.suppress(YKeyException)
