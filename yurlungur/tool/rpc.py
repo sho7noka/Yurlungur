@@ -169,3 +169,36 @@ def send_chr(msg, port=18811, server="127.0.0.1"):
     res = s.recv(1024)
     s.close()
     return res
+
+
+def remote_debug_listen(HOST='localhost', port=3000):
+    """
+    https://jurajtomori.wordpress.com/2018/06/13/debugging-python-in-vfx-applications/
+
+    https://developers.maxon.net/docs/Cinema4DPythonSDK/html/manuals/introduction/python_c4dpy.html
+    https://github.com/Barbarbarbarian/Blender-VScode-Debugger/blob/master/Blender_VScode_Debugger.py
+    https://www.sidefx.com/ja/docs/houdini18.0/hom/hou/ShellIO
+    Returns:
+    """
+    try:
+        # https://docs.substance3d.com/sddoc/debugging-plugins-using-visual-studio-code-172825679.html
+        # https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=Max_Python_API_tutorials_creating_the_dialog_html
+        import ptvsd
+        try:
+            ptvsd.wait_for_attach()
+            ptvsd.enable_attach("SFds_KjLDFJ:LK", address=(HOST, port), redirect_output=True)
+            print("Not attached already, attaching...")
+        except ptvsd.AttachAlreadyEnabledError:
+            print("Attached already, continuing...")
+
+    except (ImportError, ValueError):
+        try:
+            # https://pleiades.io/help/pycharm/remote-debugging-with-product.html
+            import pydevd_pycharm as pycharm
+            # pydevd.stoptrace()
+            pycharm.settrace(HOST, port=port, stdoutToServer=True, stderrToServer=True)
+            print("listen from pycharm server debug")
+
+        except ImportError:
+            import traceback
+            traceback.print_exc()
