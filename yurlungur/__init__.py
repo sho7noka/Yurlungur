@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import sys
-assert sys.version_info > (2, 7), 'Yurlungur currently requires Python 2.7 later'
 sys.dont_write_bytecode = True
 
 from yurlungur.core import *            # noQA

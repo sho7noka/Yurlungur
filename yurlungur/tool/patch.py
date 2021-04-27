@@ -1,13 +1,14 @@
 # coding: utf-8
 import sys
 import contextlib
+import importlib
 
 from yurlungur.core import env as _env
 from yurlungur.tool import window as _window
 
 # dispatch for Qt
 if _env.Qt():
-    from yurlungur import Qt, remote_debug_listen
+    from yurlungur import Qt
 
     Qt.main_window = _window.main_window
     Qt.show = _window.show
@@ -86,11 +87,11 @@ except ImportError:
 
 # __rpc.debug_listen = remote_debug_listen
 
-import ptvsd
-import pydevd_pycharm
-import vim
 from yurlungur.tool.rpc import remote_debug_listen
+ptvsd = importlib.import_module("ptvsd")
+pycharm = importlib.import_module("pydevd_pycharm")
+vim = importlib.import_module("vim")
 
 ptvsd.remote_debug = remote_debug_listen
-pydevd_pycharm.remote_debug = remote_debug_listen
+pycharm.remote_debug = remote_debug_listen
 vim.remote_debug = remote_debug_listen
