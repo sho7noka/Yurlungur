@@ -1,10 +1,18 @@
 # coding: utf-8
+import inspect
+import os
+import platform
 import sys
 import contextlib
 import importlib
 
 from yurlungur.core import env as _env
 from yurlungur.tool import window as _window
+from yurlungur.tool.rpc import remote_debug_listen as _listen
+
+# dispatch for exit
+if _env.Blender() or _env.Nuke():
+    sys.exit = None
 
 # dispatch for Qt
 if _env.Qt():
@@ -62,36 +70,32 @@ with contextlib.suppress(ImportError):
         for event, callback in connections.items():
             __e.DISPATCHER.connect(event, callback)
 
-# dispatch for exit
-if _env.Blender() or _env.Nuke():
-    sys.exit = None
+# pycharm > vim > vscode
+if list(filter(lambda x: x.startswith("pydev"), sys.modules)):
+    pycharm = importlib.import_module("pydevd_pycharm")
+    pycharm.remote_debug = _listen
+    print(pycharm.__file__)
 
-try:
-    import pydevd_pycharm as __pycharm
-
-    is_evd = True
-except ImportError:
+else:
     try:
-        import debugpy as __dpy
+        vim = importlib.import_module("vim")
+        vim.remote_debug = _listen
 
-        is_code = True
-    except ImportError:
+    except ModuleNotFoundError:
         try:
-            import ptvsd as __ptvsd
+            if platform.system() == "Windows":
+                path = os.getenv("USERPROFILE")
+            if platform.system() == "Darwin":
+                path = os.getenv("HOME")
 
-            is_code = True
-        except ImportError:
+            ext = os.path.join(path, ".vscode/extensions")
+            pyext = list(filter(lambda x: x.startswith("ms-python.python"), os.listdir(ext)))
+            mspy = os.path.join(ext, pyext[0], "pythonFiles/lib/python")
+            sys.path.append(mspy)
+
+            vscode = importlib.import_module("debugpy")
+            vscode.remote_debug = _listen
+        except (ModuleNotFoundError, IndexError):
             pass
-            # import traceback
-            # traceback.print_exc()
 
-# __rpc.debug_listen = remote_debug_listen
-
-from yurlungur.tool.rpc import remote_debug_listen
-ptvsd = importlib.import_module("ptvsd")
-pycharm = importlib.import_module("pydevd_pycharm")
-vim = importlib.import_module("vim")
-
-ptvsd.remote_debug = remote_debug_listen
-pycharm.remote_debug = remote_debug_listen
-vim.remote_debug = remote_debug_listen
+# import stubs; stubs.load()

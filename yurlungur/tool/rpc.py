@@ -1,4 +1,5 @@
 # coding: utf-8
+import importlib
 import sys
 import threading
 import types
@@ -180,25 +181,31 @@ def remote_debug_listen(HOST='localhost', port=3000):
     https://www.sidefx.com/ja/docs/houdini18.0/hom/hou/ShellIO
     Returns:
     """
+
+    # https://docs.substance3d.com/sddoc/debugging-plugins-using-visual-studio-code-172825679.html
+    # https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=Max_Python_API_tutorials_creating_the_dialog_html
     try:
-        # https://docs.substance3d.com/sddoc/debugging-plugins-using-visual-studio-code-172825679.html
-        # https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=Max_Python_API_tutorials_creating_the_dialog_html
-        import ptvsd
-        try:
-            ptvsd.wait_for_attach()
-            ptvsd.enable_attach("SFds_KjLDFJ:LK", address=(HOST, port), redirect_output=True)
-            print("Not attached already, attaching...")
-        except ptvsd.AttachAlreadyEnabledError:
-            print("Attached already, continuing...")
+        vscode = importlib.import_module("debugpy")
+        # vscode.configure(python=designer_py_interpreter)
+        # Allow other computers to attach to debugpy at this IP address and port.
+        vscode.listen((HOST, port))
+        # Pause the program until a remote debugger is attached
+        vscode.wait_for_client()
 
-    except (ImportError, ValueError):
-        try:
-            # https://pleiades.io/help/pycharm/remote-debugging-with-product.html
-            import pydevd_pycharm as pycharm
-            # pydevd.stoptrace()
-            pycharm.settrace(HOST, port=port, stdoutToServer=True, stderrToServer=True)
-            print("listen from pycharm server debug")
+    except ModuleNotFoundError:
+        pass
 
-        except ImportError:
-            import traceback
-            traceback.print_exc()
+    # https://pleiades.io/help/pycharm/remote-debugging-with-product.html
+    try:
+        pycharm = importlib.import_module("pydevd_pycharm")
+        pycharm.settrace(HOST, port=port, stdoutToServer=True, stderrToServer=True)
+    except ModuleNotFoundError:
+        pass
+
+    # https://github.com/minoue/mayaScriptEditor.vim/blob/master/plugin/mayaScriptEditor.vim
+    # https://gist.github.com/utatsuya/e4d60228b2372662b2fc
+    try:
+        vim = importlib.import_module("vim")
+
+    except ModuleNotFoundError:
+        pass
