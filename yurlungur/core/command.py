@@ -380,9 +380,9 @@ def _fbxExporter(cls, *args, **kwargs):
         return
 
 
-def _usdImporter(cls, *args, **kwargs):
+def _usdImporter(*args, **kwargs):
     """
-    Maya      Python2 / USD InOut(plugin)
+    Maya      Python2 / USD InOut
     Houdini   Python3 / USD InOut
     Blender   Python3 / USD Out
     Unreal    Python3 / USD InOut
@@ -391,16 +391,17 @@ def _usdImporter(cls, *args, **kwargs):
     Cinema4D  Python3 / USD InOut
     Painter   Python3 / USD Out
     """
+
     if getattr(meta, "mayaUSDImport", False):
-        meta.loadPlugin('mayaUsdPlugin')
-        obj = meta.mayaUSDImport(file=args[0], chaser=['info'])
-        return cls(obj[0])
+        meta.loadPlugin('mayaUsdPlugin', qt=True)
+        meta.mayaUSDImport(file=args[0])
+        return File(args[0])
 
     if getattr(meta, "hda", False):
         usd = meta.node('/obj/lopimport1').createNode("usdimport")
         usd.parm("filepath1").set(args[0])
         usd.parm("reload").pressButton()
-        return cls(args[0]) or Node(usd.name)
+        return File(args[0]) or Node(usd.name)
 
     if getattr(meta, "uclass", False):
         data = meta.AutomatedAssetImportData()
@@ -420,7 +421,7 @@ def _usdImporter(cls, *args, **kwargs):
         # TODO: scenegraph tab?
         geo["file"].setValue(args[0])
         geo["reload"].execute()
-        return cls(args[0]) or Node(geo.name)
+        return File(args[0]) or Node(geo.name)
 
     if getattr(meta, "C4DAtom", False):
         ImportId = 1055178
@@ -442,28 +443,28 @@ def _usdImporter(cls, *args, **kwargs):
         meta.documents.MergeDocument(meta.documents.GetActiveDocument(), args[0],
                                      meta.SCENEFILTER_OBJECTS | meta.SCENEFILTER_MATERIALS, None)
         meta.EventAdd()
-        return cls(args[0])
+        return File(args[0])
 
 
-def _usdExporter(cls, *args, **kwargs):
+def _usdExporter(*args, **kwargs):
     if getattr(meta, "mayaUSDExport", False):
-        meta.loadPlugin('mayaUsdPlugin')
+        meta.loadPlugin('mayaUsdPlugin', qt=True)
         meta.mayaUSDExport(
-            file=args[0],
-            chaser=['alembic'],
-            chaserArgs=[
-                ('alembic', 'primvarprefix', 'ABC_,ABC2_=customPrefix_,ABC3_=,ABC4_=customNamespace:'),
-            ])
-        return cls(args[0])
+            file=args[0]
+            # chaser=['alembic'],
+            # chaserArgs=[
+            #     ('alembic', 'primvarprefix', 'ABC_,ABC2_=customPrefix_,ABC3_=,ABC4_=customNamespace:'),]
+        )
+        return File(args[0])
 
     if getattr(meta, "hda", False):
         usd = meta.node("/obj/lopimport1").createNode("usdexport")
         usd.parm('lopoutput').set(args[0])
         usd.parm('execute').pressButton()
-        return cls(args[0]) or Node(usd.name)
+        return File(args[0]) or Node(usd.name)
 
     if getattr(meta, "data", False):
-        return cls(partial(meta.ops.wm.save_mainfile, filepath=args[0])(**kwargs))
+        return File(partial(meta.ops.wm.save_mainfile, filepath=args[0])(**kwargs))
 
     if getattr(meta, "uclass", False):
         return
@@ -491,7 +492,7 @@ def _usdExporter(cls, *args, **kwargs):
 
         meta.documents.SaveDocument(meta.documents.GetActiveDocument(), args[0],
                                     meta.SAVEDOCUMENTFLAGS_DONTADDTORECENTLIST, usdExportId)
-        return cls(args[0])
+        return File(args[0])
 
     if getattr(meta, "textureset", False):
         kwargs["exportPath"] = args[0]
@@ -588,7 +589,7 @@ if any([getattr(meta, p, False) for p in abcs]):
     File.abc.Import = _abcImporter
     File.abc.Export = _abcExporter
 
-for p in "hda", "uclass", "Debug", "C4DAtom":
+for p in "hda", "uclass", "Debug", "C4DAtom", "ls":
     if getattr(meta, p, False):
         File.usd = types.ModuleType("usd")
         File.usd.Import = _usdImporter
