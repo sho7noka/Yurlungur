@@ -577,27 +577,33 @@ Command.bake = _Bake
 # Monkey-Patch for file
 file = File()
 
+File.fbx = types.ModuleType("fbx")
+File.abc = types.ModuleType("abc")
+File.usd = types.ModuleType("usd")
+setattr(File.fbx, "enable", False)
+setattr(File.abc, "enable", False)
+setattr(File.usd, "enable", False)
+
+
 fbxs = ["eval", "runtime", "data", "uclass", "Debug", "knob", "C4DAtom", "fusion", "textureset", "SceneObject"]
 if any([getattr(meta, p, False) for p in fbxs]):
-    File.fbx = types.ModuleType("fbx")
     File.fbx.Import = _fbxImporter
     File.fbx.Export = _fbxExporter
+    setattr(File.fbx, "enable", True)
 
 abcs = ["AbcImport", "runtime", "uclass", "SceneObject", "textureset", "data", "BVH3"]
 if any([getattr(meta, p, False) for p in abcs]):
-    File.abc = types.ModuleType("abc")
     File.abc.Import = _abcImporter
     File.abc.Export = _abcExporter
+    setattr(File.abc, "enable", True)
 
 for p in "hda", "uclass", "Debug", "C4DAtom", "ls":
     if getattr(meta, p, False):
-        File.usd = types.ModuleType("usd")
         File.usd.Import = _usdImporter
         File.usd.Export = _usdExporter
+        setattr(File.usd, "enable", True)
 
 if getattr(meta, "knob", False):
-    File.usd = types.ModuleType("usd")
     File.usd.Import = _usdImporter
 if getattr(meta, "data", False):
-    File.usd = types.ModuleType("usd")
     File.usd.Export = _usdExporter
