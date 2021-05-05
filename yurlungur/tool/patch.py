@@ -71,31 +71,46 @@ with contextlib.suppress(ImportError):
             __e.DISPATCHER.connect(event, callback)
 
 # pycharm > vim > vscode
-if list(filter(lambda x: x.startswith("pydev"), sys.modules)):
+
+if platform.system() == "Windows":
+    ext = os.path.jonin(os.getenv("PROGRAMFILES"), "JetBrains")
+    pyext = list(filter(lambda x: x.startswith("PyCharm"), os.listdir(ext)))
+    path = os.path.join(ext, pyext[-1])
+if platform.system() == "Darwin":
+    path = "/Applications/PyCharm.app/Contents"
+    path = "/Users/shosumioka/Library/Application Support/JetBrains/Toolbox/apps/PyCharm-P/ch-0/211.7142.13/PyCharm.app/Contents"
+
+egg_path = os.path.join(path, "debug-eggs/pydevd-pycharm.egg").replace(os.sep, "/")
+sys.path.append(egg_path)
+
+# https://pleiades.io/help/pycharm/remote-debugging-with-product.html
+try:
     pycharm = importlib.import_module("pydevd_pycharm")
     pycharm.remote_debug = _listen
-    print(pycharm.__file__)
+except ModuleNotFoundError:
+    pass
 
-else:
-    try:
-        vim = importlib.import_module("vim")
-        vim.remote_debug = _listen
+try:
+    vim = importlib.import_module("vim")
+    vim.remote_debug = _listen
 
-    except ModuleNotFoundError:
-        try:
-            if platform.system() == "Windows":
-                path = os.getenv("USERPROFILE")
-            if platform.system() == "Darwin":
-                path = os.getenv("HOME")
+except ModuleNotFoundError:
+    pass
 
-            ext = os.path.join(path, ".vscode/extensions")
-            pyext = list(filter(lambda x: x.startswith("ms-python.python"), os.listdir(ext)))
-            mspy = os.path.join(ext, pyext[0], "pythonFiles/lib/python")
-            sys.path.append(mspy)
+if platform.system() == "Windows":
+    path = os.getenv("USERPROFILE")
+if platform.system() == "Darwin":
+    path = os.getenv("HOME")
 
-            vscode = importlib.import_module("debugpy")
-            vscode.remote_debug = _listen
-        except (ModuleNotFoundError, IndexError):
-            pass
+# ext = os.path.join(path, ".vscode/extensions")
+# pyext = list(filter(lambda x: x.startswith("ms-python.python"), os.listdir(ext)))
+# mspy = os.path.join(ext, pyext[-1], "pythonFiles/lib/python")
+# sys.path.append(mspy)
+
+# try:
+#     vscode = importlib.import_module("debugpy")
+#     vscode.remote_debug = _listen
+# except (ModuleNotFoundError, IndexError):
+#     pass
 
 # import stubs; stubs.load()

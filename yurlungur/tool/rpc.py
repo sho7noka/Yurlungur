@@ -198,7 +198,7 @@ def remote_debug_listen(HOST='localhost', port=3000):
     # https://pleiades.io/help/pycharm/remote-debugging-with-product.html
     try:
         pycharm = importlib.import_module("pydevd_pycharm")
-        pycharm.settrace(HOST, port=port, stdoutToServer=True, stderrToServer=True)
+        pycharm.settrace(HOST, port=port, stdoutToServer=True, stderrToServer=True, suspend=False)
     except ModuleNotFoundError:
         pass
 
