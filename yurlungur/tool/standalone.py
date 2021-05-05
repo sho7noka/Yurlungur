@@ -35,10 +35,6 @@ def _cli(args):
                         help="install Qt for Python.",
                         action="store_true", )
 
-    parser.add_argument("--ptvsd", "-p",
-                        help="install ptvsd modules.",
-                        action="store_true", )
-
     parser.add_argument("--shotgun", "-s",
                         help="install shotgun modules.",
                         action="store_true", )
@@ -61,9 +57,6 @@ def _cli(args):
 
     if arguments.qt:
         yr.env.pip.main(["install", "PySide2"])
-
-    if arguments.ptvsd:
-        yr.env.pip.main(["install", "ptvsd"])
 
 
 if __name__ == '__main__':

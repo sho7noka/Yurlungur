@@ -58,9 +58,9 @@ metaモジュールからそれぞれネイティブのuiモジュールを参�
 
 .. code-block:: python
 
-    import yurlungur
+    import yurlungur as yr
     ptr = yr.Qt.main_window()
-    widget = QWidget(ptr)
+    widget = yr.Qt.QWidget(ptr)
 
 
 スタンドアロン起動の際にもshowメソッドでそのまま実行することができます。
@@ -68,9 +68,9 @@ metaモジュールからそれぞれネイティブのuiモジュールを参�
 
 .. code-block:: python
 
-    import yurlungur
-    widget = yurlungur.Qt.QWidget()
-    yurlungur.Qt.show(widget)
+    import yurlungur as yr
+    widget = yr.Qt.QWidget()
+    yr.Qt.show(widget)
 
 
 VFXWindowをサポートした環境では、いくつかのアプリケーションでコールバックを追加するパッチを適用した
@@ -121,7 +121,7 @@ Yurlungur は各アプリケーションに内蔵されたPythonインタプリ�
     python -m yurlungur -h
     
     usage: yurlungur.tool.standalone._cli [-h] [--command cmd app] [--environ mod]
-                                          [--qt] [--ptvsd] [--shotgun]
+                                          [--qt] [--shotgun]
     
     optional arguments:
       -h, --help            show this help message and exit
@@ -130,7 +130,6 @@ Yurlungur は各アプリケーションに内蔵されたPythonインタプリ�
       --environ mod, -e mod
                             set ENV settings for module
       --qt, -q              install Qt for Python.
-      --ptvsd, -p           install ptvsd modules.
       --shotgun, -s         install shotgun modules.
 
 
@@ -163,4 +162,10 @@ VSCode
 ------------------------------
 
 リモートデバッグの設定を行います。
+
+
+Vim
+——————————
+
+リモートデバッグは用意されていません。
 
