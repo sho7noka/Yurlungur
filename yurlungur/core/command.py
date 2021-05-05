@@ -56,6 +56,8 @@ class Command(object):
     def unregister():
         _CMDS_.clear()
 
+def _Bake(cls, *args, **kwargs):
+    """"""
 
 # Monkey-Patch for attribute
 attr = Attribute()
@@ -308,7 +310,7 @@ def _fbxImporter(cls, *args, **kwargs):
 
 def _fbxExporter(cls, *args, **kwargs):
     """
-    Maya      Python2 / FBX/Alembic
+    Maya      Python3 / FBX/Alembic
     Rumba     Python2 / FBX/Alembic
     Args:
         cls:
@@ -382,7 +384,7 @@ def _fbxExporter(cls, *args, **kwargs):
 
 def _usdImporter(*args, **kwargs):
     """
-    Maya      Python2 / USD InOut
+    Maya      Python3 / USD InOut
     Houdini   Python3 / USD InOut
     Blender   Python3 / USD Out
     Unreal    Python3 / USD InOut
@@ -565,45 +567,36 @@ Node.sel = _select
 Node.rm = _rm
 Node.glob = _glob
 
-
-def _Bake(cls, *args, **kwargs):
-    """"""
-
-
-# Monkey-Patch for command
-cmd = Command()
-Command.bake = _Bake
-
 # Monkey-Patch for file
 file = File()
 
 File.fbx = types.ModuleType("fbx")
+File.fbx.enable = False
+
 File.abc = types.ModuleType("abc")
+File.abc.enable = False
+
 File.usd = types.ModuleType("usd")
-setattr(File.fbx, "enable", False)
-setattr(File.abc, "enable", False)
-setattr(File.usd, "enable", False)
+File.usd.enable = False
 
-
-fbxs = ["eval", "runtime", "data", "uclass", "Debug", "knob", "C4DAtom", "fusion", "textureset", "SceneObject"]
-if any([getattr(meta, p, False) for p in fbxs]):
+if list(filter(lambda x: getattr(meta, x, False),
+               ["eval", "runtime", "data", "uclass", "Debug", "knob", "C4DAtom", "fusion", "textureset",
+                "SceneObject"])):
+    File.fbx.enable = True
     File.fbx.Import = _fbxImporter
     File.fbx.Export = _fbxExporter
-    setattr(File.fbx, "enable", True)
 
-abcs = ["AbcImport", "runtime", "uclass", "SceneObject", "textureset", "data", "BVH3"]
-if any([getattr(meta, p, False) for p in abcs]):
+if list(filter(lambda x: getattr(meta, x, False),
+               ["ls", "runtime", "uclass", "SceneObject", "textureset", "data", "BVH3"])):
+    File.abc.enable = True
     File.abc.Import = _abcImporter
     File.abc.Export = _abcExporter
-    setattr(File.abc, "enable", True)
 
-for p in "hda", "uclass", "Debug", "C4DAtom", "ls":
-    if getattr(meta, p, False):
-        File.usd.Import = _usdImporter
-        File.usd.Export = _usdExporter
-        setattr(File.usd, "enable", True)
-
-if getattr(meta, "knob", False):
+if list(filter(lambda x: getattr(meta, x, False), ["hda", "uclass", "Debug", "C4DAtom", "ls", "knob", "data"])):
+    File.usd.enable = True
     File.usd.Import = _usdImporter
-if getattr(meta, "data", False):
     File.usd.Export = _usdExporter
+
+# Monkey-Patch for command
+cmd = Command()
+Command.bake = _Bake

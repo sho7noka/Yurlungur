@@ -140,8 +140,13 @@ class App(object):
         self.process = None
 
     def run(self):
+        import yurlungur
+        pypath = os.path.dirname(os.path.dirname(yurlungur.__file__))
+        p = "set" if platform.system() == "Windows" else "export" + " PYTHONPATH=$PYTHONPATH:" + pypath
+
         try:
-            self.process = subprocess.Popen(self.app_name, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            self.process = subprocess.Popen(p + ";" + self.app_name, shell=True, stdin=subprocess.PIPE,
+                                            stdout=subprocess.PIPE)
             while self.process.poll() is None:
                 print(self.process.stdout.readline().decode().strip())
         except (KeyboardInterrupt, SystemExit):
@@ -174,10 +179,11 @@ class App(object):
             _cmd = "%s -i -c \"%s\"" % (hython, cmd)
 
         elif "3dsmax" in self.app_name:
-            if sys.version_info.major > 3:
+            if sys.version_info.major > 2:
                 maxpy = os.path.join(os.path.dirname(self.app_name), "Python37/python.exe")
             else:
                 maxpy = self.app_name.replace("3dsmax.exe", "3dsmaxpy.exe")
+
             _cmd = "%s -i -c \"%s\"" % (maxpy, cmd)
 
         # https://docs.unrealengine.com/ja/Engine/Editor/ScriptingAndAutomation/Python/index.html
@@ -444,14 +450,13 @@ def Marmoset(func=None):
     return wrapper
 
 
-def _Maya(v=2020):
+def _Maya(v=2022):
     d = {
         "Linux": "/usr/Autodesk/maya%d-x64/bin/maya" % v,
         "Windows": "C:/Program Files/Autodesk/Maya%d/bin/maya.exe" % v,
         "Darwin": "/Applications/Autodesk/maya%d/Maya.app/Contents/bin/maya" % v,
     }
     return d[platform.system()]
-    # /Applications/Autodesk/maya2020/Maya.app/Contents/icons/mayaico.png
 
 
 def _Houdini(v="17.5.173"):
@@ -528,7 +533,7 @@ def _Davinci():
     return d[platform.system()]
 
 
-def _Max(v=2018):
+def _Max(v=2021):
     return os.environ.get("ADSK_3DSMAX_X64_%d" % v) or "C:/Program Files/Autodesk/3ds Max %d/3dsmax.exe" % v
 
 

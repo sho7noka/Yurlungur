@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-import os
-import inspect
+import os, inspect
 from functools import partial
 
 from yurlungur.core.deco import trace
