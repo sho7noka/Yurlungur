@@ -1,15 +1,17 @@
-import importlib
-from yurlungur.core.deco import Windows, Mac
-from yurlungur.tool.rpc import remote_debug_listen
-
 """
 コード補完
 https://github.com/macvim-dev/macvim/blob/6de65806e5c70db61ed9faeeda86236577dbdf84/runtime/doc/if_pyth.txt
 https://speakerdeck.com/knzm/python-module-import-system
+https://github.com/minoue/mayaScriptEditor.vim/blob/master/plugin/mayaScriptEditor.vim
+https://gist.github.com/utatsuya/e4d60228b2372662b2fc
 """
-
+import sys
+import types
 from imp import find_module, load_module
-import vim
+
+import importlib
+
+from yurlungur.tool.rpc import remote_debug_listen
 
 
 class VimModuleLoader(object):
@@ -59,8 +61,10 @@ def hook(path):
 sys.path_hooks.append(hook)
 
 try:
-    vim = importlib.import_module("vim")
-    vim.remote_debug = remote_debug_listen
+    sys.modules[__name__] = importlib.import_module("vim")
+    setattr(sys.modules[__name__], "remote_debug", remote_debug_listen)
+    setattr(sys.modules[__name__], "enable", True)
 
 except ModuleNotFoundError:
-    pass
+    sys.modules[__name__] = types.ModuleType("vim")
+    setattr(sys.modules[__name__], "enable", False)
