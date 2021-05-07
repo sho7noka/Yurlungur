@@ -12,3 +12,6 @@ from yurlungur.adapters import substance_designer
 from yurlungur.adapters import substance_painter
 from yurlungur.adapters import ue4
 from yurlungur.adapters import unity
+from yurlungur.adapters import pycharm
+from yurlungur.adapters import vscode
+from yurlungur.adapters import vim

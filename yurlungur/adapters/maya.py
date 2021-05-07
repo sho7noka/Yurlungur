@@ -9,17 +9,3 @@ except (ImportError, KeyError):
     run, shell, end, connect = __App("maya")._actions
 
     __all__ = ["run", "shell", "end", "connect"]
-
-
-class Layer(object):
-    def __init__(self, layer):
-        self.layer = layer
-
-    @property
-    def keyframes(self):
-        return Keyframe(self.layer)
-
-
-class Keyframe(object):
-    def __init__(self, layer):
-        self.layer = layer
