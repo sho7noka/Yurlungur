@@ -49,14 +49,7 @@ def session(port=18811, server="127.0.0.1", name="hou"):
         return proxy
     else:
         proxy = _xmlrpc_client.ServerProxy('http://%s:%d' % (server, port))
-        # with open("fetched_python_logo.jpg", "wb") as handle:
-        #     handle.write(proxy.python_logo().data)
         return proxy
-
-
-def _bin():
-    with open("python_logo.jpg", "rb") as handle:
-        return _xmlrpc_client.Binary(handle.read())
 
 
 @trace
@@ -164,48 +157,78 @@ def send_chr(msg, port=18811, server="127.0.0.1"):
     Returns:
 
     """
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((server, port))
-    s.send(msg + '\n')
-    res = s.recv(1024)
-    s.close()
-    return res
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((server, port))
+        s.send(msg + '\n')
+        res = s.recv(1024)
+        # s.close()
+        return res
 
 
+@trace
 def remote_debug_listen(HOST='localhost', port=3000):
     """
-    https://jurajtomori.wordpress.com/2018/06/13/debugging-python-in-vfx-applications/
+    Args:
+        HOST:
+        port:
 
-    https://developers.maxon.net/docs/Cinema4DPythonSDK/html/manuals/introduction/python_c4dpy.html
-    https://github.com/Barbarbarbarian/Blender-VScode-Debugger/blob/master/Blender_VScode_Debugger.py
-    https://www.sidefx.com/ja/docs/houdini18.0/hom/hou/ShellIO
     Returns:
     """
-
-    # https://docs.substance3d.com/sddoc/debugging-plugins-using-visual-studio-code-172825679.html
-    # https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=Max_Python_API_tutorials_creating_the_dialog_html
     try:
         vscode = importlib.import_module("debugpy")
         # vscode.configure(python=designer_py_interpreter)
-        # Allow other computers to attach to debugpy at this IP address and port.
         vscode.listen((HOST, port))
-        # Pause the program until a remote debugger is attached
         vscode.wait_for_client()
-
+        return
     except ModuleNotFoundError:
         pass
 
-    # https://pleiades.io/help/pycharm/remote-debugging-with-product.html
     try:
         pycharm = importlib.import_module("pydevd_pycharm")
         pycharm.settrace(HOST, port=port, stdoutToServer=True, stderrToServer=True, suspend=False)
+        return
     except ModuleNotFoundError:
         pass
 
-    # https://github.com/minoue/mayaScriptEditor.vim/blob/master/plugin/mayaScriptEditor.vim
-    # https://gist.github.com/utatsuya/e4d60228b2372662b2fc
     try:
         vim = importlib.import_module("vim")
-
+        vim.current
+        return
     except ModuleNotFoundError:
         pass
+
+
+import random
+import time
+from socketserver import ThreadingMixIn
+from xmlrpc.server import SimpleXMLRPCServer, MultiPathXMLRPCServer
+
+
+class SimpleThreadedXMLRPCServer(ThreadingMixIn, MultiPathXMLRPCServer):
+    pass
+
+
+# sleep for random number of seconds
+def sleep():
+    r = random.randint(2, 10)
+    print('sleeping {} seconds'.format(r))
+    time.sleep(r)
+    return 'slept {} seconds, exiting'.format(r)
+
+
+# run server
+def run_server(host="localhost", port=8000):
+    server_addr = (host, port)
+    server = SimpleThreadedXMLRPCServer(server_addr)
+    server.allow_reuse_address = True
+    server.register_function(sleep, 'sleep')
+    server.register_function(server.shutdown, "close")
+
+    print("Server thread started. Testing server ...")
+    print('listening on {} port {}'.format(host, port))
+
+    server.serve_forever()
+
+
+if __name__ == '__main__':
+    run_server()

@@ -20,9 +20,9 @@ def main_window():
 
     :return:
     """
-    import yurlungur.core.app
+    import yurlungur
 
-    app_name = yurlungur.core.application.__name__
+    app_name = yurlungur.application.__name__
 
     if app_name == "maya.cmds":
         from yurlungur.Qt import QtCompat
@@ -85,7 +85,7 @@ def show(view):
     try:
         view.deleteLater()
     except:
-        yurlungur.logger.pprint(view)
+        yurlungur.tool.logger.pprint(view)
 
     try:
         __dark_view(view)
@@ -102,7 +102,7 @@ def show(view):
 
     except:
         view.deleteLater()
-        yurlungur.logger.warn(traceback.print_exc())
+        yurlungur.tool.logger.warn(traceback.print_exc())
 
     if not QApplication.instance():
         app = QApplication(sys.argv)

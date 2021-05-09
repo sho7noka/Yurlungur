@@ -30,7 +30,8 @@ else:
                     raise (type, value, tb)
 
 from yurlungur.tool.meta import meta
-from yurlungur.core import env, logger
+from yurlungur.core import env
+from yurlungur.tool import logger
 
 # assign UndoGroup
 if env.UE4():
@@ -189,13 +190,13 @@ def timer(func):
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        yurlungur.logger.pprint(
+        logger.pprint(
             '{0} start'.format(func.__name__)
         )
         start_time = time.clock()
         ret = func(*args, **kwargs)
         end_time = time.clock()
-        yurlungur.logger.pprint(
+        logger.pprint(
             '\n{0}: {1:,f}s'.format("total: ", (end_time - start_time))
         )
         return ret
