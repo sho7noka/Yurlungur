@@ -95,7 +95,8 @@ def set(module):
 
 def get_pip():
     """
-    Returns: pip module
+
+    Returns:
 
     """
     try:
@@ -105,47 +106,52 @@ def get_pip():
 
         if sys.version_info.major >= 3:
             import urllib.request as _urllib
+            _urllib.urlretrieve(url, "get-pip.py")
+            exec(open("get-pip.py"))
         else:
             import urllib as _urllib
+            _urllib.urlretrieve(url, "get-pip.py")
+            execfile("get-pip.py")
 
-        _urllib.urlretrieve(url, "get-pip.py")
-        execfile("get-pip.py")
         os.remove("get-pip.py")
-
-    # if Blender():
-    #     import bpy
-    #     subprocess.check_call([bpy.app.binary_path_python, '-m', 'pip', 'install', 'Pillow', '--user'])
 
     if not getattr(pip, "main", False):
         from pip import _internal as pip
     return pip
 
 
-pip = get_pip()
+# pip = get_pip()
 
 
 class App(object):
-    """"""
+    """
+    """
 
-    def __init__(self, name, version=None):
+    def __init__(self, name):
         d = {
-            "maya": _Maya(), "houdini": _Houdini(), "substance_designer": _Substance(),
-            "blender": _Blender(), "ue4": _Unreal(), "unity": _Unity(),
-            "nuke": _Nuke(), "c4d": _Cinema4D(), "davinci": _Davinci(),
-            "rumba": _Rumba(), "3dsmax": _Max(), "photoshop": _Photoshop(),
-            "marmoset": _Marmoset(), "substance_painter": _SubstancePainter(),
-            "renderdoc": _RenderDoc()
+            "maya": v(_Maya), "houdini": v(_Houdini), "substance_designer": v(_Substance),
+            "ue4": v(_Unreal), "unity": v(_Unity), "renderdoc": v(_RenderDoc),
+            "nuke": v(_Nuke), "c4d": v(_Cinema4D), "davinci": v(_Davinci),
+            "rumba": v(_Rumba), "3dsmax": v(_Max), "marmoset": v(_Marmoset),
+            "photoshop": v(_Photoshop), "substance_painter": v(_SubstancePainter),
+            "blender": v(_Blender),
         }
         self.app_name = d[name]
         self.process = None
 
-    def run(self):
+        # add PYTHONAPATH
         import yurlungur
         pypath = os.path.dirname(os.path.dirname(yurlungur.__file__))
-        p = "set" if platform.system() == "Windows" else "export" + " PYTHONPATH=$PYTHONPATH:" + pypath
+        if platform.system() == "Windows":
+            self.python_path = "set PYTHONPATH=%PYTHONPATH$;{0}&&".format(pypath)
+        else:
+            self.python_path = "export PYTHONPATH=$PYTHONPATH:{0};".format(pypath)
+
+    def run(self):
+        self.app_name = self.python_path + "\"" + self.app_name + "\""
 
         try:
-            self.process = subprocess.Popen(p + ";" + self.app_name, shell=True, stdin=subprocess.PIPE,
+            self.process = subprocess.Popen(self.app_name, shell=True, stdin=subprocess.PIPE,
                                             stdout=subprocess.PIPE)
             while self.process.poll() is None:
                 print(self.process.stdout.readline().decode().strip())
@@ -155,18 +161,10 @@ class App(object):
             print("%s is not found" % self.app_name)
 
     def shell(self, cmd):
+        cmd = "from yurlungur.api import *;" + cmd
+
         # https://knowledge.autodesk.com/ja/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2018/JPN/Maya-Scripting/files/GUID-83799297-C629-48A8-BCE4-061D3F275215-htm.html
         if "maya" in self.app_name:
-            # exe = sys.executable
-            # multiprocessing.set_executable(
-            #     os.path.join(os.path.dirname(exe), "mayapy")
-            # )
-            # multiprocessing.process.ORIGINAL_DIR = os.path.join(
-            #     os.path.dirname(exe),
-            #     "../Python/Lib/site-packages"
-            # )
-            # po = multiprocessing.Pool(4)
-
             mayapy = self.app_name.replace("bin/maya", "bin/mayapy")
             _cmd = "%s -i -c \"import maya.standalone;maya.standalone.initialize(name='python');%s\"" % (mayapy, cmd)
 
@@ -178,9 +176,10 @@ class App(object):
                 hython = "cd %s; source ./houdini_setup; hython" % os.path.dirname(os.path.dirname(self.app_name))
             _cmd = "%s -i -c \"%s\"" % (hython, cmd)
 
+        # https://help.autodesk.com/view/3DSMAX/2018/ENU/?guid=__developer_executing_python_scripts_from_th_html
         elif "3dsmax" in self.app_name:
             if sys.version_info.major > 2:
-                maxpy = os.path.join(os.path.dirname(self.app_name), "Python37/python.exe")
+                maxpy = os.path.join(os.path.dirname(self.app_name), "Python37\\python.exe")
             else:
                 maxpy = self.app_name.replace("3dsmax.exe", "3dsmaxpy.exe")
 
@@ -194,8 +193,8 @@ class App(object):
                     _app = os.path.join(os.path.dirname(self.app_name), "UE4Editor-Cmd")
                     _cmd = " ".join([_app, "-run=pythonscript -script={0}".format(fp)])
 
+        # https://docs.blender.org/manual/en/latest/advanced/command_line/arguments.html#python-options
         elif "Blender" in self.app_name:
-            # https://docs.blender.org/manual/en/latest/advanced/command_line/arguments.html#python-options
             _cmd = "{0} --python-expr '{1}' -b".format(self.app_name, cmd)
 
         # https://docs.unity3d.com/jp/460/Manual/CommandLineArguments.html
@@ -213,8 +212,8 @@ class App(object):
             self.app_name = self.app_name.replace("Cinema 4D", "c4dpy")
 
         # https://www.steakunderwater.com/wesuckless/viewtopic.php?t=2012
-        # C:\Program Files\Blackmagic Design\DaVinci Resolve\fuscript.exe <script> [args] -l python3
         elif "davinci" in self.app_name:
+            # C:\Program Files\Blackmagic Design\DaVinci Resolve\fuscript.exe <script> [args] -l python3
             _cmd = self.app_name + " -nogui"
 
         elif "rumba" in self.app_name:
@@ -224,7 +223,7 @@ class App(object):
             _cmd = self.app_name
 
         try:
-            os.system(_cmd)
+            os.system(self.python_path + _cmd)
         except (KeyboardInterrupt, SystemExit):
             raise
 
@@ -233,11 +232,7 @@ class App(object):
         """
         https://qiita.com/QUANON/items/c5868b6c65f8062f5876
         """
-        import yurlungur
-        self.shell(
-            "import sys;sys.path.append(\"%s\");from yurlungur.tool import rpc;rpc.listen(%d)"
-            % (os.path.dirname(os.path.dirname(os.path.abspath(yurlungur.__file__))), port)
-        )
+        self.shell("from yurlungur.tool.rpc import listen; listen(%d)" % port)
 
         from yurlungur.tool import rpc
         try:
@@ -453,7 +448,7 @@ def Marmoset(func=None):
 def _Maya(v=2022):
     d = {
         "Linux": "/usr/Autodesk/maya%d-x64/bin/maya" % v,
-        "Windows": "C:/Program Files/Autodesk/Maya%d/bin/maya.exe" % v,
+        "Windows": "%PROGRAMFILES%\\Autodesk\\Maya{0}\\bin\\maya.exe".format(v),
         "Darwin": "/Applications/Autodesk/maya%d/Maya.app/Contents/bin/maya" % v,
     }
     return d[platform.system()]
@@ -462,9 +457,9 @@ def _Maya(v=2022):
 def _Houdini(v="17.5.173"):
     d = {
         "Linux": "/opt/hfs%s/houdini" % v,
-        "Windows": "C:/Program Files/Side Effects Software/Houdini %s/bin/houdini.exe" % v,
+        "Windows": "%PROGRAMFILES%\\Side Effects Software\\Houdini {0}\\bin\\houdini.exe".format(v),
         "Darwin": "/Applications/Houdini/Houdini%s/Frameworks/Houdini.framework/Versions/%s/Resources/bin/houdini" % (
-        v, v[:4]),
+            v, v[:4]),
     }
     return os.environ.get("HIP") or d[platform.system()]
 
@@ -472,7 +467,7 @@ def _Houdini(v="17.5.173"):
 def _Substance():
     d = {
         "Linux": "/opt/Allegorithmic/Substance_Designer/Substance Designer",
-        "Windows": "C:/Program Files/Allegorithmic/Substance Designer/Substance Designer.exe",
+        "Windows": "%PROGRAMFILES%\\Allegorithmic\\Substance Designer\\Substance Designer.exe",
         "Darwin": "/Applications/Substance\ Designer.app/Contents/MacOS/Substance\ Designer",
     }
     return d[platform.system()]
@@ -481,27 +476,28 @@ def _Substance():
 def _Blender():
     d = {
         "Linux": "/usr/bin/blender",
-        "Windows": "C:/Program Files/Blender Foundation/Blender",
+        "Windows": "%PROGRAMFILES%\\Blender Foundation\\Blender",
         "Darwin": "/Applications/Blender.app/Contents/MacOS/Blender"
     }
     return d[platform.system()]
 
 
-def _Unreal(v=4.22):
+def _Unreal(v=4.27):
     d = {
         "Linux": "",
-        "Windows": "C:/Program Files/Epic Games/UE_%s/Engine/Binaries/Win64/UE4Editor.exe" % v,
+        "Windows": "%PROGRAMFILES%\\Epic Games\\UE_{0}\\Engine\\Binaries\\Win64\\UE4Editor.exe".format(v),
         "Darwin": "/Users/Shared/Epic\ Games/UE_%s/Engine/Binaries/Mac/UE4Editor.app/Contents/MacOS/UE4Editor" % v
     }
     return d[platform.system()]
 
 
-def _Unity(v="2019.3.0f6"):
+def _Unity(v="2021.1.0b4"):
     # https://docs.unity3d.com/ja/2019.1/Manual/CommandLineArguments.html
     d = {
         "Linux": "",
-        "Windows": "C:/Program Files/Unity/Editor/Unity.exe",
-        "Darwin": "/Applications/Unity/Hub/Editor/%s/Unity.app/Contents/MacOS/Unity" % v
+        "Windows": "%PROGRAMFILES%\\Unity\\Hub\\Editor\\{0}\\Editor\\Unity.exe".format(v),
+        # %PROGRAMFILES%\\Unity 2021.1.0b12\\Editor\\Unity.exe"
+        "Darwin": "/Applications/Unity/Hub/Editor/{0}/Unity.app/Contents/MacOS/Unity".format(v)
     }
     return d[platform.system()]
 
@@ -509,7 +505,7 @@ def _Unity(v="2019.3.0f6"):
 def _Nuke(v="12.2v5"):
     d = {
         "Linux": "/usr/local/Nuke%s/Nuke%s" % (v, v[:4]),
-        "Windows": "C:/Program Files/Nuke%s/Nuke%s.exe" % (v, v[:4]),
+        "Windows": "%PROGRAMFILES%\\Nuke{0}\\Nuke{1}.exe".format(v, v[:4]),
         "Darwin": "/Applications/Nuke%s/Nuke%s.app/Contents/MacOS/Nuke%s" % (v, v, v[:4])
     }
     return d[platform.system()]
@@ -527,29 +523,29 @@ def _Cinema4D(v=21):
 def _Davinci():
     d = {
         "Linux": "/opt/resolve/bin/resolve",
-        "Windows": "C:/Program Files/Blackmagic Design/DaVinci Resolve Studio/Resolve.exe",
-        "Darwin": "/Applications/DaVinci\ Resolve\ Studio.app/Contents/MacOS/Resolve"
+        "Windows": "%PROGRAMFILES%\\Blackmagic Design\\DaVinci Resolve Studio\\Resolve.exe",
+        "Darwin": "/Applications/DaVinci Resolve Studio.app/Contents/MacOS/Resolve"
     }
     return d[platform.system()]
 
 
 def _Max(v=2021):
-    return os.environ.get("ADSK_3DSMAX_X64_%d" % v) or "C:/Program Files/Autodesk/3ds Max %d/3dsmax.exe" % v
+    return (os.getenv("ADSK_3DSMAX_X64_%d" % v) or "%PROGRAMFILES%\\Autodesk\\3ds Max {0}\\".format(v)) + "3dsmax.exe"
 
 
-def _Rumba(v="1.0.1"):
+def _Rumba(v="1.01"):
     d = {
         "Linux": "/opt/rumba_%s_linux64/rumba" % v,
-        "Windows": "C:/Program Files/Rumba/rumba.exe",
-        "Darwin": None
+        "Windows": "%PROGRAMFILES%\\Rumba\\rumba.exe",
+        "Darwin": ""
     }
     return d[platform.system()]
 
 
 def _Photoshop(v=2018):
     d = {
-        "Linux": None,
-        "Windows": "C:/Program Files/Adobe/Adobe Photoshop CC %d/Photoshop.exe" % v,
+        "Linux": "",
+        "Windows": "%PROGRAMFILES%\\Adobe\\Adobe Photoshop CC {0}\\Photoshop.exe".format(v),
         "Darwin": "/Applications/Adobe\ Photoshop\ CC\ {0}/Adobe\ Photoshop\ CC\ {0}.app/Contents/MacOS/Adobe\ Photoshop\ CC\ {0}".format(
             v),
     }
@@ -558,18 +554,18 @@ def _Photoshop(v=2018):
 
 def _Marmoset(v=4):
     d = {
-        "Linux": None,
-        "Windows": "C:/Program Files/Marmoset/Toolbag %d/toolbag.exe" % v,
+        "Linux": "",
+        "Windows": "%PROGRAMFILES%\\Marmoset\\Toolbag {0}\\toolbag.exe".format(v),
         "Darwin": "/Applications/Marmoset\ Toolbag\ %d/Marmoset\ Toolbag.app/Contents/MacOS/Marmoset\ Toolbag" % v
     }
     return d[platform.system()]
 
 
-def _RenderDoc(v=1.12):
+def _RenderDoc(v=1.13):
     d = {
         "Linux": "/opt/renderdoc_%d/bin/qrenderdoc" % v,
-        "Windows": "C:/Program Files/RenderDoc/qrenderdoc.exe",
-        "Darwin": None
+        "Windows": "%PROGRAMFILES%\\RenderDoc\\qrenderdoc.exe",
+        "Darwin": ""
     }
     return d[platform.system()]
 
@@ -577,7 +573,7 @@ def _RenderDoc(v=1.12):
 def _SubstancePainter():
     d = {
         "Linux": "/opt/Allegorithmic/Substance_Painter/Substance Painter",
-        "Windows": "C:/Program Files/Allegorithmic/Substance Painter/Substance Painter.exe",
+        "Windows": "%PROGRAMFILES%\\Allegorithmic\\Substance Painter\\Substance Painter.exe",
         "Darwin": "/Applications/Substance\ Painter.app/Contents/MacOS/Substance\ Painter"
     }
     return d[platform.system()]
@@ -635,3 +631,58 @@ def Numpy(func=None):
             return func(*args, **kwargs)
 
     return wrapper
+
+
+def is_version(app):
+    """
+    力技でバージョンを探す
+
+    無し : Blender, Substance Painter/Designer, Davinci Resolve
+    西暦 : Maya, Cinema4D, 3dsMax, Photoshop
+    容易 : Unreal4.27-, Marmoset4-, Rumba1.03-, RenderDoc1.13-
+    独自 : Unity2021.-, Nuke12-, Houdini18.5-
+    Args:
+        app:
+
+    Returns:
+
+    """
+    import os, datetime
+    if list(filter(lambda x: app == x, [_Blender, _Substance, _SubstancePainter, _Davinci])):
+        if os.path.exists(app()):
+            return app()
+        return None
+
+    if app == _Unreal or app == _Rumba or app == _RenderDoc:
+        for i in range(20):
+            v = (430 if app == _Unreal else 120 - i) / 100
+            if os.path.exists(app(v)):
+                return app(v)
+        return None
+
+    if app == _Marmoset:
+        for i in range(3):
+            v = 5 - i
+            if os.path.exists(app(v)):
+                return app(v)
+        return None
+
+    if app == _Unity:
+        from yurlungur.core.deco import Windows
+        hub = "%PROGRAMFILES%\\Unity\\Hub\\Editor" if Windows() else "/Applications/Unity/Hub/Editor"
+        versions = os.listdir(hub)
+        return app(versions[-1])
+
+    if app == _Nuke or app == _Houdini:
+        return None
+
+    # LTS < 5
+    for i in range(6):
+        v = datetime.date.today().year + 1 - i
+        if os.path.exists(app(v)):
+            return app(v)
+
+    return None
+
+
+v = is_version

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import ast
 from string import Template
 from textwrap import dedent
 
 from yurlungur.core.wrapper import MetaObject
-from yurlungur.core.logger import GuiLogHandler
+from yurlungur.tool.logger import GuiLogHandler
 
 """
 proxy

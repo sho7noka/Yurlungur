@@ -1,6 +1,5 @@
 # coding: utf-8
-import os
-import functools
+import os, functools
 from yurlungur.core import env
 from yurlungur.core.deco import Windows, Mac
 

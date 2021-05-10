@@ -580,22 +580,45 @@ File.usd = types.ModuleType("usd")
 File.usd.enable = False
 
 if list(filter(lambda x: getattr(meta, x, False),
-               ["eval", "runtime", "data", "uclass", "Debug", "knob", "C4DAtom", "fusion", "textureset",
-                "SceneObject"])):
+               ["ls", "runtime", "data", "uclass", "Debug", "knob", "C4DAtom", "fusion", "textureset", "SceneObject"])):
     File.fbx.enable = True
     File.fbx.Import = _fbxImporter
     File.fbx.Export = _fbxExporter
+else:
+    try:
+        import fbx
+
+        File.fbx.enable = True
+        File.fbx = fbx
+    except ImportError:
+        pass
 
 if list(filter(lambda x: getattr(meta, x, False),
-               ["ls", "runtime", "uclass", "SceneObject", "textureset", "data", "BVH3"])):
+               ["ls", "runtime", "data", "uclass", "BVH3", "textureset", "SceneObject"])):
     File.abc.enable = True
     File.abc.Import = _abcImporter
     File.abc.Export = _abcExporter
+else:
+    try:
+        import alembic
+
+        File.abc.enable = True
+        File.abc = alembic
+    except ImportError:
+        pass
 
 if list(filter(lambda x: getattr(meta, x, False), ["hda", "uclass", "Debug", "C4DAtom", "ls", "knob", "data"])):
     File.usd.enable = True
     File.usd.Import = _usdImporter
     File.usd.Export = _usdExporter
+else:
+    try:
+        from pxr import Usd
+
+        File.usd.enable = True
+        File.usd = Usd
+    except ImportError:
+        pass
 
 # Monkey-Patch for command
 cmd = Command()

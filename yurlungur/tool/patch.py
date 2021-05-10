@@ -1,14 +1,7 @@
 # coding: utf-8
-import inspect
-import os
-import platform
-import sys
-import contextlib
-import importlib
-
+import sys, contextlib
 from yurlungur.core import env as _env
 from yurlungur.tool import window as _window
-from yurlungur.tool.rpc import remote_debug_listen as _listen
 
 # dispatch for exit
 if _env.Blender() or _env.Nuke():
@@ -22,7 +15,7 @@ if _env.Qt():
     Qt.show = _window.show
 
 # dispatch for app
-with contextlib.suppress(ImportError):
+try:
     from vfxwindow import VFXWindow as _UIWindow
 
     Qt.UIWindow = _UIWindow
@@ -69,48 +62,53 @@ with contextlib.suppress(ImportError):
         }
         for event, callback in connections.items():
             __e.DISPATCHER.connect(event, callback)
-
-# pycharm > vim > vscode
-
-if platform.system() == "Windows":
-    ext = os.path.jonin(os.getenv("PROGRAMFILES"), "JetBrains")
-    pyext = list(filter(lambda x: x.startswith("PyCharm"), os.listdir(ext)))
-    path = os.path.join(ext, pyext[-1])
-if platform.system() == "Darwin":
-    path = "/Applications/PyCharm.app/Contents"
-    path = "/Users/shosumioka/Library/Application Support/JetBrains/Toolbox/apps/PyCharm-P/ch-0/211.7142.13/PyCharm.app/Contents"
-
-egg_path = os.path.join(path, "debug-eggs/pydevd-pycharm.egg").replace(os.sep, "/")
-sys.path.append(egg_path)
-
-# https://pleiades.io/help/pycharm/remote-debugging-with-product.html
-try:
-    pycharm = importlib.import_module("pydevd_pycharm")
-    pycharm.remote_debug = _listen
-except ModuleNotFoundError:
+except ImportError:
     pass
 
-try:
-    vim = importlib.import_module("vim")
-    vim.remote_debug = _listen
+# dispatch application
+import yurlungur
+from yurlungur.core.env import v
 
-except ModuleNotFoundError:
-    pass
+if not v(_env._Maya):
+    del yurlungur.maya
+if not v(_env._Cinema4D):
+    del yurlungur.c4d
+if not v(_env._Max):
+    del yurlungur.max
+if not v(_env._Blender):
+    del yurlungur.blender
+if not v(_env._Substance):
+    del yurlungur.substance_designer
+if not v(_env._SubstancePainter):
+    del yurlungur.substance_painter
+if not v(_env._Davinci):
+    del yurlungur.davinci
+if not v(_env._Unreal):
+    del yurlungur.ue4
+if not v(_env._Marmoset):
+    del yurlungur.marmoset
+if not v(_env._Unity):
+    del yurlungur.unity
+if not v(_env._RenderDoc):
+    del yurlungur.renderdoc
+if not v(_env._Rumba):
+    del yurlungur.rumba
+if not yurlungur.pycharm.enable:
+    del yurlungur.pycharm
+if not yurlungur.vim.enable:
+    del yurlungur.vim
+if not yurlungur.vscode.enable:
+    del yurlungur.vscode
 
-if platform.system() == "Windows":
-    path = os.getenv("USERPROFILE")
-if platform.system() == "Darwin":
-    path = os.getenv("HOME")
+# TODO
+if not v(_env._Nuke):
+    pass  # del yurlungur.nuke
+if not v(_env._Houdini):
+    pass  # del yurlungur.houdini
+if not v(_env._Photoshop):
+    pass  # del yurlungur.photoshop
 
-# ext = os.path.join(path, ".vscode/extensions")
-# pyext = list(filter(lambda x: x.startswith("ms-python.python"), os.listdir(ext)))
-# mspy = os.path.join(ext, pyext[-1], "pythonFiles/lib/python")
-# sys.path.append(mspy)
-
-# try:
-#     vscode = importlib.import_module("debugpy")
-#     vscode.remote_debug = _listen
-# except (ModuleNotFoundError, IndexError):
-#     pass
+del yurlungur.adapters, yurlungur.core, yurlungur.exception, yurlungur.wrapper, yurlungur.tool, v
+del yurlungur, sys, contextlib
 
 # import stubs; stubs.load()

@@ -8,7 +8,7 @@ from yurlungur.core.env import __import__
 
 application = sys.executable
 
-if "maya" in application:
+if __import__("maya.cmds"):
     import maya.cmds as cmds
 
     application = cmds
@@ -18,17 +18,17 @@ elif __import__("hou"):
 
     application = hou
 
-elif "Substance Designer" in application:
+elif __import__("sd.api"):
     import sd.api as sdapi
 
     application = sdapi
 
-elif "Blender" in application:
+elif __import__("bpy"):
     import bpy
 
     application = bpy
 
-elif "UE4Editor" in application:
+elif __import__("unreal"):
     import unreal
 
     application = unreal
@@ -38,21 +38,21 @@ elif __import__("UnityEngine"):
 
     application = UnityEngine
 
-elif "Nuke" in application:
+elif __import__("nuke"):
     import nuke
 
     application = nuke
 
 # Davinci & Fusion
 
-elif "Cinema 4D" in application:
+elif __import__("c4d"):
     import c4d
 
     application = c4d
 
 # Photoshop
 
-elif "3dsmax" in application:
+elif __import__("pymxs"):
     import pymxs
 
     application = pymxs
@@ -62,7 +62,7 @@ elif __import__("rumba"):
 
     application = rumba
 
-elif "Substance Painter" in application:
+elif __import__("substance_painter"):
     import substance_painter
 
     application = substance_painter

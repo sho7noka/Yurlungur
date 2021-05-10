@@ -58,6 +58,8 @@ def _cli(args):
     if arguments.qt:
         yr.env.pip.main(["install", "PySide2"])
 
+    if arguments.shotgun:
+        yr.env.pip.main(["install", "git+git://github.com/shotgunsoftware/python-api.git"])
 
 if __name__ == '__main__':
     _cli(sys.argv[1:])
