@@ -14,29 +14,25 @@ console起動時に標準で読み込まれる他に、読み込まれること�
 .. code-block:: python
 
     import yurlungur
-    from yurlungur import Qt
     from yurlungur.core.proxy import Node, File
     from yurlungur.core.command import node, file
-    from yurlungur.tool.meta import meta
     # from yurlungur.core.datatype import Vector
     from yurlungur.core.deco import UndoGroup, threads
     from yurlungur.tool.logger import pprint
+    from yurlungur.tool.meta import meta
     from yurlungur.tool.standalone import * # noQA
     from yurlungur.tool.patch import *      # noQA
 """
-from __future__ import absolute_import
 import sys
-
 sys.dont_write_bytecode = True
 
 import yurlungur
-from yurlungur import Qt
-from yurlungur.core.proxy import Node, File
+from yurlungur.core.proxy import Node, File, Attribute
 from yurlungur.core.command import node, file
-from yurlungur.tool.meta import meta
 # from yurlungur.core.datatype import Vector
 from yurlungur.core.deco import UndoGroup, threads
 from yurlungur.tool.logger import pprint
+from yurlungur.tool.meta import meta
 from yurlungur.tool.standalone import *  # noQA
 from yurlungur.tool.patch import *  # noQA
 
