@@ -9,6 +9,7 @@ import traceback
 
 import yurlungur
 from yurlungur.core import env
+from yurlungur.tool import logger
 
 
 def main_window():
@@ -85,7 +86,7 @@ def show(view):
     try:
         view.deleteLater()
     except:
-        yurlungur.tool.logger.pprint(view)
+        logger.pprint(view)
 
     try:
         __dark_view(view)
@@ -102,10 +103,10 @@ def show(view):
 
     except:
         view.deleteLater()
-        yurlungur.tool.logger.warn(traceback.print_exc())
 
-    if not QApplication.instance():
-        app = QApplication(sys.argv)
+    import Qt
+    if not Qt.QtWidgets.QApplication.instance():
+        app = Qt.QtWidgets.QApplication(sys.argv)
         __dark_view(view)
 
         if env.Max():
@@ -130,3 +131,31 @@ def __dark_view(view):
     local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
     with open(local + "/user/dark.css") as f:
         view.setStyleSheet("".join(f.readlines()))
+
+
+# from Qt import QtWidgets
+from PySide2 import QtWidgets
+
+
+class UIWindow(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(UIWindow, self).__init__(parent)
+        self.setWindowTitle("UI")
+        self.setupUI()
+
+    def setupUI(self):
+        btn = QtWidgets.QPushButton("Hello World")
+        self.layout = QtWidgets.QVBoxLayout()
+        self.layout.addWidget(btn)
+        self.setLayout(self.layout)
+
+
+def console():
+    app = QtWidgets.QApplication(sys.argv)
+    button = UIWindow()
+    button.show()
+    app.exec_()
+
+
+if __name__ == "__main__":
+    console()

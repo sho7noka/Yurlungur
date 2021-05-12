@@ -197,38 +197,3 @@ def remote_debug_listen(HOST='localhost', port=3000):
     except ModuleNotFoundError:
         pass
 
-
-import random
-import time
-from socketserver import ThreadingMixIn
-from xmlrpc.server import SimpleXMLRPCServer, MultiPathXMLRPCServer
-
-
-class SimpleThreadedXMLRPCServer(ThreadingMixIn, MultiPathXMLRPCServer):
-    pass
-
-
-# sleep for random number of seconds
-def sleep():
-    r = random.randint(2, 10)
-    print('sleeping {} seconds'.format(r))
-    time.sleep(r)
-    return 'slept {} seconds, exiting'.format(r)
-
-
-# run server
-def run_server(host="localhost", port=8000):
-    server_addr = (host, port)
-    server = SimpleThreadedXMLRPCServer(server_addr)
-    server.allow_reuse_address = True
-    server.register_function(sleep, 'sleep')
-    server.register_function(server.shutdown, "close")
-
-    print("Server thread started. Testing server ...")
-    print('listening on {} port {}'.format(host, port))
-
-    server.serve_forever()
-
-
-if __name__ == '__main__':
-    run_server()

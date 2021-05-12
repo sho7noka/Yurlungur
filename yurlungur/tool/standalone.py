@@ -31,6 +31,10 @@ def _cli(args):
                         help="set ENV settings for module",
                         nargs=1, type=str, metavar="mod", )
 
+    parser.add_argument("--window", "-w",
+                        help="show editor window",
+                        action="store_true", )
+
     parser.add_argument("--qt", "-q",
                         help="install Qt for Python.",
                         action="store_true", )
@@ -54,6 +58,10 @@ def _cli(args):
     if arguments.environ:
         from yurlungur.core.app import use
         use(arguments.environ[0])
+
+    if arguments.window:
+        from yurlungur.tool.window import console;
+        console()
 
     if arguments.qt:
         yr.env.pip.main(["install", "PySide2"])
