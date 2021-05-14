@@ -18,12 +18,6 @@ class Object(YObject):
     def __init__(self, item):
         self.item = item
 
-    def __repr__(self):
-        if getattr(meta, "SDNode", False):
-            return "id:" + self.name
-        else:
-            return self.name
-
     def __dir__(self):
         return self.attrs
 
@@ -45,6 +39,8 @@ class Object(YObject):
 
     @property
     def id(self):
+        from yurlungur.core.runtime import ref
+        ref()
         if getattr(meta, "SDNode", False):
             node_id = ""
             for node in meta.graph.getNodes():
@@ -73,7 +69,8 @@ class Object(YObject):
             return meta.toNode(self.name)["name"].value() or 0
 
         if getattr(meta, "fusion", False):
-            return meta.fusion.GetCurrentComp().FindTool(self.name).ID or 0
+            if meta.is_fusion:
+                return meta.fusion.GetCurrentComp().FindTool(self.name).ID or 0
 
         if getattr(meta, "uclass", False):
             return meta.ue4.uname(self.name).get_name() or 0
@@ -1252,29 +1249,29 @@ class Attribute(YObject):
         if getattr(meta, "SceneObject", False):
             return YException("api is not found")
 
-    @property
-    def vector(self):
-        from yurlungur.core.datatype import Vector
-        try:
-            return Vector(self._values[0])
-        except TypeError:
-            return Vector(*self._values[0])
-
-    @property
-    def color(self):
-        from yurlungur.core.datatype import Color
-        try:
-            return Color(self._values[0])
-        except TypeError:
-            return Color(*self._values[0])
-
-    @property
-    def matrix(self):
-        from yurlungur.core.datatype import Matrix
-        try:
-            return Matrix(self._values[0])
-        except TypeError:
-            return Matrix(*self._values[0])
+    # @property
+    # def vector(self):
+    #     from yurlungur.core.datatype import Vector
+    #     try:
+    #         return Vector(self._values[0])
+    #     except TypeError:
+    #         return Vector(*self._values[0])
+    #
+    # @property
+    # def color(self):
+    #     from yurlungur.core.datatype import Color
+    #     try:
+    #         return Color(self._values[0])
+    #     except TypeError:
+    #         return Color(*self._values[0])
+    #
+    # @property
+    # def matrix(self):
+    #     from yurlungur.core.datatype import Matrix
+    #     try:
+    #         return Matrix(self._values[0])
+    #     except TypeError:
+    #         return Matrix(*self._values[0])
 
 
 class File(YObject):
