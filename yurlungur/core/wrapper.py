@@ -35,9 +35,11 @@ class MultiObject(object):
     if env.Davinci():
         resolve = env.__import__("DaVinciResolveScript").scriptapp("Resolve")
         if resolve:
-            fusion = resolve.Fusion()
-            is_fusion = not fusion.CurrentComp is None
-            from yurlungur.adapters import davinci
+            is_fusion = resolve.CurrentPage() == "fusion"  # not fusion.CurrentComp is None
+            if is_fusion:
+                fusion = resolve.Fusion()
+            else:
+                from yurlungur.adapters import davinci
 
     def __getattr__(self, item):
         try:
