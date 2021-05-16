@@ -43,14 +43,10 @@ elif __import__("nuke"):
 
     application = nuke
 
-# Davinci & Fusion
-
 elif __import__("c4d"):
     import c4d
 
     application = c4d
-
-# Photoshop
 
 elif __import__("pymxs"):
     import pymxs
@@ -80,7 +76,8 @@ elif __import__("renderdoc"):
 else:
     from yurlungur.tool import standalone
 
-    application = standalone
+    application = standalone  # sys.executable
+    application.console = None
 
 
 def use(module):
@@ -95,7 +92,6 @@ def use(module):
     >>> import yurlungur
     >>> yurlungur.use("hou")
     """
-    global application
     from yurlungur.core import env
 
     if module == "photoshop":
@@ -113,7 +109,4 @@ def initialize():
     name, stubs and load plugin
     https://docs.python.org/ja/3/reference/import.html#import-hooks
     """
-
-
-def finalize():
-    """"""
+    sys.path_hooks.append("")

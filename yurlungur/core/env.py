@@ -120,7 +120,7 @@ def get_pip():
     return pip
 
 
-# pip = get_pip()
+pip = get_pip()
 
 
 class App(object):
@@ -156,7 +156,7 @@ class App(object):
             while self.process.poll() is None:
                 print(self.process.stdout.readline().decode().strip())
         except (KeyboardInterrupt, SystemExit):
-            self.end()
+            self.quit()
         except OSError:
             print("%s is not found" % self.app_name)
 
@@ -213,7 +213,7 @@ class App(object):
 
         # https://www.steakunderwater.com/wesuckless/viewtopic.php?t=2012
         elif "davinci" in self.app_name:
-            # C:\Program Files\Blackmagic Design\DaVinci Resolve\fuscript.exe <script> [args] -l python3
+            # "%PROGRAMFILES%\\Blackmagic Design\\DaVinci Resolve\\fuscript.exe <script> [args] -l python3
             _cmd = self.app_name + " -nogui"
 
         elif "rumba" in self.app_name:
@@ -240,11 +240,19 @@ class App(object):
         finally:
             print("revert")
 
-    def end(self):
+    def quit(self):
+        """
+        リモートから終了
+        Returns:
+
+        """
         self.process.terminate()
         # maya.standalone.uninitialize()
         # hou.releaseLicense()
         # rumba.release()
+
+        # davinci and photoshop
+        # meta.resolve.Quit()
 
     @property
     def _actions(self):
@@ -252,7 +260,7 @@ class App(object):
         Returns:
            run, shell, end, connect
         """
-        return self.run, self.shell, self.end, self.connect
+        return self.run, self.shell, self.quit, self.connect
 
 
 def Maya(func=None):
@@ -617,13 +625,13 @@ def Numpy(func=None):
 
     """
     try:
-        import numpy as nm
+        import numpy
         is_numpy = True
     except ImportError:
         return False
 
     if func is None:
-        return nm
+        return numpy
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
