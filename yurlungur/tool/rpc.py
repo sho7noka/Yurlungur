@@ -35,18 +35,14 @@ def send_chr(msg, host="localhost", port=18811):
         return res
 
 
-def session(module, host="localhost", port=18811):
+def session(module="hou", host="localhost", port=18811):
     """
     rpc session for client
+    >>> print(session().system.listMethods())
 
     # https://www.sidefx.com/ja/docs/houdini/hom/rpc.html
     >>> import hrpyc
     >>> _, hou = hrpyc.import_remote_module()
-
-    # https://qiita.com/tm8r/items/29d598231b793be6c6ea
-    >>> import unity_python.client.unity_client as unity_client
-    >>> unity_client
-
     Args:
         port:
         host:
@@ -55,7 +51,7 @@ def session(module, host="localhost", port=18811):
     Returns:
         proxy
     """
-    if env.Houdini() or env.Unity():
+    if env.Houdini():
         connection = importlib.import_module("rpyc").classic.connect(host, port)
         proxy = connection.modules[module]
         return proxy
@@ -89,7 +85,7 @@ def listen(host="localhost", port=18811, use_thread=True, quiet=True):
 
     """
     # Note that quiet=False only applies when use_thread=False.
-    if env.Houdini() or env.Unity():
+    if env.Houdini():
         if use_thread:
             thread = threading.Thread(
                 target=lambda: listen(port, use_thread=False))
@@ -148,9 +144,13 @@ def listen(host="localhost", port=18811, use_thread=True, quiet=True):
                     except TypeError:
                         pass
 
-            server.register_function(server.shutdown, "Quit")
+            server.register_function(server.shutdown, "quit")
             server.register_introspection_functions()
-            server.serve_forever()
+            # server.register_multicall_functions()
+            # server.serve_forever()
+            server_thread = threading.Thread(target=server.serve_forever, use_thread=False)
+            server_thread.start()
+            return server_thread
 
 
 def remote_debug_listen(host='localhost', port=18811):

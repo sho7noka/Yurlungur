@@ -198,10 +198,10 @@ class App(object):
             _cmd = "{0} --python-expr '{1}' -b".format(self.app_name, cmd)
 
         # https://docs.unity3d.com/jp/460/Manual/CommandLineArguments.html
-        elif "unity" in self.app_name:
-            from yurlungur.adapters import unity
+        elif "Unity" in self.app_name:
+            from yurlungur.adapters import unity;
             unity.initialize_package()
-            _cmd = "%s -batchmode -executeMethod PythonScript.Exec %s" % (self.app_name, cmd)
+            _cmd = "%s -batchmode -executeMethod PythonExtensions.Startup.Exec \"%s\"" % (self.app_name, cmd)
 
         # https://learn.foundry.com/nuke/8.0/content/user_guide/configuring_nuke/command_line_operations.html
         elif "nuke" in self.app_name:
@@ -681,6 +681,7 @@ def is_version(app):
         versions = os.listdir(hub)
         return app(versions[-1])
 
+    # TODO
     if app == _Nuke or app == _Houdini:
         return None
 

@@ -9,32 +9,8 @@ try:
     getattr(UnityEngine, "Debug")  # NOTE: DO NOT DELETE
 
 
-    class Timeline(object):
-        def __init__(self, timeline):
-            self.timeline = timeline
-
-            T = clr.GetClrType(Timeline.TimelineAsset)
-            timelineAsset = UnityEngine.ScriptableObject.CreateInstance(T)
-            path = "Assets/Sample.playable"
-            UnityEditor.AssetDatabase.CreateAsset(timelineAsset, path)
-
-        @property
-        def tracks(self):
-            return Track(self.timeline)
-
-
-    class Track(object):
-        def __init__(self, track):
-            self.track = track
-
-        @property
-        def clips(self):
-            return Item(self.track)
-
-
-    class Item(object):
-        pass
-
+    # TODO
+    # https://docs.unity3d.com/Packages/com.unity.scripting.python@4.0/api/UnityEditor.Scripting.Python.PythonSettings.html
 
     def EvalScript(script):
         """
@@ -69,9 +45,7 @@ try:
 except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
-    run, _, end, _ = __App("unity")._actions
-
-    __all__ = ["run", "end"]
+    run, shell, quit, _ = __App("unity")._actions
 
 
 def Projects():
@@ -79,13 +53,13 @@ def Projects():
     Returns: RecentProjectPath list
     """
     import os
-    import platform
+    from yurlungur.core import deco
 
     recent_key = 'RecentlyUsedProjectPaths-'
     projects = []
 
     # https://area.autodesk.jp/column/tutorial/maya_atoz/send-to-unity/
-    if platform.platform() == "Windows":
+    if deco.Windows():
         import _winreg
         key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, r'Software\Unity Technologies\Unity Editor 5.x')
         info = _winreg.QueryInfoKey(key)
@@ -94,7 +68,7 @@ def Projects():
             if recent_key in v[0]:
                 projects.append(v[1])
 
-    if platform.platform() == "Darwin":
+    if deco.Mac():
         import plistlib
         plist = os.getenv("HOME") + "/Library/Preferences/com.unity3d.UnityEditor5.x.plist"
 
@@ -105,54 +79,38 @@ def Projects():
                     projects.append(v)
 
     # TODO
-    if platform.platform() == "Linux":
+    if deco.Linux():
         projects.append("")
 
     return projects
 
 
-def to_manifest(path="Packages/manifest.json", version="2.0.1-preview.2"):
+def initialize_package(path="", version="4.0.0-exp.5"):
     """
-    https://docs.unity3d.com/Packages/com.unity.scripting.python@2.1/manual/
-    https://docs.unity3d.com/Packages/com.unity.package-manager-ui@2.0/manual/index.html
+    https://docs.unity3d.com/Packages/com.unity.scripting.python@4.0/manual/index.html
     Args:
         path:
-        version:
 
     Returns:
 
     """
-    import os
-    import json
-    import collections
+    import os, textwrap, json
 
-    if path is None:
-        latest = Projects()[0]
-        path = os.path.join(latest, path)
+    if path == "":
+        latest = Projects()[-1]
+        mn = os.path.join(latest, "Packages/manifest.json")
+        cs = os.path.join(latest, "Assets/PythonEditor.cs")
+    else:
+        mn = os.path.join(path, "Packages/manifest.json")
+        cs = os.path.join(path, "Assets/PythonEditor.cs")
 
-    with open(path) as f:
-        df = json.load(f, object_pairs_hook=collections.OrderedDict)
+    with open(mn, "r") as f:
+        df = json.load(f)  # , object_pairs_hook=collections.OrderedDict)
         df["dependencies"]["com.unity.scripting.python"] = version
-        with open(path, 'w') as w:
+        with open(mn, "w") as w:
             json.dump(df, w, indent=4)
 
-
-def initialize_package(path="Assets/Editor/PythonEditor.cs"):
-    """
-    Args:
-        path:
-
-    Returns:
-
-    """
-    import os
-    import textwrap
-
-    if path is None:
-        latest = Projects()[0]
-        path = os.path.join(latest, path)
-
-    with open(path, "w") as f:
+    with open(cs, "w") as f:
         f.write(textwrap.dedent("""
         using System;
         using System.IO;
@@ -185,7 +143,7 @@ def initialize_package(path="Assets/Editor/PythonEditor.cs"):
         
             public class PythonExtension
             {
-                [MenuItem("Assets/Python/Open In ScriptEditor")]
+                [MenuItem("Assets/Create/Python/Open In ScriptEditor")]
                 private static void OpenScriptEditor()
                 {
                     // get text
@@ -204,7 +162,7 @@ def initialize_package(path="Assets/Editor/PythonEditor.cs"):
                     content.ApplyModifiedProperties();
                 }
         
-                [MenuItem("Assets/Python/Python Script")]
+                [MenuItem("Assets/Create/Python/Python Script")]
                 private static void CreateScript()
                 {
                     var path = "Assets/Python";
