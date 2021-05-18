@@ -58,10 +58,10 @@ def hook(path):
         raise ImportError
 
 
-sys.path_hooks.append(hook)
+# sys.path_hooks.append(hook)
 
 try:
-    sys.modules[__name__] = importlib.import_module("vim")
+    sys.modules[__name__] = importlib.import_module("pynvim")
     setattr(sys.modules[__name__], "remote_debug", remote_debug_listen)
     setattr(sys.modules[__name__], "enable", True)
 

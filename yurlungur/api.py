@@ -30,7 +30,7 @@ sys.dont_write_bytecode = True
 import yurlungur
 from yurlungur.core.proxy import Node, File, Attribute
 from yurlungur.core.command import node, file, attr
-from yurlungur.core import runtime
+from yurlungur.core import vars
 # from yurlungur.core.datatype import Vector
 from yurlungur.core.deco import UndoGroup, threads
 from yurlungur.tool.meta import meta
