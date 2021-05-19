@@ -1,46 +1,4 @@
 # coding: utf-8
-import sys as __sys
-
-try:
-    __sys.modules[__name__] = __sys.modules["bpy"]
-except (ImportError, KeyError):
-    from yurlungur.core.env import App as __App
-
-    run, shell, end, connect = __App("blender")._actions
-
-    __all__ = ["run", "shell", "end", "connect"]
-
-
-class Project(object):
-    def __init__(self, project):
-        self.project = project
-
-    @property
-    def sequences(self):
-        return Timeline(self.project)
-
-
-class Timeline(object):
-    def __init__(self, timeline):
-        self.timeline = timeline
-
-    @property
-    def tracks(self):
-        return Track(self.timeline)
-
-
-class Track(object):
-    def __init__(self, track):
-        self.track = track
-
-    @property
-    def clips(self):
-        return Item(self.track)
-
-
-class Item(object):
-    pass
-
 """
 import bpy
 import queue
@@ -115,3 +73,48 @@ class UndoGroup:
         # Undo and redo previous action
         bpy.ops.ed.undo_redo()
 """
+import sys as __sys
+
+try:
+    __sys.modules[__name__] = __sys.modules["bpy"]
+    import yurlungur
+
+    for obj in [obj for obj in dir(yurlungur) if obj[0] != "_" and obj != "Qt"]:
+        setattr(__sys.modules[__name__], obj, getattr(yurlungur, obj))
+except (ImportError, KeyError):
+    from yurlungur.core.env import App as __App
+
+    run, shell, quit, connect = __App("blender")._actions
+
+    __all__ = ["run", "shell", "quit", "connect"]
+
+
+class Project(object):
+    def __init__(self, project):
+        self.project = project
+
+    @property
+    def sequences(self):
+        return Timeline(self.project)
+
+
+class Timeline(object):
+    def __init__(self, timeline):
+        self.timeline = timeline
+
+    @property
+    def tracks(self):
+        return Track(self.timeline)
+
+
+class Track(object):
+    def __init__(self, track):
+        self.track = track
+
+    @property
+    def clips(self):
+        return Item(self.track)
+
+
+class Item(object):
+    pass

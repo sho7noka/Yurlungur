@@ -36,6 +36,6 @@ try:
     setattr(sys.modules[__name__], "remote_debug", remote_debug_listen)
     setattr(sys.modules[__name__], "enable", True)
 
-except (ModuleNotFoundError, FileNotFoundError):
+except (ImportError, FileNotFoundError):
     sys.modules[__name__] = types.ModuleType("pydevd_pycharm")
     setattr(sys.modules[__name__], "enable", False)

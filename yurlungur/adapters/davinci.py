@@ -2,14 +2,8 @@
 import os
 from yurlungur.core.env import App as __App
 
-run, _, end, _ = __App("davinci")._actions
-
 # bmd = fusionscript, fu, comp
-
-def version():
-    from yurlungur.tool.meta import meta
-    return meta.resolve.GetVersion()[0] > 16
-
+run, shell, quit, _ = __App("davinci")._actions
 
 class Projects(object):
 
@@ -18,6 +12,8 @@ class Projects(object):
         self.manager = meta.resolve.GetProjectManager()
         self.project = self.manager.GetCurrentProject()
         self.projects = self.manager.GetProjectListInCurrentFolder()
+        self.v16 = meta.resolve.GetVersion()[0] > 16
+        self.v17 = meta.resolve.GetVersion()[0] > 17
 
     def __repr__(self):
         return self.project.GetName()
@@ -124,7 +120,7 @@ class Item(object):
                 self.track = self.track.GetFusionCompByIndex(val)
 
         elif type(val) == str:
-            if version():
+            if Projects().v16:
                 for comp in self.track.GetFusionCompNameList():
                     if val in comp:
                         self.track = self.track.GetFusionCompByName(val)
