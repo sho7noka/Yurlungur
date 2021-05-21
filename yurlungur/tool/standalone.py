@@ -56,7 +56,7 @@ def _cli(args):
             )
 
     if arguments.environ:
-        from yurlungur.core.app import use
+        from yurlungur.core.app import use;
         use(arguments.environ[0])
 
     if arguments.window:

@@ -2,9 +2,10 @@
 import sys, contextlib
 from yurlungur.core import env as _env
 from yurlungur.tool import window as _window
+from yurlungur.tool.meta import meta
 
 # dispatch for exit
-if _env.Blender() or _env.Nuke():
+if _env.Blender() or _env.Nuke() or _env.Houdini():
     sys.exit = None
 
 # dispatch for Qt
@@ -13,6 +14,15 @@ if _env.Qt():
 
     Qt.main_window = _window.main_window
     Qt.show = _window.show
+
+# dispatch for RPC
+try:
+    import rpyc
+    from yurlungur.tool import rpc
+    # rpc.session = rpyc.classic.connect
+
+except ImportError:
+    pass
 
 # dispatch for app
 try:
@@ -93,6 +103,8 @@ if not v(_env._RenderDoc):
     del yurlungur.renderdoc
 if not v(_env._Rumba):
     del yurlungur.rumba
+if not v(_env._Photoshop):
+    pass  # del yurlungur.photoshop
 if not yurlungur.pycharm.enable:
     del yurlungur.pycharm
 if not yurlungur.vim.enable:
@@ -105,8 +117,6 @@ if not v(_env._Nuke):
     pass  # del yurlungur.nuke
 if not v(_env._Houdini):
     pass  # del yurlungur.houdini
-if not v(_env._Photoshop):
-    pass  # del yurlungur.photoshop
 
 del yurlungur.adapters, yurlungur.core, yurlungur.exception, yurlungur.wrapper, yurlungur.tool, v
 del yurlungur, sys, contextlib

@@ -12,6 +12,7 @@ else:
     import SimpleXMLRPCServer as _xmlrpc_server
     import xmlrpclib as _xmlrpc_client
 
+import yurlungur
 from yurlungur.core.app import application
 from yurlungur.core import env
 
@@ -107,37 +108,31 @@ def listen(host="localhost", port=18811, use_thread=True, quiet=True):
         with _xmlrpc_server.SimpleXMLRPCServer((host, port), allow_none=True, logRequests=False) as server:
             print("Listening on port %s %d..." % (application.__name__, port))
 
-            import yurlungur
-            for i in dir(yurlungur):
-                if i[0] == "_" or i == "Qt":
-                    continue
+            for i in [i for i in dir(yurlungur) if i[0] != "_" and i != "Qt"]:
+                obj = getattr(yurlungur, i)
 
-                o = getattr(yurlungur, i)
-                if type(o) == types.FunctionType:
-                    server.register_function(o, "yurlungur.%s" % i)
+                if type(obj) == types.FunctionType:
+                    server.register_function(obj, "yurlungur.%s" % i)
                 else:
                     try:
-                        for m in dir(o) or []:
-                            if m[0] == "_":
-                                continue
-
-                            meth = getattr(o, m)
+                        for m in [m for m in dir(obj) if m[0] != "_"]:
+                            meth = getattr(obj, m)
                             if (type(meth) not in (types.MethodType, types.FunctionType)):
                                 continue
 
                             # if isinstance(meth, hou.EnumValue):
                             #     client.register_function(meth.__repr__, "hou.%s.%s.__repr__" % (i, m))
-                            if (type(o) in (type, type) and type(meth) == types.MethodType):
+                            if (type(obj) in (type, type) and type(meth) == types.MethodType):
                                 server.register_function(meth, "typeMethods.yurlungur.%s.%s" % (i, m))
                             else:
-                                for m in dir(o):
-                                    meth = getattr(o, m)
+                                for m in dir(obj):
+                                    meth = getattr(obj, m)
                                     if (type(meth) not in (types.MethodType, types.FunctionType)) or m == "_":
                                         continue
 
                                     # if isinstance(meth, hou.EnumValue):
                                     #     client.register_function(meth.__repr__, "hou.%s.%s.__repr__" % (i, m))
-                                    if (type(o) in (type, type) and type(meth) == types.MethodType):
+                                    if (type(obj) in (type, type) and type(meth) == types.MethodType):
                                         server.register_function(meth, "typeMethods.yurlungur.%s.%s" % (i, m))
                                     else:
                                         server.register_function(meth, "yurlungur.%s.%s" % (i, m))
