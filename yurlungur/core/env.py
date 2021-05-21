@@ -212,7 +212,7 @@ class App(object):
             self.app_name = self.app_name.replace("Cinema 4D", "c4dpy")
 
         # https://www.steakunderwater.com/wesuckless/viewtopic.php?t=2012
-        elif "davinci" in self.app_name:
+        elif "Resolve" in self.app_name:
             # "%PROGRAMFILES%\\Blackmagic Design\\DaVinci Resolve\\fuscript.exe <script> [args] -l python3
             _cmd = self.app_name + " -nogui"
 
@@ -228,15 +228,14 @@ class App(object):
             raise
 
     @contextlib.contextmanager
-    def connect(self, port):
+    def connect(self, port=18811):
         """
         https://qiita.com/QUANON/items/c5868b6c65f8062f5876
         """
-        self.shell("from yurlungur.tool.rpc import listen; listen(%d)" % port)
-
-        from yurlungur.tool import rpc
+        from yurlungur.tool.rpc import session
         try:
-            yield rpc.session(port)
+            self.shell("from yurlungur.tool.rpc import listen; listen(%d)" % port)
+            yield session(port)
         finally:
             print("revert")
 
@@ -246,13 +245,27 @@ class App(object):
         Returns:
 
         """
-        self.process.terminate()
-        # maya.standalone.uninitialize()
-        # hou.releaseLicense()
-        # rumba.release()
-
-        # davinci and photoshop
-        # meta.resolve.Quit()
+        try:
+            self.process.terminate()
+        except AttributeError:
+            if "maya" in self.app_name:
+                import maya
+                maya.standalone.uninitialize()
+                maya.cmds.quit(force=True)
+            elif "houdini" in self.app_name:
+                import hou
+                hou.releaseLicense()
+                hou.exit()
+            elif "rumba" in self.app_name:
+                import rumba, rumbapy
+                rumba.release()
+                rumbapy.quit(force=True)
+            elif "Resolve" in self.app_name:
+                import yurlungur
+                yurlungur.meta.resolve.Quit()
+            elif "photoshop" in self.app_name:
+                from yurlungur.adapters.photoshop import do
+                do("var idquit = charIDToTypeID(\"quit\"); executeAction(idquit, undefined, DialogModes.ALL);")
 
     @property
     def _actions(self):

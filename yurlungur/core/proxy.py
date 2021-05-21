@@ -6,6 +6,7 @@ from yurlungur.core.deco import trace
 from yurlungur.core.exception import YException
 from yurlungur.core.wrapper import YObject
 from yurlungur.tool.meta import meta
+from yurlungur.core.vars import ref
 
 
 class Object(YObject):
@@ -93,7 +94,6 @@ class Object(YObject):
         if getattr(meta, "BusyData", False):
             raise YException("api is not found")
 
-    @trace
     def set(self, *args, **kwargs):
         """
         rename object

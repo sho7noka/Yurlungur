@@ -2,7 +2,6 @@
 import yurlungur
 from yurlungur.core.app import application
 from yurlungur.core import env
-from yurlungur.core.runtime import ref
 
 
 class MultiObject(object):
@@ -66,7 +65,6 @@ class MultiObject(object):
 
         return getattr(yurlungur, item, False)
 
-    @ref
     def eval(self, script):
         """
         eval script for
