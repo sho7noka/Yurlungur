@@ -67,7 +67,7 @@ def __import__(name, globals=None, locals=None, fromlist=None):
             return False
 
 
-def set(module):
+def set(module=None):
     """
     yurlungur
         yurlungur.env
@@ -76,7 +76,7 @@ def set(module):
             ...
     """
     if platform.system() == "Windows":
-        path = os.getenv("USERPROFILE") + "\\Documents\\yurlungur\\modules"
+        path = "%USERPROFILE%\\Documents\\yurlungur\\modules"
     if platform.system() == "Darwin":
         path = os.getenv("HOME") + "/Documents/yurlungur/modules"
     if platform.system() == "Linux":
@@ -88,8 +88,12 @@ def set(module):
         with open(env_file, "w") as f:
             f.write("")
 
-    pip = get_pip()
-    pip.main(["install", module, "-t", path])
+    if module:
+        pip = get_pip()
+        # try:
+        #     pip.main(["install", *module.split(" "), "-t", path])
+        # except:
+        #     pip.main(["install", module, "-t", path])
     sys.path.append(path)
 
 

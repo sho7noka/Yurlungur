@@ -13,12 +13,11 @@ def _cli(args):
     Returns:
 
     """
-    import argparse
-    import yurlungur as yr
+    import argparse, yurlungur
 
     parser = argparse.ArgumentParser(
         prog='yurlungur.tool.standalone._cli',
-        description="{0} v.{1} {2}".format(yr.name, yr.version, sys.executable),
+        description="{0} v.{1} {2}".format(yurlungur.name, yurlungur.version, sys.executable),
         epilog='yurlungur console',
         add_help=True,
     )
@@ -31,16 +30,16 @@ def _cli(args):
                         help="set ENV settings for module",
                         nargs=1, type=str, metavar="mod", )
 
-    parser.add_argument("--window", "-w",
-                        help="show editor window",
-                        action="store_true", )
-
-    parser.add_argument("--qt", "-q",
+    parser.add_argument("--qt4python", "-q",
                         help="install Qt for Python.",
                         action="store_true", )
 
-    parser.add_argument("--shotgun", "-s",
-                        help="install shotgun modules.",
+    parser.add_argument("--shotg", "-s",
+                        help="install shotgrid(shotgun) modules.",
+                        action="store_true", )
+
+    parser.add_argument("--window", "-w",
+                        help="show editor window",
                         action="store_true", )
 
     arguments = parser.parse_args(args)
@@ -63,11 +62,13 @@ def _cli(args):
         from yurlungur.tool.window import console;
         console()
 
-    if arguments.qt:
-        yr.env.pip.main(["install", "PySide2"])
+    if arguments.qt4python:
+        from yurlungur.core.env import set;
+        set("vfxwindow PySide2")
 
-    if arguments.shotgun:
-        yr.env.pip.main(["install", "git+git://github.com/shotgunsoftware/python-api.git"])
+    if arguments.shotg:
+        from yurlungur.core.env import set;
+        set("git+git://github.com/shotgunsoftware/python-api.git")
 
 if __name__ == '__main__':
     _cli(sys.argv[1:])
