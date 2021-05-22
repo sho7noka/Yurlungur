@@ -1,4 +1,4 @@
-from yurlungur.core.app import application, use, initialize
+from yurlungur.core.app import application, initialize
 from yurlungur.core import env
 from yurlungur.core.command import file, node, attr
 from yurlungur.core.deco import UndoGroup, cache, threads, timer

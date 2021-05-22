@@ -118,6 +118,8 @@ if not v(_env._Nuke):
 if not v(_env._Houdini):
     pass  # del yurlungur.houdini
 
+_env.set()
+
 del yurlungur.adapters, yurlungur.core, yurlungur.exception, yurlungur.wrapper, yurlungur.tool, v
 del yurlungur, sys, contextlib
 
