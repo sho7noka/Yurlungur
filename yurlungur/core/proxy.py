@@ -1268,29 +1268,29 @@ class Attribute(YObject):
         if getattr(meta, "SceneObject", False):
             return YException("api is not found")
 
-    # @property
-    # def vector(self):
-    #     from yurlungur.core.datatype import Vector
-    #     try:
-    #         return Vector(self._values[0])
-    #     except TypeError:
-    #         return Vector(*self._values[0])
-    #
-    # @property
-    # def color(self):
-    #     from yurlungur.core.datatype import Color
-    #     try:
-    #         return Color(self._values[0])
-    #     except TypeError:
-    #         return Color(*self._values[0])
-    #
-    # @property
-    # def matrix(self):
-    #     from yurlungur.core.datatype import Matrix
-    #     try:
-    #         return Matrix(self._values[0])
-    #     except TypeError:
-    #         return Matrix(*self._values[0])
+    @property
+    def vector(self):
+        from yurlungur.core.datatype import Vector
+        try:
+            return Vector(self._values[0])
+        except TypeError:
+            return Vector(*self._values[0])
+
+    @property
+    def color(self):
+        from yurlungur.core.datatype import Color
+        try:
+            return Color(self._values[0])
+        except TypeError:
+            return Color(*self._values[0])
+
+    @property
+    def matrix(self):
+        from yurlungur.core.datatype import Matrix
+        try:
+            return Matrix(self._values[0])
+        except TypeError:
+            return Matrix(*self._values[0])
 
 
 class File(YObject):
