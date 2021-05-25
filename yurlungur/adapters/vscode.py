@@ -15,6 +15,7 @@ from yurlungur.core.deco import Windows, Mac
 from yurlungur.tool.rpc import remote_debug_listen
 
 try:
+    path = "/usr/bin"
     if Windows():
         path = os.getenv("USERPROFILE")
     if Mac():
@@ -28,6 +29,6 @@ try:
     setattr(sys.modules[__name__], "remote_debug", remote_debug_listen)
     setattr(sys.modules[__name__], "enable", True)
 
-except (ModuleNotFoundError, FileNotFoundError):
+except:
     sys.modules[__name__] = types.ModuleType("vscode")
     setattr(sys.modules[__name__], "enable", False)
