@@ -38,6 +38,6 @@ try:
     setattr(__sys.modules[__name__], "remote_debug", remote_debug_listen)
     setattr(__sys.modules[__name__], "enable", True)
 
-except IndexError:
+except:
     __sys.modules[__name__] = types.ModuleType("pydevd_pycharm")
     setattr(__sys.modules[__name__], "enable", False)
