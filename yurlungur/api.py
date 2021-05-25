@@ -31,7 +31,7 @@ import yurlungur
 from yurlungur.core.proxy import Node, File, Attribute
 from yurlungur.core.command import node, file, attr
 from yurlungur.core import vars
-# from yurlungur.core.datatype import Vector
+from yurlungur.core.datatype import Vector, Matrix
 from yurlungur.core.deco import UndoGroup, threads
 from yurlungur.tool.meta import meta
 from yurlungur.tool.logger import pprint

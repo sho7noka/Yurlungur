@@ -90,10 +90,10 @@ def set(module=None):
 
     if module:
         pip = get_pip()
-        # try:
-        #     pip.main(["install", *module.split(" "), "-t", path])
-        # except:
-        #     pip.main(["install", module, "-t", path])
+        try:
+            pip.main(["install", *module.split(" "), "-t", path])
+        except:
+            pip.main(["install", module, "-t", path])
     sys.path.append(path)
 
 
@@ -136,9 +136,9 @@ class App(object):
             "maya": v(_Maya), "houdini": v(_Houdini), "substance_designer": v(_Substance),
             "ue4": v(_Unreal), "unity": v(_Unity), "renderdoc": v(_RenderDoc),
             "nuke": v(_Nuke), "c4d": v(_Cinema4D), "davinci": v(_Davinci),
-            "rumba": v(_Rumba), "3dsmax": v(_Max), "marmoset": v(_Marmoset),
-            "photoshop": v(_Photoshop), "substance_painter": v(_SubstancePainter),
-            "blender": v(_Blender),
+            "photoshop": v(_Photoshop), "3dsmax": v(_Max), "marmoset": v(_Marmoset),
+            "substance_painter": v(_SubstancePainter),
+            "blender": v(_Blender), "rumba": v(_Rumba),
         }
         self.app_name = d[name]
         self.process = None
@@ -261,21 +261,23 @@ class App(object):
                 hou.releaseLicense()
                 hou.exit()
             elif "rumba" in self.app_name:
-                import rumba, rumbapy
+                import rumba;
                 rumba.release()
+                import rumbapy;
                 rumbapy.quit(force=True)
             elif "Resolve" in self.app_name:
                 import yurlungur
                 yurlungur.meta.resolve.Quit()
             elif "photoshop" in self.app_name:
                 from yurlungur.adapters.photoshop import do
-                do("var idquit = charIDToTypeID(\"quit\"); executeAction(idquit, undefined, DialogModes.ALL);")
+                do("quit")  # do("var idquit = charIDToTypeID(\"quit\"); executeAction(idquit, undefined, DialogModes.ALL);")
+            sys.exit()
 
     @property
     def _actions(self):
         """
         Returns:
-           run, shell, end, connect
+           run, shell, quit, connect
         """
         return self.run, self.shell, self.quit, self.connect
 
@@ -695,8 +697,12 @@ def is_version(app):
     if app == _Unity:
         from yurlungur.core.deco import Windows
         hub = "%PROGRAMFILES%\\Unity\\Hub\\Editor" if Windows() else "/Applications/Unity/Hub/Editor"
-        versions = os.listdir(hub)
-        return app(versions[-1])
+
+        try:
+            versions = os.listdir(hub)
+            return app(versions[-1])
+        except FileNotFoundError:
+            return None
 
     # TODO
     if app == _Nuke or app == _Houdini:
