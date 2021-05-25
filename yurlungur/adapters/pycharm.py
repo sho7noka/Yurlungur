@@ -6,7 +6,7 @@ pydevconsole.py --mode=client --port=53567
 """
 
 import os
-import sys
+import sys as __sys
 import importlib
 import types
 
@@ -14,6 +14,8 @@ from yurlungur.core.deco import Windows, Mac
 from yurlungur.tool.rpc import remote_debug_listen
 
 try:
+    path = "/opt/usr"
+
     if Windows():
         ext = os.path.join(os.getenv("PROGRAMFILES"), "JetBrains")
         pyext = list(filter(lambda x: x.startswith("PyCharm"), os.listdir(ext)))
@@ -30,12 +32,12 @@ try:
             path = os.path.join(path, pyext[-1], "PyCharm.app/Contents")
 
     egg_path = os.path.join(path, "debug-eggs/pydevd-pycharm.egg").replace(os.sep, "/")
-    sys.path.append(egg_path)
+    __sys.path.append(egg_path)
 
-    sys.modules[__name__] = importlib.import_module("pydevd_pycharm")
-    setattr(sys.modules[__name__], "remote_debug", remote_debug_listen)
-    setattr(sys.modules[__name__], "enable", True)
+    __sys.modules[__name__] = importlib.import_module("pydevd_pycharm")
+    setattr(__sys.modules[__name__], "remote_debug", remote_debug_listen)
+    setattr(__sys.modules[__name__], "enable", True)
 
-except (ImportError, FileNotFoundError):
-    sys.modules[__name__] = types.ModuleType("pydevd_pycharm")
-    setattr(sys.modules[__name__], "enable", False)
+except IndexError:
+    __sys.modules[__name__] = types.ModuleType("pydevd_pycharm")
+    setattr(__sys.modules[__name__], "enable", False)

@@ -65,6 +65,6 @@ try:
     setattr(sys.modules[__name__], "remote_debug", remote_debug_listen)
     setattr(sys.modules[__name__], "enable", True)
 
-except ModuleNotFoundError:
+except:
     sys.modules[__name__] = types.ModuleType("vim")
     setattr(sys.modules[__name__], "enable", False)
