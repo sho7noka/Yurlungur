@@ -1,7 +1,6 @@
 # coding: utf-8
 import sys, contextlib
 from yurlungur.core import env as _env
-from yurlungur.tool import window as _window
 from yurlungur.tool.meta import meta
 
 # dispatch for exit
@@ -11,6 +10,7 @@ if _env.Blender() or _env.Nuke() or _env.Houdini():
 # dispatch for Qt
 if _env.Qt():
     from yurlungur import Qt
+    from yurlungur.tool import window as _window
 
     Qt.main_window = _window.main_window
     Qt.show = _window.show
