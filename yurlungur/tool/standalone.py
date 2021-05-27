@@ -55,19 +55,22 @@ def _cli(args):
             )
 
     if arguments.environ:
-        from yurlungur.core.app import use;
+        from yurlungur.core.app import use
         use(arguments.environ[0])
 
     if arguments.window:
-        from yurlungur.tool.window import console;
+        from yurlungur.user.Qt import QtWidgets
+        from yurlungur.tool.window import console
+        app = QtWidgets.QApplication(sys.argv)
         console()
+        app.exec_()
 
     if arguments.qt4python:
-        from yurlungur.core.env import set;
+        from yurlungur.core.env import set
         set("vfxwindow PySide2")
 
     if arguments.shotg:
-        from yurlungur.core.env import set;
+        from yurlungur.core.env import set
         set("git+git://github.com/shotgunsoftware/python-api.git")
 
 if __name__ == '__main__':

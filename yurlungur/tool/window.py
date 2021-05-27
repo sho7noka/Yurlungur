@@ -5,7 +5,6 @@ Qt 管理Windowモジュール
 import sys
 import os
 import inspect
-import traceback
 
 import yurlungur
 from yurlungur.core import env
@@ -14,10 +13,12 @@ from yurlungur.tool import logger
 
 def main_window():
     """
-    >>> import yurlungur
-    >>> ptr = yurlungur.Qt.main_window()
-    >>> view = yurlungur.Qt.QMainWindow(ptr)
-    >>> yurlungur.Qt.show(view)
+    >>> import sys, yurlungur.Qt as Qt
+    >>> app = Qt.QtWidgets.QApplication(sys.argv)
+    >>> ptr = Qt.main_window()
+    >>> view = Qt.QtWidgets.QMainWindow(ptr)
+    >>> Qt.show(view)
+    >>> app.exec_()
 
     :return:
     """
@@ -26,7 +27,7 @@ def main_window():
     app_name = yurlungur.application.__name__
 
     if app_name == "maya.cmds":
-        from yurlungur.Qt import QtCompat
+        from yurlungur.user.Qt import QtCompat
         from maya import OpenMayaUI
 
         ptr = long(OpenMayaUI.MQtUtil.mainWindow())
@@ -151,11 +152,8 @@ class UIWindow(QtWidgets.QWidget):
 
 
 def console():
-    app = QtWidgets.QApplication(sys.argv)
     button = UIWindow()
     button.show()
-    app.exec_()
-
 
 if __name__ == "__main__":
     console()
