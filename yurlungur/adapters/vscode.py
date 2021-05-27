@@ -15,11 +15,13 @@ from yurlungur.core.deco import Windows, Mac
 from yurlungur.tool.rpc import remote_debug_listen
 
 try:
-    path = "/usr/bin"
     if Windows():
         path = os.getenv("USERPROFILE")
-    if Mac():
+    elif Mac():
         path = os.getenv("HOME")
+    else:
+        path = "/usr/bin"
+
     ext = os.path.join(path, ".vscode/extensions")
     pyext = list(filter(lambda x: x.startswith("ms-python.python"), os.listdir(ext)))
     mspy = os.path.join(ext, pyext[-1], "pythonFiles/lib/python").replace(os.sep, "/")

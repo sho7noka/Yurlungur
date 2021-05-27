@@ -70,7 +70,7 @@ setup(
     platforms="any",
     description='Universal scripting environment with Python which Maya, Houdini and Unreal Engine.',
     long_description=read("Readme.md"),
-    keywords=['maya', 'houdini', 'unreal', '3DCG', 'Game', 'VFX'],
+    keywords=['maya', 'houdini', 'blender', 'unreal', 'unity', '3DCG', 'Game', 'VFX'],
 
     packages=["yurlungur"],
     include_package_data=True,

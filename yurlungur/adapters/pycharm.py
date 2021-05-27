@@ -14,8 +14,6 @@ from yurlungur.core.deco import Windows, Mac
 from yurlungur.tool.rpc import remote_debug_listen
 
 try:
-    path = "/opt/usr"
-
     if Windows():
         ext = os.path.join(os.getenv("PROGRAMFILES"), "JetBrains")
         pyext = list(filter(lambda x: x.startswith("PyCharm"), os.listdir(ext)))
@@ -24,12 +22,14 @@ try:
             path = "%USERPROFILE%\\AppData\\Local\\JetBrains\\Toolbox\\apps\\PyCharm-P\\ch-0"
             pyext = list(filter(lambda x: not os.path.isdir(x), os.listdir(path)))
             path = os.path.join(path, pyext[-1])
-    if Mac():
+    elif Mac():
         path = "/Applications/PyCharm.app/Contents"
         if not os.path.exists(path):
             path = os.path.join(os.getenv("HOME"), "Library/Application Support/JetBrains/Toolbox/apps/PyCharm-P/ch-0")
             pyext = list(filter(lambda x: not x.startswith("."), os.listdir(path)))
             path = os.path.join(path, pyext[-1], "PyCharm.app/Contents")
+    else:
+        path = "/opt/usr"
 
     egg_path = os.path.join(path, "debug-eggs/pydevd-pycharm.egg").replace(os.sep, "/")
     __sys.path.append(egg_path)
