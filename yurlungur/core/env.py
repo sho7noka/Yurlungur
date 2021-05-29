@@ -680,6 +680,11 @@ def is_version(app):
             return app()
         return None
 
+    """TODO
+    "%PROGRAMFILES%\\Epic Games\\UE_{0}EA\\Engine\\Binaries\\Win64\\UnrealEditor.exe".format(v)
+    "%PROGRAMFILES%\\Epic Games\\UE_{0}\\Engine\\Binaries\\Win64\\UE4Editor.exe".format(v)
+    """
+
     if app == _Unreal or app == _Rumba or app == _RenderDoc:
         for i in range(20):
             v = (430 if app == _Unreal else 120 - i) / 100
