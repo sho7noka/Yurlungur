@@ -1,4 +1,8 @@
 # coding: utf-8
+"""
+internal use
+"""
+
 import sys, contextlib
 from yurlungur.core import env as _env
 
@@ -93,7 +97,7 @@ if not v(_env._SubstancePainter):
 if not v(_env._Davinci):
     del yurlungur.davinci
 if not v(_env._Unreal):
-    del yurlungur.ue4
+    del yurlungur.unreal
 if not v(_env._Marmoset):
     del yurlungur.marmoset
 if not v(_env._Unity):

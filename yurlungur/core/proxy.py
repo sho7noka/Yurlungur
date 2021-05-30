@@ -71,7 +71,7 @@ class Object(YObject):
             return meta.data.objects[self.name].id_data or 0
 
         if getattr(meta, "uclass", False):
-            return meta.ue4.uname(self.name).get_name() or 0
+            return meta.unreal.uname(self.name).get_name() or 0
 
         if getattr(meta, "Debug", False):
             return meta.engine.GameObject.Find(self.name).GetInstanceID() or 0
@@ -135,7 +135,7 @@ class Object(YObject):
             return "".join(args)
 
         if getattr(meta, "uclass", False):
-            uname = meta.ue4.uname(self.name)
+            uname = meta.unreal.uname(self.name)
             if type(uname) == str:
                 meta.assets.rename_asset(
                     uname, os.path.join(os.path.dirname(uname), args[0])
@@ -219,11 +219,11 @@ class Object(YObject):
         if getattr(meta, "uclass", False):
             try:
                 return Attribute(
-                    meta.ue4.uname(self.name).get_editor_property(val), self.name, val
+                    meta.unreal.uname(self.name).get_editor_property(val), self.name, val
                 )
             except:
                 return Attribute(
-                    meta.ue4.uname(self.name).root_component.get_editor_property(val),
+                    meta.unreal.uname(self.name).root_component.get_editor_property(val),
                     self.name, val
                 )
 
@@ -294,7 +294,7 @@ class Object(YObject):
             return tuple(inspect.getmembers(meta.data.objects[self.name]))
 
         if getattr(meta, "uclass", False):
-            return meta.ue4.uname(self.name).component_tags()
+            return meta.unreal.uname(self.name).component_tags()
 
         if getattr(meta, "Debug", False):
             obj = meta.engine.GameObject.Find(self.name)
@@ -479,7 +479,7 @@ class Object(YObject):
             return meta.context.collection.objects.unlink(meta.data.objects[self.name])
 
         if getattr(meta, "uclass", False):
-            uname = meta.ue4.uname(self.name)
+            uname = meta.unreal.uname(self.name)
             if type(uname) == str:
                 return meta.assets.delete_asset(uname)
             else:
@@ -551,7 +551,7 @@ class Object(YObject):
             return meta.ops.object.make_local(type='SELECT_OBJECT')
 
         if getattr(meta, "uclass", False):
-            uname = meta.ue4.uname(self.name)
+            uname = meta.unreal.uname(self.name)
             if type(uname) == str:
                 return meta.assets.duplicate_asset(
                     uname, os.path.join(os.path.dirname(uname), *args)
@@ -641,7 +641,7 @@ class Object(YObject):
                 return meta.ops.object.select_pattern(pattern=self.name)
 
         if getattr(meta, "uclass", False):
-            uname = meta.ue4.uname(self.name)
+            uname = meta.unreal.uname(self.name)
             if len(args) == 0 and len(kwargs) == 0:
                 if type(uname) == str:
                     return node.sel
@@ -713,7 +713,7 @@ class Object(YObject):
             return setattr(meta.data.objects[self.name], "hide_viewport", on)
 
         if getattr(meta, "uclass", False):
-            return meta.ue4.uname(self.name).root_component.set_editor_property(
+            return meta.unreal.uname(self.name).root_component.set_editor_property(
                 "visible", not on
             )
 
@@ -788,7 +788,7 @@ class Object(YObject):
                 return Object(meta.data.objects[self.item].parent.name)
 
         if getattr(meta, "uclass", False):
-            return Node(meta.ue4.uname(self.name).get_parent_actor().get_name())
+            return Node(meta.unreal.uname(self.name).get_parent_actor().get_name())
 
         if getattr(meta, "Debug", False):
             transform = meta.engine.GameObject.Find(self.name).transform
@@ -853,7 +853,7 @@ class Object(YObject):
         if getattr(meta, "uclass", False):
             return (
                 Node(actor.get_name())
-                for actor in meta.ue4.uname(self.item).get_all_child_actors()
+                for actor in meta.unreal.uname(self.item).get_all_child_actors()
             )
 
         if getattr(meta, "Debug", False):
@@ -1125,11 +1125,11 @@ class Attribute(YObject):
 
         if getattr(meta, "uclass", False):
             try:
-                return meta.ue4.uname(self.obj).set_editor_property(self.val, args[0])
+                return meta.unreal.uname(self.obj).set_editor_property(self.val, args[0])
             except TypeError:
-                return getattr(meta.ue4.uname(self.obj), self.val)(*args, **kwargs)
+                return getattr(meta.unreal.uname(self.obj), self.val)(*args, **kwargs)
             except:
-                return meta.ue4.uname(self.obj).root_component.set_editor_property(
+                return meta.unreal.uname(self.obj).root_component.set_editor_property(
                     self.val, args[0]
                 )
 

@@ -32,7 +32,7 @@ elif env.Rumba():  # and Katana
     _MSpace_kTransform = _api2.MSpace.kTransform
     _TOLERANCE = _MM.kTolerance
 
-elif env.Houdini() or env.UE4():
+elif env.Houdini() or env.Unreal():
     try:
         import hou as application
     except ImportError:

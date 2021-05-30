@@ -190,11 +190,14 @@ class App(object):
             _cmd = "%s -i -c \"%s\"" % (maxpy, cmd)
 
         # https://docs.unrealengine.com/ja/Engine/Editor/ScriptingAndAutomation/Python/index.html
-        elif "UE4" in self.app_name:
+        # UnrealEditor-Cmd.exe
+        elif "UE_" in self.app_name:
             with tempfile.NamedTemporaryFile(delete=False) as tf:
                 with open(os.path.join(tf, 'testfile.py'), 'w+b') as fp:
                     fp.write(cmd)
                     _app = os.path.join(os.path.dirname(self.app_name), "UE4Editor-Cmd")
+                    if not os.path.exists(_app):
+                        _app = _app.replace("UE4Editor-Cmd", "UnrealEditor-Cmd")
                     _cmd = " ".join([_app, "-run=pythonscript -script={0}".format(fp)])
 
         # https://docs.blender.org/manual/en/latest/advanced/command_line/arguments.html#python-options
@@ -330,13 +333,13 @@ def Blender(func=None):
     return wrapper
 
 
-def UE4(func=None):
+def Unreal(func=None):
     if func is None:
-        return "UE4" in sys.executable
+        return __import__("unreal")
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if "UE4" in sys.executable:
+        if __import__("unreal"):
             return func(*args, **kwargs)
 
     return wrapper
@@ -680,14 +683,9 @@ def is_version(app):
             return app()
         return None
 
-    """TODO
-    "%PROGRAMFILES%\\Epic Games\\UE_{0}EA\\Engine\\Binaries\\Win64\\UnrealEditor.exe".format(v)
-    "%PROGRAMFILES%\\Epic Games\\UE_{0}\\Engine\\Binaries\\Win64\\UE4Editor.exe".format(v)
-    """
-
-    if app == _Unreal or app == _Rumba or app == _RenderDoc:
+    if app == _Rumba or app == _RenderDoc:
         for i in range(20):
-            v = (430 if app == _Unreal else 120 - i) / 100
+            v = (120 - i) / 100
             if os.path.exists(app(v)):
                 return app(v)
         return None
@@ -695,6 +693,24 @@ def is_version(app):
     if app == _Marmoset:
         for i in range(3):
             v = 5 - i
+            if os.path.exists(app(v)):
+                return app(v)
+        return None
+
+    if app == _Unreal:
+        for i in range(120):
+            v = (400 + i) / 100
+
+            # ue5
+            if v >= 5:
+                app = app(v).replace("UE4Editor", "UnrealEditor")
+                if v == 5.0:
+                    app = app.replace("\\Engine", "EA\\Engine")
+                if os.path.exists(app):
+                    return app
+                return None
+
+            # ue4
             if os.path.exists(app(v)):
                 return app(v)
         return None

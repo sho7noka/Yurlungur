@@ -13,7 +13,7 @@ from yurlungur.core import env
 from yurlungur.tool import logger
 
 # assign UndoGroup
-if env.UE4():
+if env.Unreal():
     UndoGroup = meta.ScopedEditorTransaction
 
 elif env.Houdini():

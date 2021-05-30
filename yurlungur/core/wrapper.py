@@ -12,12 +12,12 @@ class MultiObject(object):
         from yurlungur.adapters import photoshop as ps
         doc = ps.Document()._doc
 
-    if env.UE4():
-        from yurlungur.adapters import ue4
-        editor = ue4.EditorUtil()
-        assets = ue4.GetEditorAssetLibrary()
-        levels = ue4.GetEditorLevelLibrary()
-        tools = ue4.tools
+    if env.Unreal():
+        from yurlungur.adapters import unreal
+        editor = unreal.EditorUtil()
+        assets = unreal.GetEditorAssetLibrary()
+        levels = unreal.GetEditorLevelLibrary()
+        tools = unreal.tools
 
     if env.Unity():
         from yurlungur.adapters import unity
@@ -95,9 +95,9 @@ class MultiObject(object):
             """
             return self.fusion.Execute(script)
 
-        if env.UE4():
-            from yurlungur.adapters import ue4
-            return ue4.execute_console_command(script)
+        if env.Unreal():
+            from yurlungur.adapters import unreal
+            return unreal.execute_console_command(script)
 
         if env.Unity():
             from yurlungur.adapters import unity

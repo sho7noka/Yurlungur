@@ -39,7 +39,7 @@ class GuiLogHandler(Handler):
             elif env.Houdini():
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Error)
 
-            elif env.UE4():
+            elif env.Unreal():
                 meta.log_error(msg)
 
             elif env.Unity():
@@ -73,7 +73,7 @@ class GuiLogHandler(Handler):
             elif env.Houdini():
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Warning)
 
-            elif env.UE4():
+            elif env.Unreal():
                 meta.log_warning(msg)
 
             elif env.Unity():
@@ -107,7 +107,7 @@ class GuiLogHandler(Handler):
             elif env.Houdini():
                 meta.ui.setStatusMessage(msg, severity=meta.severityType.Message)
 
-            elif env.UE4():
+            elif env.Unreal():
                 meta.log(msg)
 
             elif env.Unity():
