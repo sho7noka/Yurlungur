@@ -2,11 +2,11 @@
 u"""
 # Maya on:
 >>> yurlungur.node.create() == yurlungur.maya.node.create()
->>> yurlungur.nuke.node.create()
+>>> yurlungur.nuke.node.create() # via rpc
 
 # Nuke on:
 >>> yurlungur.node.create() == yurlungur.nuke.node.create()
->>> yurlungur.maya.node.create()
+>>> yurlungur.maya.node.create() # via rpc
 """
 import sys as __sys
 

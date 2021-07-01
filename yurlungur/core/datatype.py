@@ -128,14 +128,14 @@ elif env.C4D():
     _TOLERANCE = _MM.kTolerance
 
 elif env.Davinci():
-    _MM = c4d.Matrix
-    _MQ = _api2.MQuaternion
-    _ME = _api2.MEulerRotation
-    _MP = _api2.MPoint
-    _MV = c4d.Vector
-    _MX = _api2.MTransformationMatrix
-    _MSpace_kTransform = _api2.MSpace.kTransform
-    _TOLERANCE = _MM.kTolerance
+    _MM = None
+    _MQ = None
+    _ME = None
+    _MP = None
+    _MV = None
+    _MX = None
+    _MSpace_kTransform = None
+    _TOLERANCE = None
 
 else:
     # marmoset,photoshop,renderdoc
