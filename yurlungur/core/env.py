@@ -206,7 +206,7 @@ class App(object):
 
         # https://docs.unity3d.com/jp/460/Manual/CommandLineArguments.html
         elif "Unity" in self.app_name:
-            from yurlungur.adapters import unity;
+            from yurlungur.adapters import unity
             unity.initialize_package()
             _cmd = "%s -batchmode -executeMethod PythonExtensions.Startup.Exec \"%s\"" % (self.app_name, cmd)
 
@@ -228,6 +228,8 @@ class App(object):
 
         elif "renderdoc" in self.app_name:
             _cmd = self.app_name
+
+        # https://substance3d.adobe.com/documentation/spdoc/remote-control-with-scripting-216629326.html
 
         try:
             os.system(self.python_path + _cmd)
@@ -264,9 +266,9 @@ class App(object):
                 hou.releaseLicense()
                 hou.exit()
             elif "rumba" in self.app_name:
-                import rumba;
+                import rumba
                 rumba.release()
-                import rumbapy;
+                import rumbapy
                 rumbapy.quit(force=True)
             elif "Resolve" in self.app_name:
                 import yurlungur
