@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import yurlungur
-from yurlungur.Qt import UIWindow
-from PySide2 import QtGui, QtWidgets, QtCore
+from yurlungur.user.Qt import UIWindow
+from PySide2 import QtWidgets, QtCore
 
 
 class Window(UIWindow):

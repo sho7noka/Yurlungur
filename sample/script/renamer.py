@@ -9,20 +9,20 @@ class MyWindow(yr.UIWindow):
         super(MyWindow, self).__init__(parent, **kwargs)
         # Setup window here
 
-        container = yr.Qt.QtWidgets.QWidget()
-        layout = yr.Qt.QtWidgets.QVBoxLayout()
+        container = yurlungur.user.Qt.QtWidgets.QWidget()
+        layout = yurlungur.user.Qt.QtWidgets.QVBoxLayout()
         container.setLayout(layout)
         self.setCentralWidget(container)
 
-        messageButton = yr.Qt.QtWidgets.QPushButton('Popup Message')
+        messageButton = yurlungur.user.Qt.QtWidgets.QPushButton('Popup Message')
         messageButton.clicked.connect(self.message)
         layout.addWidget(messageButton)
 
-        confirmButton = yr.Qt.QtWidgets.QPushButton('Confirmation Box')
+        confirmButton = yurlungur.user.Qt.QtWidgets.QPushButton('Confirmation Box')
         confirmButton.clicked.connect(self.confirm)
         layout.addWidget(confirmButton)
 
-        paletteButton = yr.Qt.QtWidgets.QPushButton('Random Palette')
+        paletteButton = yurlungur.user.Qt.QtWidgets.QPushButton('Random Palette')
         paletteButton.clicked.connect(self.palette)
         layout.addWidget(paletteButton)
         

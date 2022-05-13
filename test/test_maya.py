@@ -16,9 +16,8 @@ class TestMaya(unittest.TestCase):
     def test_env(self):
         assert _Maya()
 
-    @unittest.skip("only runtime")
     def test_maya(self):
-        yr.maya.shell("import yurlungur as yr; print yr.name")
+        self.fail(yr.maya.shell("import yurlungur; print(yurlungur.name)"))
 
     @unittest.skip("only runtime")
     def test_objs(self):

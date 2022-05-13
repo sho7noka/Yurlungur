@@ -3,37 +3,37 @@ import sys as __sys
 
 try:
     import unreal
+    import os
 
-    stubs = "PROJECT_DIR/Intermediate/PythonStub/unreal.py"
+    stubs = os.getenv("PROJECT_DIR") + "/Intermediate/PythonStub/unreal.py"
 
     __sys.modules[__name__] = __sys.modules["unreal"]
-
 
     # https://docs.unrealengine.com/ja/ProductionPipelines/DevelopmentSetup/Tools/ConsoleManager/index.html
 
     @unreal.uclass()
     class EditorUtil(unreal.GlobalEditorUtilityBase):
-        pass
+        """"""
 
 
     @unreal.uclass()
     class GetEditorAssetLibrary(unreal.EditorAssetLibrary):
-        pass
+        """"""
 
 
     @unreal.uclass()
     class GetEditorLevelLibrary(unreal.EditorLevelLibrary):
-        pass
+        """"""
 
 
     @unreal.uclass()
     class MaterialEditingLib(unreal.MaterialEditingLibrary):
-        pass
+        """"""
 
 
     @unreal.uclass()
     class GetAnimationLibrary(unreal.AnimationLibrary):
-        pass
+        """"""
 
 
     def execute_console_command(script):
@@ -41,6 +41,10 @@ try:
         # unreal.PythonScriptLibrary.execute_python_command("任意のスクリプトかパス")
         Editor = unreal.EditorLevelLibrary.get_editor_world()
         unreal.SystemLibrary.execute_console_command(Editor, script)
+
+
+    def execute_actions():
+        """https://docs.unrealengine.com/4.26/ja/ProductionPipelines/ScriptingAndAutomation/Blueprints/ScriptedActions/"""
 
 
     def editor_utility():

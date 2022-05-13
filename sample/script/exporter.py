@@ -2,8 +2,7 @@ import random
 import sys
 sys.path.append("/Users/shosumioka/Yurlungur")
 
-import yurlungur
-from yurlungur.Qt import QtWidgets, UIWindow
+from yurlungur.user.Qt import QtWidgets, UIWindow
 from vfxwindow.utils.palette import getPaletteList
 
 

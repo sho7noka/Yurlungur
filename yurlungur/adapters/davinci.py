@@ -3,10 +3,12 @@ import os
 from yurlungur.core.env import App as __App
 
 # bmd = fusionscript, fu, comp
+# https://forum.blackmagicdesign.com/viewtopic.php?f=21&t=108048
+# https://www.steakunderwater.com/wesuckless/viewtopic.php?t=2012
+
 run, shell, quit, _ = __App("davinci")._actions
 
 class Projects(object):
-
     def __init__(self):
         from yurlungur.tool.meta import meta
         self.manager = meta.resolve.GetProjectManager()

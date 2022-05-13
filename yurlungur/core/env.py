@@ -21,29 +21,13 @@ def __import__(name, globals=None, locals=None, fromlist=None):
 
     Returns:
     """
+    # fast return
     try:
         return sys.modules[name]
     except KeyError:
         pass
 
-    try:
-        if "DaVinci" not in name:
-            raise NameError
-        else:
-            name = "DaVinciResolveScript"
-
-        if platform.system() == "Windows":
-            resolve = "%PROGRAMDATA%\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting\\Modules"
-        if platform.system() == "Darwin":
-            resolve = "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Developer/Scripting/Modules"
-        if platform.system() == "Linux":
-            resolve = "/opt/resolve/Developer/Scripting/Modules"
-        sys.path.append(resolve)
-
-    except NameError:
-        pass
-
-    # https://pythonnet.github.io/ or https://ironpython.net/
+    # C# for Python : https://pythonnet.github.io/ or https://ironpython.net/
     if "clr" in sys.modules:
         import clr
         clr.AddReference("System.IO")
@@ -53,6 +37,39 @@ def __import__(name, globals=None, locals=None, fromlist=None):
             clr.AddReference(name)
         except System.IO.FileNotFoundException:
             pass
+
+    # Resolve RPC
+    try:
+        if "DaVinci" not in name:
+            raise NameError
+
+        # NOTE: patch studio module
+        ext=".so"
+        if sys.platform.startswith("darwin"):
+            path = "/Applications/DaVinci Resolve Studio.app/Contents/Libraries/Fusion/"
+        elif sys.platform.startswith("win") or sys.platform.startswith("cygwin"):
+            ext = ".dll"
+            path = "C:\\Program Files\\Blackmagic Design\\DaVinci Resolve\\"
+        elif sys.platform.startswith("linux"):
+            path = "/opt/resolve/libs/Fusion/"
+
+        if os.path.exists(path):
+            import imp
+            return imp.load_dynamic("fusionscript", path + "fusionscript" + ext)
+        else:
+            name = "DaVinciResolveScript"
+
+            if sys.platform.startswith("win") or sys.platform.startswith("cygwin"):
+                resolve = "%PROGRAMDATA%\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting\\Modules"
+            elif sys.platform.startswith("darwin"):
+                resolve = "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Developer/Scripting/Modules"
+            elif sys.platform.startswith("linux"):
+                resolve = "/opt/resolve/Developer/Scripting/Modules"
+
+            sys.path.append(resolve)
+
+    except NameError:
+        pass
 
     try:
         import imp
@@ -604,7 +621,7 @@ def _SubstancePainter():
     d = {
         "Linux": "/opt/Allegorithmic/Substance_Painter/Substance Painter",
         "Windows": "%PROGRAMFILES%\\Allegorithmic\\Substance Painter\\Substance Painter.exe",
-        "Darwin": "/Applications/Substance\ Painter.app/Contents/MacOS/Substance\ Painter"
+        "Darwin": "/Applications/Substance\ Painter.app/Contents/MacOS/Substance\ Painter" # "/Applications/Adobe\ Substance\ 3D\ Painter/Adobe\ Substance\ 3D\ Painter.app/Contents/MacOS/Adobe\ Substance\ 3D\ Painter"
     }
     return d[platform.system()]
 
@@ -716,8 +733,7 @@ def is_version(app):
         return None
 
     if app == _Unity:
-        from yurlungur.core.deco import Windows
-        hub = "%PROGRAMFILES%\\Unity\\Hub\\Editor" if Windows() else "/Applications/Unity/Hub/Editor"
+        hub = "%PROGRAMFILES%\\Unity\\Hub\\Editor" if sys.platform.startswith("win") or sys.platform.startswith("cygwin") else "/Applications/Unity/Hub/Editor"
 
         try:
             versions = os.listdir(hub)
