@@ -6,15 +6,15 @@ pydevconsole.py --mode=client --port=53567
 """
 
 import os
-import sys as __sys
+import sys
 import importlib
 import types
+import platform
 
-from yurlungur.core.deco import Windows, Mac
 from yurlungur.tool.rpc import remote_debug_listen
 
 try:
-    if Windows():
+    if platform.system() == "Windows":
         ext = os.path.join(os.getenv("PROGRAMFILES"), "JetBrains")
         pyext = list(filter(lambda x: x.startswith("PyCharm"), os.listdir(ext)))
         path = os.path.join(ext, pyext[-1])
@@ -22,7 +22,7 @@ try:
             path = "%USERPROFILE%\\AppData\\Local\\JetBrains\\Toolbox\\apps\\PyCharm-P\\ch-0"
             pyext = list(filter(lambda x: not os.path.isdir(x), os.listdir(path)))
             path = os.path.join(path, pyext[-1])
-    elif Mac():
+    elif platform.system() == "Darwin":
         path = "/Applications/PyCharm.app/Contents"
         if not os.path.exists(path):
             path = os.path.join(os.getenv("HOME"), "Library/Application Support/JetBrains/Toolbox/apps/PyCharm-P/ch-0")
@@ -32,12 +32,12 @@ try:
         path = "/opt/usr"
 
     egg_path = os.path.join(path, "debug-eggs/pydevd-pycharm.egg").replace(os.sep, "/")
-    __sys.path.append(egg_path)
+    sys.path.append(egg_path)
 
-    __sys.modules[__name__] = importlib.import_module("pydevd_pycharm")
-    setattr(__sys.modules[__name__], "remote_debug", remote_debug_listen)
-    setattr(__sys.modules[__name__], "enable", True)
+    sys.modules[__name__] = importlib.import_module("pydevd_pycharm")
+    setattr(sys.modules[__name__], "remote_debug", remote_debug_listen)
+    setattr(sys.modules[__name__], "enable", True)
 
 except:
-    __sys.modules[__name__] = types.ModuleType("pydevd_pycharm")
-    setattr(__sys.modules[__name__], "enable", False)
+    sys.modules[__name__] = types.ModuleType("pydevd_pycharm")
+    setattr(sys.modules[__name__], "enable", False)

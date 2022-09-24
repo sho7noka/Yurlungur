@@ -10,14 +10,14 @@ import os
 import importlib
 import sys
 import types
+import platform
 
-from yurlungur.core.deco import Windows, Mac
 from yurlungur.tool.rpc import remote_debug_listen
 
 try:
-    if Windows():
+    if platform.system() == "Windows":
         path = os.getenv("USERPROFILE")
-    elif Mac():
+    elif platform.system() == "Darwin":
         path = os.getenv("HOME")
     else:
         path = "/usr/bin"
