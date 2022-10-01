@@ -4,9 +4,14 @@ from yurlungur.core.env import App as __App
 
 # bmd = fusionscript, fu, comp
 run, shell, quit, _ = __App("davinci")._actions
+"""
+comp.Execute("print('Hello from Lua!')")
+comp.Execute("!Py: print('Hello from default Python!')") 
+comp.Execute("!Py2: print 'Hello from Python 2!'")
+comp.Execute("!Py3: print ('Hello from Python 3!')")
+"""
 
 class Projects(object):
-
     def __init__(self):
         from yurlungur.tool.meta import meta
         self.manager = meta.resolve.GetProjectManager()
