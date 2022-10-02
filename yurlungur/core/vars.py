@@ -4,6 +4,11 @@ import functools
 import mmap
 import weakref
 
+"""
+cb = QtWidgets.QApplication.clipboard()
+cb.setText(text)
+"""
+
 # shared
 # m = mmap.mmap()
 d = weakref.WeakValueDictionary()

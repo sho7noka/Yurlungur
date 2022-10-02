@@ -6,31 +6,33 @@ import sys
 import os
 import inspect
 
-import yurlungur
 from yurlungur.core import env
 from yurlungur.tool import logger
 
 
 def main_window():
     """
-    >>> import sys, yurlungur.Qt as Qt
-    >>> app = Qt.QtWidgets.QApplication(sys.argv)
-    >>> ptr = Qt.main_window()
-    >>> view = Qt.QtWidgets.QMainWindow(ptr)
-    >>> Qt.show(view)
-    >>> app.exec_()
-
+    >>> import sys, yurlungur
+    >>> app = yurlungur.Qt.QtWidgets.QApplication(sys.argv)
+    >>> ptr = yurlungur.Qt.main_window()
+    >>> view = yurlungur.Qt.QtWidgets.QMainWindow(ptr)
+    >>> yurlungur.Qt.show(view)
+    >>> sys.exit(app.exec_())
     :return:
     """
     import yurlungur
-
     app_name = yurlungur.application.__name__
+    logger.pprint(app_name)
 
     if app_name == "maya.cmds":
         from yurlungur.user.Qt import QtCompat
         from maya import OpenMayaUI
 
-        ptr = long(OpenMayaUI.MQtUtil.mainWindow())
+        if sys.version_info[0] < 3:
+            ptr = long(OpenMayaUI.MQtUtil.mainWindow())
+        else:
+            ptr = int(OpenMayaUI.MQtUtil.mainWindow())
+
         return QtCompat.wrapInstance(ptr, QWidget)
 
     if app_name == "sd.api":
@@ -53,6 +55,14 @@ def main_window():
         fusion = fusionscript.scriptapp('Fusion')
         return fusion.GetMainWindow()
 
+    if app_name == "renderdoc":
+        import qrenderdoc
+        return qrenderdoc.MainWindow
+
+    if app_name == "substance_painter":
+        import substance_painter
+        return substance_painter.ui.get_main_window()
+
     if app_name == "pymxs":
         try:
             import qtmax
@@ -61,35 +71,23 @@ def main_window():
             import MaxPlus
             return MaxPlus.QtHelpers_GetQmaxMainWindow()
 
-    if app_name == "substance_painter":
-        import substance_painter
-        return substance_painter.ui.get_main_window()
-
-    if app_name == "rumba":
-        import rumbapy
-        return rumbapy.widget("MainWindow")
-
-    if app_name == "renderdoc":
-        import qrenderdoc
-        return qrenderdoc.MainWindow
-
     return None
 
 
 def show(view):
     """
-    >>> view = yurlungur.Qt.QWidget()
+    >>> view = yurlungur.Qt.QtWidgets.QWidget()
     >>> yurlungur.Qt.show(view)
 
     :param view:
     :return:
     """
-    try:
-        view.deleteLater()
-    except:
-        logger.pprint(view)
+    # try:
+    #     view.deleteLater()
+    # except:
+    #     logger.pprint(view)
 
-    try:
+    def show_(view):
         __dark_view(view)
 
         if env.Max():
@@ -102,20 +100,13 @@ def show(view):
         else:
             view.show()
 
-    except:
-        view.deleteLater()
-
-    import Qt
+    from yurlungur.user import Qt
     if not Qt.QtWidgets.QApplication.instance():
         app = Qt.QtWidgets.QApplication(sys.argv)
-        __dark_view(view)
-
-        if env.Max():
-            __protect_show(view)
-        else:
-            view.show()
-
+        show_(view)
         sys.exit(app.exec_())
+    else:
+        show_(view)
 
 
 class __GCProtector(object):
@@ -123,7 +114,8 @@ class __GCProtector(object):
 
 
 def __protect_show(w):
-    w.setWindowFlags(Qt.WindowStaysOnTopHint)
+    from yurlungur.user import Qt
+    w.setWindowFlags(Qt.QtCore.Qt.WindowStaysOnTopHint)
     w.show()
     __GCProtector.widgets.append(w)
 
@@ -132,28 +124,3 @@ def __dark_view(view):
     local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
     with open(local + "/user/dark.css") as f:
         view.setStyleSheet("".join(f.readlines()))
-
-
-# from Qt import QtWidgets
-from PySide2 import QtWidgets
-
-
-class UIWindow(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super(UIWindow, self).__init__(parent)
-        self.setWindowTitle("UI")
-        self.setupUI()
-
-    def setupUI(self):
-        btn = QtWidgets.QPushButton("Hello World")
-        self.layout = QtWidgets.QVBoxLayout()
-        self.layout.addWidget(btn)
-        self.setLayout(self.layout)
-
-
-def console():
-    button = UIWindow()
-    button.show()
-
-if __name__ == "__main__":
-    console()

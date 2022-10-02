@@ -17,21 +17,6 @@ if env.Maya():
     _MSpace_kTransform = _api2.MSpace.kTransform
     _TOLERANCE = _MM.kTolerance
 
-elif env.Rumba():  # and Katana
-    try:
-        import imath
-    except ImportError:
-        import Imath as imath
-
-    _MM = imath.M33f
-    _MQ = _api2.MQuaternion
-    _ME = _api2.MEulerRotation
-    _MP = _api2.MPoint
-    _MV = imath.V3f
-    _MX = _api2.MTransformationMatrix
-    _MSpace_kTransform = _api2.MSpace.kTransform
-    _TOLERANCE = _MM.kTolerance
-
 elif env.Houdini() or env.Unreal():
     try:
         import hou as application
@@ -70,14 +55,14 @@ elif env.Unity():
 elif env.Substance():
     import sd
 
-    _MM = sd.SDValueMatrix
-    _MQ = _api2.MQuaternion
-    _ME = _api2.MEulerRotation
-    _MP = _api2.MPoint
-    _MV = sd.SDValueVector
-    _MX = _api2.MTransformationMatrix
-    _MSpace_kTransform = _api2.MSpace.kTransform
-    _TOLERANCE = _MM.kTolerance
+    _MM = sd.api.sdvaluematrix.SDValueMatrix
+    # _MQ = _api2.MQuaternion
+    # _ME = _api2.MEulerRotation
+    # _MP = _api2.MPoint
+    _MV = sd.api.sdvaluevector.SDValueVector
+    # _MX = _api2.MTransformationMatrix
+    # _MSpace_kTransform = _api2.MSpace.kTransform
+    # _TOLERANCE = _MM.kTolerance
 
 elif env.Blender():
     import mathutils
@@ -107,12 +92,12 @@ elif env.Max():
     from pymxs import runtime as rt
 
     _MM = rt.Matrix3
-    _MQ = _api2.MQuaternion
-    _ME = _api2.MEulerRotation
-    _MP = _api2.MPoint
-    _MV = _api2.MVector
-    _MX = _api2.MTransformationMatrix
-    _MSpace_kTransform = _api2.MSpace.kTransform
+    # _MQ = _api2.MQuaternion
+    # _ME = _api2.MEulerRotation
+    # _MP = _api2.MPoint
+    _MV = rt.Vector
+    # _MX = _api2.MTransformationMatrix
+    # _MSpace_kTransform = _api2.MSpace.kTransform
 
 
 elif env.C4D():
