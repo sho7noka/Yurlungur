@@ -1,8 +1,8 @@
 # Yurlungur
 
 |       | Windows | CentOS/macOS | packages |
-| ----- | ------ | --- | --- |
-| status | [![Build status](https://ci.appveyor.com/api/projects/status/46vinb8jd1jbbhdg?svg=true)](https://ci.appveyor.com/project/sho7noka/yurlungur) | [![Build Status](https://travis-ci.org/sho7noka/Yurlungur.svg?branch=dev)](https://travis-ci.org/sho7noka/Yurlungur) | [![Latest PyPI version](https://img.shields.io/pypi/v/yurlungur.svg)](https://pypi.python.org/pypi/yurlungur) |
+| ----- | --- | --- | --- |
+| status |  |  | [![Latest PyPI version](https://img.shields.io/pypi/v/yurlungur.svg)](https://pypi.python.org/pypi/yurlungur) |
 
 
 The universal scripting environment with Python which Maya, Houdini and Unreal Engine.
@@ -25,19 +25,31 @@ Yurlungur is pure Python and can be used **synchronously** in mixed Python2 and 
 |       | Node | Attribute | Sync |
 | ---- | --- | --- | --- |
 | Maya (2016~) | ○ | ○ | ○ |
-| Substance Designer (2018.1.2~) | ○ | ○ | ☓ |
-| Houdini (16~) | ○ | ○ | ☓ |
-| Blender (2.80~) | ○ | ○ | ○ |
+| Substance 3D Designer (2018.1.2~) | ○ | ○ | ☓ |
+| Houdini (16~) | ○ | ○ | ○ |
 | Unreal Engine (4.22~) | ○ | ○ | ☓ |
 | Unity (2019.1~) | ○ | ○ | ○ |
+| Blender (2.80~) | ○ | ○ | ○ |
 | Nuke (10~) | ○ | ○ | ☓ |
 | Davinci Resolve(&Fusion) (15~) | ○ | ○ | ☓ |
 | Cinema4D (R21~) | ○ | ○ | ☓ |
-| Substance Painter (2020~) | ☓ | ☓ | ☓ |
+| 3dsMax (2017~) | ○ | ○ | ○ |
+| Substance 3D Painter (2020~) | ☓ | ☓ | ○ |
 | Marmoset Toolbag (3~) | ○ | ○ | ☓ |
-| RenderDoc (1.12~) | ☓ | ☓ | ☓ |
 
-We also support 3dsMax, Rumba and Photoshop.
+We also support Photoshop, Modo, Renderdoc(and RV).
+
+
+#### Why Sync?
+Some DCC applications that support Python, such as Substance3DPainter, MarmosetToolbag, and RenderDoc
+There are also applications that specialize in specific functions and require less scene graph manipulation.
+
+A mechanism for pseudo-operation of the linked application from the host application can be created by using a
+This is achieved by combining standard formats such as FBX and USD, RPC, shared maps and clipboards.
+
+The SDK can be used for vendor or proprietary applications, or for applications that are restricted by open source licenses and cannot embed the SDK in the application.
+Users do not need to be constrained by vendor, proprietary application, or open source license restrictions that prevent the SDK from being built into the application.
+
 
 ### Installation
 ```bash
@@ -83,7 +95,7 @@ Sample scripts can be found [here](./sample/script/renamer.py).
 
 ## contribution
 
-lets see [CONTRIBUTING](./CONTRIBUTING.md).
+lets see [CONTRIBUTING](./.github/CONTRIBUTING.md).
 
 ## License
 
