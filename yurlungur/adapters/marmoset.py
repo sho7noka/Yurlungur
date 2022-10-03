@@ -22,7 +22,7 @@ try:
 except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
-    run, shell, quit, _ = __App("marmoset")._actions
+    _, run, quit, _ = __App("marmoset")._actions
 
-    __all__ = ["run", "quit", "shell"]
+    __all__ = ["run", "quit"]
 
