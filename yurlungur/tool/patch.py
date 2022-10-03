@@ -2,9 +2,9 @@
 """
 internal use
 """
-
 import sys, contextlib
 from yurlungur.core import env as _env
+from yurlungur.tool.meta import meta
 
 # dispatch for exit
 if _env.Blender() or _env.Nuke() or _env.Houdini():
@@ -12,9 +12,9 @@ if _env.Blender() or _env.Nuke() or _env.Houdini():
 
 # dispatch for RPC
 try:
-    import rpyc
     from yurlungur.tool import rpc
-    # rpc.session = rpyc.classic.connect
+    import rpyc
+    rpc.session = rpyc.classic.connect
 
 except ImportError:
     pass
@@ -34,7 +34,6 @@ try:
     Qt.UIWindow = _UIWindow
     _UIWindow.c4d = _env.C4D()
     _UIWindow.marmoset = _env.Marmoset()
-    _UIWindow.rumba = _env.Rumba()
     _UIWindow.substance_painter = _env.SPainter()
     _UIWindow.unity = _env.Unity()
 
@@ -75,6 +74,7 @@ try:
         }
         for event, callback in connections.items():
             __e.DISPATCHER.connect(event, callback)
+
 except ImportError:
     pass
 
@@ -88,6 +88,7 @@ if not v(_env._Cinema4D):
     del yurlungur.c4d
 if not v(_env._Max):
     del yurlungur.max
+    del yurlungur.winapi
 if not v(_env._Blender):
     del yurlungur.blender
 if not v(_env._Substance):
@@ -104,24 +105,23 @@ if not v(_env._Unity):
     del yurlungur.unity
 if not v(_env._RenderDoc):
     del yurlungur.renderdoc
-if not v(_env._Rumba):
-    del yurlungur.rumba
-if not v(_env._Photoshop):
-    pass  # del yurlungur.photoshop
+if not v(_env._Modo):
+    del yurlungur.modo
 if not yurlungur.pycharm.enable:
     del yurlungur.pycharm
 if not yurlungur.vim.enable:
     del yurlungur.vim
 if not yurlungur.vscode.enable:
     del yurlungur.vscode
-
 # TODO
 if not v(_env._Nuke):
-    pass  # del yurlungur.nuke
+    del yurlungur.nuke
 if not v(_env._Houdini):
-    pass  # del yurlungur.houdini
+    del yurlungur.houdini
+if not v(_env._Photoshop):
+    pass  # del yurlungur.photoshop
 
-_env.set()
+# _env.set()
 
 del yurlungur.adapters, yurlungur.core, yurlungur.exception, yurlungur.wrapper, yurlungur.tool, v
 del yurlungur, sys, contextlib

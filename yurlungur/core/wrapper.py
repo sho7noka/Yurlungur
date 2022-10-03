@@ -68,7 +68,7 @@ class MultiObject(object):
     def eval(self, script):
         """
         eval script for
-        mel, hscript, tcl, lua, ue command, unity C#, mxs, and jsx.
+        mel, hscript, tcl, lua, unreal command, unity C#, mxs, substance js and photoshop jsx.
 
         Args:
             script:
@@ -87,12 +87,6 @@ class MultiObject(object):
             return application.tcl(script)
 
         if env.Davinci() and self.resolve:
-            """
-            comp.Execute("print('Hello from Lua!')")
-            comp.Execute("!Py: print('Hello from default Python!')") 
-            comp.Execute("!Py2: print 'Hello from Python 2!'")
-            comp.Execute("!Py3: print ('Hello from Python 3!')")
-            """
             return self.fusion.Execute(script)
 
         if env.Unreal():
@@ -106,8 +100,15 @@ class MultiObject(object):
         if env.Max():
             return application.runtime.execute(script)
 
+        if env.SPainter():
+            return application.js.evaluate(script)
+
         if env.Photoshop():
             return application.DoJavascript(script)
+
+        if env.Modo():
+            import lx
+            return lx.eval(script)
 
     @property
     def module(self):

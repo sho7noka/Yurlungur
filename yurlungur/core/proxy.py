@@ -82,9 +82,6 @@ class Object(YObject):
         if getattr(meta, "runtime", False):
             return meta.runtime.getnodebyname(self.name).gbufferChannel or 0
 
-        if getattr(meta, "BVH3", False):
-            return meta.active_document()
-
         if getattr(meta, "textureset", False):
             raise YException("api is not found")
 
@@ -169,10 +166,6 @@ class Object(YObject):
         if getattr(meta, "textureset", False):
             raise YException("api is not found")
 
-        if getattr(meta, "BVH3", False):
-            node = meta.active_document().first_name(args[0])
-            return node.rename(args[1])
-
         if getattr(meta, "SceneObject", False):
             meta.findObject(args[0]).name = args[1]
             return meta.findObject(args[1])
@@ -249,10 +242,6 @@ class Object(YObject):
         if getattr(meta, "textureset", False):
             raise YException("api is not found")
 
-        if getattr(meta, "BVH3", False):
-            node = meta.active_document().first_name(self.name)
-            return Attribute(node.plug(val), self.name, val)
-
         if getattr(meta, "SceneObject", False):
             return Attribute(meta.findObject(val), self.name, val)
 
@@ -314,10 +303,6 @@ class Object(YObject):
 
         if getattr(meta, "textureset", False):
             raise YException("api is not found")
-
-        if getattr(meta, "BVH3", False):
-            node = meta.active_document().first_name(self.name)
-            return (plug.name() for plug in node.plugs())
 
         if getattr(meta, "SceneObject", False):
             return (attr for attr in dir(meta.findObject(args[0])) if not attr.startswith("__"))
@@ -439,10 +424,6 @@ class Object(YObject):
         if getattr(meta, "textureset", False):
             raise YException("api is not found")
 
-        if getattr(meta, "BVH3", False):
-            node = meta.Node(*args)
-            return Node(node.name())
-
         if getattr(meta, "SceneObject", False):
             obj = {
                 "mesh": meta.MeshObject, "material": meta.Material,
@@ -503,10 +484,6 @@ class Object(YObject):
 
         if getattr(meta, "textureset", False):
             raise YException("api is not found")
-
-        if getattr(meta, "BVH3", False):
-            node = meta.active_document().find_first(self.name)
-            return node.delete_node(True)
 
         if getattr(meta, "SceneObject", False):
             return meta.findObject(self.name).destroy()
@@ -685,12 +662,6 @@ class Object(YObject):
         if getattr(meta, "textureset", False):
             raise YException("api is not found")
 
-        if getattr(meta, "BVH3", False):
-            if len(args) == 0 and len(kwargs) == 0:
-                return node.sel
-            else:
-                return meta.select(*args, **kwargs)
-
         if getattr(meta, "SceneObject", False):
             return node.sel
 
@@ -730,11 +701,6 @@ class Object(YObject):
             return getattr(meta.runtime, "hide" if on else "unhide")(
                 meta.runtime.getnodebyname(self.name)
             )
-
-        if getattr(meta, "BVH3", False):
-            import rumbapy
-            node = meta.active_document().find_first(self.name)
-            return rumbapy.hide([node]) if on else rumbapy.show_([node])
 
         if getattr(meta, "textureset", False):
             raise YException("api is not found")
@@ -813,10 +779,6 @@ class Object(YObject):
         if getattr(meta, "textureset", False):
             raise YException("api is not found")
 
-        if getattr(meta, "BVH3", False):
-            node = meta.active_document().find_first(self.name)
-            return Node(node.parent().name())
-
         if getattr(meta, "SceneObject", False):
             return Object(meta.findObject(self.name).parent.name)
 
@@ -879,16 +841,31 @@ class Object(YObject):
         if getattr(meta, "textureset", False):
             raise YException("api is not found")
 
-        if getattr(meta, "BVH3", False):
-            node = meta.active_document().find_first(self.name)
-            return (Node(n.name()) for n in node.children())
-
         if getattr(meta, "SceneObject", False):
             return (Object(obj.name) for obj in meta.findObject(self.name).getChildren())
 
         if getattr(meta, "BusyData", False):
             raise YException("api is not found")
 
+    @trace
+    def sequence(self):
+        """
+        OTIO compatible
+
+        Returns:
+        """
+        if getattr(meta, "knob", False):
+            index = meta.toNode(self.name).inputs() - 1
+            return Node(meta.toNode(self.name).input(index).name())
+        if getattr(meta, "fusion", False):
+            if meta.is_fusion:
+                return meta.fusion.GetCurrentComp().FindTool(self.name).ParentTool
+            else:
+                return meta.davinci
+        if getattr(meta, "Debug", False):
+            return meta.unity.Timeline(self.name)
+        if getattr(meta, "uclass", False):
+            return meta.unreal.Timeline(self.name)
 
 class Node(Object):
     """relationship object"""
@@ -928,9 +905,9 @@ class Node(Object):
                     .ConnectInput(*args, **kwargs)
             )
 
-        if getattr(meta, "BVH3", False):
-            node = meta.active_document().first_name(self.name)
-            return node.plug(args[0]).connect(*args[1:], **kwargs)
+        if getattr(meta, "data", False):
+            # https://docs.blender.org/api/current/bpy.ops.node.html
+            meta.ops.object.modifier_add(type="NODES")
 
     @trace
     def disconnect(self, *args, **kwargs):
@@ -964,9 +941,9 @@ class Node(Object):
                 meta.fusion.GetCurrentComp().FindTool(self.name), "Input", None
             )
 
-        if getattr(meta, "BVH3", False):
-            node = meta.active_document().first_name(self.name)
-            return node.plug(args[0]).disconnect(True)
+        if getattr(meta, "data", False):
+            # https://docs.blender.org/api/current/bpy.ops.node.html
+            meta.ops.object.modifier_add(type="NODES")
 
     @trace
     def inputs(self, *args, **kwargs):
@@ -995,9 +972,9 @@ class Node(Object):
                     .values()[0].GetAttrs()
             )
 
-        if getattr(meta, "BVH3", False):
-            node = meta.active_document().first_name(self.name)
-            return Node(node.plug(args[0]).input().node().name())
+        if getattr(meta, "data", False):
+            # https://docs.blender.org/api/current/bpy.ops.node.html
+            meta.ops.object.modifier_add(type="NODES")
 
     @trace
     def outputs(self, *args, **kwargs):
@@ -1023,9 +1000,9 @@ class Node(Object):
                     .values()[0].GetAttrs()
             )
 
-        if getattr(meta, "BVH3", False):
-            node = meta.active_document().first_name(self.name)
-            return [Node(out.name()) for out in node.plug(args[0]).outputs()]
+        if getattr(meta, "data", False):
+            # https://docs.blender.org/api/current/bpy.ops.node.html
+            meta.ops.object.modifier_add(type="NODES")
 
 
 # @total_ordering
@@ -1062,9 +1039,6 @@ class Attribute(YObject):
 
         if getattr(meta, "Debug", False):
             return getattr(self._values[0], self.val)
-
-        if getattr(meta, "BVH3", False):
-            return self._values[0].value()
 
         if ":" in str(self._values[0]):
             try:
@@ -1160,10 +1134,6 @@ class Attribute(YObject):
             else:
                 return setattr(meta.runtime.getnodebyname(self.obj), self.val, args[0])
 
-        if getattr(meta, "BVH3", False):
-            node = meta.active_document().first_name(self.obj)
-            return node.plug(self.val).set_value(args[0], True)
-
         if getattr(meta, "textureset", False):
             return YException("api is not found")
 
@@ -1245,9 +1215,6 @@ class Attribute(YObject):
         if getattr(meta, "data", False):
             return setattr(meta.data.objects[self.obj], "lock_" + self.val, on)
 
-        if getattr(meta, "BVH3", False):
-            return self._values[0].lock.set_value(on)
-
         if getattr(meta, "SceneObject", False):
             return YException("api is not found")
 
@@ -1261,9 +1228,6 @@ class Attribute(YObject):
 
         if getattr(meta, "knob", False):
             return meta.toNode(self.obj)[self.val].setVisible(not on)
-
-        if getattr(meta, "BVH3", False):
-            return self._values[0].visible.set_value(not on)
 
         if getattr(meta, "SceneObject", False):
             return YException("api is not found")
@@ -1361,9 +1325,6 @@ class File(YObject):
             if meta.runtime.loadMaxFile(*args, **kwargs):
                 return cls(args[0])
 
-        if getattr(meta, "BVH3", False):
-            return meta.load_document(*args, **kwargs)
-
         if getattr(meta, "SceneObject", False):
             return meta.loadScene(*args)
 
@@ -1418,10 +1379,6 @@ class File(YObject):
             if meta.runtime.saveMaxFile(*args, **kwargs):
                 return cls(args[0])
 
-        if getattr(meta, "BVH3", False):
-            doc = meta.active_document()
-            return doc.write(*args, **kwargs)
-
         if getattr(meta, "SceneObject", False):
             return meta.saveScene(*args)
 
@@ -1440,7 +1397,7 @@ class File(YObject):
     @property
     def current(self):
         if getattr(meta, "sbs", False):
-            return meta.manager.getUserPackageFromFilePath()
+            return None #meta.manager.getUserPackageFromFilePath()
 
         if getattr(meta, "setAttr", False):
             return meta.file(exn=1, q=1)
@@ -1475,9 +1432,6 @@ class File(YObject):
         if getattr(meta, "runtime", False):
             return meta.runtime.maxFilePath + meta.runtime.maxFileName
 
-        if getattr(meta, "BVH3", False):
-            return meta.active_document().full_document_name() + meta.active_document_filename()
-
         if getattr(meta, "SceneObject", False):
             return meta.getScenePath()
 
@@ -1489,4 +1443,7 @@ class File(YObject):
                 return path.absoluteString() if path else ""
 
         if getattr(meta, "textureset", False):
-            return meta.project.file_path()
+            if meta.project.is_open():
+                return meta.project.file_path()
+            else:
+                return None
