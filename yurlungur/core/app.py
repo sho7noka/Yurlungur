@@ -53,11 +53,6 @@ elif __import__("pymxs"):
 
     application = pymxs
 
-elif __import__("rumba"):
-    import rumba
-
-    application = rumba
-
 elif __import__("substance_painter"):
     import substance_painter
 
@@ -72,6 +67,11 @@ elif __import__("renderdoc"):
     import renderdoc
 
     application = renderdoc
+
+elif __import__("modo"):
+    import modo
+
+    application = modo
 
 else:
     from yurlungur.tool import standalone

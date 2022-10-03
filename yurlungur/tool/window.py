@@ -71,6 +71,10 @@ def main_window():
             import MaxPlus
             return MaxPlus.QtHelpers_GetQmaxMainWindow()
 
+    if app_name == "modo":
+        import lxifc
+        return lxifc.CustomView
+
     return None
 
 

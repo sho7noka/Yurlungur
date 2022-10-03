@@ -82,13 +82,10 @@ class Object(YObject):
         if getattr(meta, "runtime", False):
             return meta.runtime.getnodebyname(self.name).gbufferChannel or 0
 
-        if getattr(meta, "textureset", False):
-            raise YException("api is not found")
+        if getattr(meta, "lx", False):
+            return meta.Scene().item(self.name).id
 
         if getattr(meta, "SceneObject", False):
-            raise YException("api is not found")
-
-        if getattr(meta, "BusyData", False):
             raise YException("api is not found")
 
     def set(self, *args, **kwargs):
@@ -163,15 +160,13 @@ class Object(YObject):
             meta.runtime.getnodebyname(self.name).name = args[0]
             return Node(args[0])
 
-        if getattr(meta, "textureset", False):
-            raise YException("api is not found")
+        if getattr(meta, "lx", False):
+            meta.Scene().item(self.name).name = args[0]
+            return Node(args[0])
 
         if getattr(meta, "SceneObject", False):
             meta.findObject(args[0]).name = args[1]
             return meta.findObject(args[1])
-
-        if getattr(meta, "BusyData", False):
-            raise YException("api is not found")
 
     @trace
     def attr(self, val, *args, **kwargs):
@@ -239,14 +234,11 @@ class Object(YObject):
             return Attribute(
                 getattr(meta.runtime.getnodebyname(self.name), val), self.name, val)
 
-        if getattr(meta, "textureset", False):
-            raise YException("api is not found")
+        if getattr(meta, "lx", False):
+            return Attribute(getattr(meta.Scene().item(self.name), val), self.name, val)
 
         if getattr(meta, "SceneObject", False):
             return Attribute(meta.findObject(val), self.name, val)
-
-        if getattr(meta, "BusyData", False):
-            raise YException("api is not found")
 
     @property
     def attrs(self, *args, **kwargs):
@@ -301,14 +293,11 @@ class Object(YObject):
         if getattr(meta, "runtime", False):
             return tuple(inspect.getmembers(meta.runtime.getnodebyname(self.name)))
 
-        if getattr(meta, "textureset", False):
-            raise YException("api is not found")
+        if getattr(meta, "lx", False):
+            return (attr for attr in dir(meta.Scene().item(self.name)) if not attr.startswith("__"))
 
         if getattr(meta, "SceneObject", False):
             return (attr for attr in dir(meta.findObject(args[0])) if not attr.startswith("__"))
-
-        if getattr(meta, "BusyData", False):
-            raise YException("api is not found")
 
     @trace
     def create(self, *args, **kwargs):
@@ -421,8 +410,13 @@ class Object(YObject):
 
             return Node(_obj.name)
 
-        if getattr(meta, "textureset", False):
-            raise YException("api is not found")
+        if getattr(meta, "lx", False):
+            obj = {
+                "actor": meta.current().addActor, "camera": meta.current().addCamera, "group": meta.current().addGroup,
+                "item": meta.current().addItem, "joint": meta.current().addJointLocator, "material": meta.current().addMaterial,
+                "mesh": meta.current().addMesh, "render": meta.current().addRenderPassGroup, "shader": meta.current().addShaderItem
+            }[args[0]](*args[1:])
+            return Object(obj.name)
 
         if getattr(meta, "SceneObject", False):
             obj = {
@@ -430,9 +424,6 @@ class Object(YObject):
                 "light": meta.LightObject, "camera": meta.CameraObject, "fog": meta.FogObject,
             }[args[0]](*args[1:])
             return Object(obj.name)
-
-        if getattr(meta, "BusyData", False):
-            raise YException("api is not found")
 
     @trace
     def delete(self, *args, **kwargs):
@@ -482,14 +473,12 @@ class Object(YObject):
         if getattr(meta, "runtime", False):
             return meta.runtime.delete(meta.runtime.getnodebyname(self.name))
 
-        if getattr(meta, "textureset", False):
-            raise YException("api is not found")
+        if getattr(meta, "lx", False):
+            meta.Scene().select(meta.Scene().item(self.name))
+            return meta.lx.eval("item.delete")
 
         if getattr(meta, "SceneObject", False):
             return meta.findObject(self.name).destroy()
-
-        if getattr(meta, "BusyData", False):
-            raise YException("api is not found")
 
     @trace
     def instance(self, *args, **kwarg):
@@ -557,14 +546,11 @@ class Object(YObject):
                 meta.runtime.instance(meta.runtime.getnodebyname(self.name)).name
             )
 
-        if getattr(meta, "textureset", False):
-            raise YException("api is not found")
+        if getattr(meta, "lx", False):
+            return meta.Scene().duplicateItem(meta.Scene().item(self.name), instance=True)
 
         if getattr(meta, "SceneObject", False):
             return Object(meta.findObject(self.name).duplicate(args[0]).name)
-
-        if getattr(meta, "BusyData", False):
-            raise YException("api is not found")
 
     @trace
     def select(self, *args, **kwargs):
@@ -659,14 +645,14 @@ class Object(YObject):
             else:
                 return meta.runtime.select(meta.runtime.getnodebyname(self.name))
 
-        if getattr(meta, "textureset", False):
-            raise YException("api is not found")
+        if getattr(meta, "lx", False):
+            if len(args) == 0 and len(kwargs) == 0:
+                return meta.Scene().selected
+            else:
+                return meta.Scene().select(meta.Scene().item(self.name))
 
         if getattr(meta, "SceneObject", False):
             return node.sel
-
-        if getattr(meta, "BusyData", False):
-            raise YException("api is not found")
 
     @trace
     def hide(self, on=True):
@@ -702,14 +688,13 @@ class Object(YObject):
                 meta.runtime.getnodebyname(self.name)
             )
 
-        if getattr(meta, "textureset", False):
-            raise YException("api is not found")
+        if getattr(meta, "lx", False):
+            self.select(self.name)
+            return meta.lx.eval("item.channel locator$visible %s" % "on" if on else "off")
 
         if getattr(meta, "SceneObject", False):
             return setattr(meta.findObject(self.name), "visible", not on)
 
-        if getattr(meta, "BusyData", False):
-            raise YException("api is not found")
 
     @trace
     def parent(self, *args, **kwarg):
@@ -776,14 +761,11 @@ class Object(YObject):
                 _parent = meta.runtime.getnodebyname(self.item).parent
                 return Node(_parent.name) if _parent else None
 
-        if getattr(meta, "textureset", False):
-            raise YException("api is not found")
-
         if getattr(meta, "SceneObject", False):
             return Object(meta.findObject(self.name).parent.name)
 
-        if getattr(meta, "BusyData", False):
-            raise YException("api is not found")
+        if getattr(meta, "lx", False):
+            return
 
     @trace
     def children(self, *args, **kwarg):
@@ -838,14 +820,11 @@ class Object(YObject):
                     nodes.append(children[i].name)
                 return [Object(node.name) for node in nodes]
 
-        if getattr(meta, "textureset", False):
-            raise YException("api is not found")
-
         if getattr(meta, "SceneObject", False):
             return (Object(obj.name) for obj in meta.findObject(self.name).getChildren())
 
-        if getattr(meta, "BusyData", False):
-            raise YException("api is not found")
+        if getattr(meta, "lx", False):
+            return
 
     @trace
     def sequence(self):
@@ -1134,14 +1113,11 @@ class Attribute(YObject):
             else:
                 return setattr(meta.runtime.getnodebyname(self.obj), self.val, args[0])
 
-        if getattr(meta, "textureset", False):
-            return YException("api is not found")
-
         if getattr(meta, "SceneObject", False):
             return setattr(meta.findObject(self.val), "", args[0])
 
-        if getattr(meta, "BusyData", False):
-            raise YException("api is not found")
+        if getattr(meta, "lx", False):
+            return setattr(meta.Scene().item(self.obj), self.val, args[0])
 
     @trace
     def create(self, *args, **kwargs):
@@ -1334,6 +1310,9 @@ class File(YObject):
             else:
                 return meta.project.create(*args, **kwargs)
 
+        if getattr(meta, "lx", False):
+            return meta.lx.eval('scene.open "%s" import' % args[0])
+
     @classmethod
     def save(cls, *args, **kwargs):
         if args[0].endswith("abc") or args[0].endswith("fbx") or args[0].endswith("usd"):
@@ -1394,6 +1373,9 @@ class File(YObject):
             else:
                 return meta.export.export_project_textures(**kwargs)
 
+        if getattr(meta, "lx", False):
+            return meta.lx.eval('scene.saveAs "%s" %s true' % args)
+
     @property
     def current(self):
         if getattr(meta, "sbs", False):
@@ -1447,3 +1429,6 @@ class File(YObject):
                 return meta.project.file_path()
             else:
                 return None
+
+        if getattr(meta, "lx", False):
+            return meta.current().filename

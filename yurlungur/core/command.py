@@ -96,8 +96,6 @@ def _ls(cls, *args, **kwargs):
         return
     if getattr(meta, "runtime", False):
         gen = meta.runtime.objects
-    if getattr(meta, "BVH3", False):
-        return
     if getattr(meta, "doc", False):
         return
     if getattr(meta, "SceneObject", False):
@@ -128,8 +126,6 @@ def _glob(cls, *args, **kwargs):
         gen = meta.fusion.GetCurrentComp().GetToolList(*args)
     if getattr(meta, "runtime", False):
         gen = meta.runtime.objects
-    if getattr(meta, "BVH3", False):
-        return
     if getattr(meta, "doc", False):
         return
     if getattr(meta, "SceneObject", False):
@@ -185,9 +181,6 @@ def _select(cls, *args, **kwargs):
     if getattr(meta, "Debug", False):
         return (cls(go.name) for go in meta.editor.Selection.gameObjects)
 
-    if getattr(meta, "BVH3", False):
-        return (cls(node.name()) for node in meta.selection())
-
     if getattr(meta, "SceneObject", False):
         return (cls(obj.name) for obj in meta.getSelectedObjects())
 
@@ -233,21 +226,12 @@ def _abcExporter(cls, *args, **kwargs):
     if getattr(meta, "data", False):
         return cls(meta.export(*args))
 
-    if getattr(meta, "BVH3", False):
-        import rumba_alembic, rumbapy
-
-        with rumbapy.Progress("Exporting animation...") as progress:
-            export = partial(rumba_alembic.export_nodes, progress=progress.update)
-            export(*args, **kwargs)
-        return
-
 
 def _fbxImporter(cls, *args, **kwargs):
     """
-    3dsMax    Python3 / FBX/Alembic
-    Davinci   Python3 / FBX/Alembic
-    Painter   Python3 / FBX
-    Marmoset  Python3 / FBX
+    Davinci   Python3 / FBX+Alembic
+    Marmoset  Python3 / FBX+GLTF
+
     Args:
         cls:
         *args:
@@ -309,17 +293,6 @@ def _fbxImporter(cls, *args, **kwargs):
 
 
 def _fbxExporter(cls, *args, **kwargs):
-    """
-    Maya      Python3 / FBX/Alembic
-    Rumba     Python2 / FBX/Alembic
-    Args:
-        cls:
-        *args:
-        **kwargs:
-
-    Returns:
-
-    """
     if getattr(meta, 'eval', False):
         return cls(meta.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args)))
 
@@ -375,23 +348,19 @@ def _fbxExporter(cls, *args, **kwargs):
         kwargs["defaultExportPreset"] = export_preset.url()
         return meta.export.export_project_textures(**kwargs)
 
-    if getattr(meta, "BVH3", False):
-        import fbx, rumbapy
-        with rumbapy.Progress("Exporting animation...") as progress:
-            fbx.export_nodes(args[0], [], [], False, True, progress.update)
-        return
-
 
 def _usdImporter(*args, **kwargs):
     """
-    Maya      Python3 / USD InOut
+    Maya      Python3 / USD InOut(plugin)
     Houdini   Python3 / USD InOut
-    Blender   Python3 / USD Out
+    Blender   Python3 / USD InOut
     Unreal    Python3 / USD InOut
     Unity     Python2 / USD InOut(plugin)
     Nuke      Python2 / USD In
     Cinema4D  Python3 / USD InOut
     Painter   Python3 / USD Out
+    Modo      Python2 / USD InOut
+    3dsMax    Python3 / USD InOut
     """
 
     if getattr(meta, "mayaUSDImport", False):
@@ -543,22 +512,6 @@ class _NodeType(object):
         if getattr(meta, "knob", False):
             yield
 
-        if getattr(meta, "BVH3", False):
-            for node in ["SceneGraphNode",
-                         "AnimLayer", "AnimLayerBlend",
-                         "ConstraintLayer", "EvalSurface",
-                         "GetArray", "GetDict",
-                         "IsoCurve", "Lerp",
-                         "MakeArray", "MakeDict",
-                         "MakeSparseBuffer", "Reference",
-                         "RemoveAttribute", "SelectionSet", "SetAttribute",
-                         "ShapeAttribute",
-                         "SurfaceInfo", "TransformGeometry"]:
-                yield fnmatch.filter(
-                    meta.nodeTypeCategories()[category].nodeTypes().keys(),
-                    pattern
-                )
-
 
 # Monkey-Patch for node
 node = Node()
@@ -594,7 +547,7 @@ else:
         pass
 
 if list(filter(lambda x: getattr(meta, x, False),
-               ["ls", "runtime", "data", "uclass", "BVH3", "textureset", "SceneObject"])):
+               ["ls", "runtime", "data", "uclass", "textureset", "SceneObject"])):
     File.abc.enable = True
     File.abc.Import = _abcImporter
     File.abc.Export = _abcExporter

@@ -91,7 +91,7 @@ def set(module=None):
     if module:
         pip = get_pip()
         try:
-            pip.main(["install", *module.split(" "), "-t", path])
+            pip.main(["install", * module.split(" "), "-t", path])
         except:
             pip.main(["install", module, "-t", path])
     sys.path.append(path)

@@ -122,6 +122,13 @@ elif env.Davinci():
     _MSpace_kTransform = _api2.MSpace.kTransform
     _TOLERANCE = _MM.kTolerance
 
+elif env.Modo():
+    from mathutils import Vector3, Matrix3, Matrix4, Quaternion
+
+    _MM = Matrix3
+    _MQ = Quaternion
+    _MV = Vector3
+
 else:
     # marmoset,photoshop,renderdoc
     _MM = None
