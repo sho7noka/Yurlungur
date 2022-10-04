@@ -24,7 +24,6 @@ console起動時に標準で読み込まれる他に、読み込まれること�
     from yurlungur.tool.patch import *      # noQA
 """
 import sys
-
 sys.dont_write_bytecode = True
 
 import yurlungur
@@ -38,5 +37,5 @@ from yurlungur.tool.logger import pprint
 from yurlungur.tool.standalone import *  # noQA
 from yurlungur.tool.patch import *  # noQA
 
-# pprint("initialize interpreter on {0}".format(sys.executable))
+pprint("initialize interpreter on {0}".format(sys.executable))
 del sys

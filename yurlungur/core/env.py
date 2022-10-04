@@ -91,7 +91,7 @@ def set(module=None):
     if module:
         pip = get_pip()
         try:
-            pip.main(["install", * module.split(" "), "-t", path])
+            pip.main(["install", module.split(" "), "-t", path])
         except:
             pip.main(["install", module, "-t", path])
     sys.path.append(path)
@@ -232,11 +232,11 @@ class App(object):
 
                 import yurlungur
                 pypath = os.path.dirname(os.path.dirname(yurlungur.__file__))
-                _cmd = f"\"{self.app_name}\" -pypath \"{pypath}\" \"{tmp}\""  
+                _cmd = "\"%s\" -pypath \"%s\" \"%s\"" % (self.app_name, pypath, tmp)
 
         # https://substance3d.adobe.com/documentation/spdoc/remote-control-with-scripting-216629326.html
         elif "Painter" in self.app_name:
-            _cmd = f"\"{self.app_name}\" --enable-remote-scripting"
+            _cmd = "\"%s\" --enable-remote-scripting" % self.app_name
 
         elif "renderdoc" in self.app_name:
             _cmd = self.app_name

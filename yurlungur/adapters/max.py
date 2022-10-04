@@ -7,7 +7,7 @@ import webbrowser
 import zipfile
 
 sys.path.append(".")
-from yurlungur.adapters import winapi 
+from yurlungur.user import winapi
 
 try:
     sys.modules[__name__] = sys.modules["pymxs"]

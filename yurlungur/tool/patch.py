@@ -4,7 +4,6 @@ internal use
 """
 import sys, contextlib
 from yurlungur.core import env as _env
-from yurlungur.tool.meta import meta
 
 # dispatch for exit
 if _env.Blender() or _env.Nuke() or _env.Houdini():

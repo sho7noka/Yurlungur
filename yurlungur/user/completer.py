@@ -33,7 +33,10 @@ class _Completer(object):
         Return a list of all keywords, built-in functions and names
         currently defines in __main__ that match.
         """
-        import __builtin__, __main__
+        try:
+            import __builtin__, __main__
+        except ImportError:
+            import builtins, __main__
         matches = set()
         n = len(text)
         for l in [keyword.kwlist, __builtin__.__dict__.keys(),
