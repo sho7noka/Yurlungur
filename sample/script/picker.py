@@ -1,8 +1,6 @@
-import yurlungur
-
 import sys
 import os
-from yurlungur.Qt import QtWidgets, UIWindow
+from yurlungur.user.Qt import QtWidgets, UIWindow
 sys.path.append(os.path.abspath(__file__).rsplit(os.path.sep, 2)[0])
 
 

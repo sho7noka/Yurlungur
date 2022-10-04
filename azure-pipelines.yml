@@ -15,11 +15,9 @@ jobs:
   strategy:
     matrix:
       Python27:
-        python.version: '2.7'
-      Python36:
-        python.version: '3.6'
+        python.version: '2.7' # back forward
       Python37:
-        python.version: '3.7'
+        python.version: '3.7' # latest interpreter
   
   steps:
   - task: UsePythonVersion@0
@@ -47,8 +45,6 @@ jobs:
     matrix:
       Python27:
         python.version: '2.7'
-      Python36:
-        python.version: '3.6'
       Python37:
         python.version: '3.7'
 
@@ -78,8 +74,6 @@ jobs:
       matrix:
         Python27:
           python.version: '2.7'
-        Python36:
-          python.version: '3.6'
         Python37:
           python.version: '3.7'
 
@@ -98,3 +92,29 @@ jobs:
           pip install pytest pytest-azurepipelines
           pytest
         displayName: 'pytest'
+
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UsePythonVersion@0
+  displayName: "Use Python 3.6"
+  inputs:
+    versionSpec: '3.6'
+    architecture: 'x64'
+
+- script: pip install -r source/requirements.txt
+  displayName: "Install Python Requirements"
+
+- script: make html
+  displayName: "Make"
+
+- task: PublishBuildArtifacts@1
+  displayName: "Publish HTML"
+  inputs:
+    pathToPublish: './build'
+    artifactName: 'html'

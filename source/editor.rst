@@ -149,7 +149,7 @@ Debug
 .. code-block:: python
 
     import yurlungur
-    yurlungur.remote_debug_listen()
+    yurlungur.pycharm.remote_debug_listen()
     
     
 Pycharm (Use Pro.)
@@ -165,7 +165,7 @@ VSCode
 
 
 Vim
-——————————
+------------------------------
 
 リモートデバッグは用意されていません。
 

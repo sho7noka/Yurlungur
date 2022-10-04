@@ -663,7 +663,7 @@ class Object(YObject):
         if getattr(meta, "fusion", False):
             return (meta.fusion.GetCurrentComp()
                     .FindTool(self.name)
-                    .SetAttrs({"TOOLB_Visible": on, "TOOLB_Locked": True})
+                    .SetAttrs({"TOOLB_PassThrough": on, "TOOLB_Locked": False})
                     )
 
         if getattr(meta, "data", False):
@@ -1397,7 +1397,7 @@ class File(YObject):
             if meta.is_fusion:
                 return meta.fusion
             else:
-                return meta.manager.GetCurrentProject()
+                return meta.davinci.Projects()
 
         if getattr(meta, "data", False):
             return meta.data.filepath

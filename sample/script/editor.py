@@ -1,11 +1,9 @@
 # coding: utf-8
-import os
-import sys
 
 try:
-    from yurlungur.Qt.QtGui import *
-    from yurlungur.Qt.QtWidgets import *
-    from yurlungur.Qt.QtCore import *
+    from yurlungur.user.Qt import *
+    from yurlungur.user.Qt import *
+    from yurlungur.user.Qt import *
 except ImportError:
     raise NotImplementedError("Qt is not found")
 
