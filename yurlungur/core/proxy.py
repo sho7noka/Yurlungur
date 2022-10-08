@@ -1259,7 +1259,7 @@ class File(YObject):
             if im:
                 return cls(im.Import(*args, **kwargs))
 
-        if getattr(meta, "sbs", False):
+        if getattr(meta, "SDNode", False):
             return cls(meta.manager.loadUserPackage(*args, **kwargs))
 
         if getattr(meta, "setAttr", False):
@@ -1321,7 +1321,7 @@ class File(YObject):
             if ex:
                 return cls(ex.Export(*args, **kwargs))
 
-        if getattr(meta, "sbs", False):
+        if getattr(meta, "SDNode", False):
             return cls(meta.manager.savePackageAs(*args, **kwargs))
 
         if getattr(meta, "setAttr", False):
@@ -1378,8 +1378,8 @@ class File(YObject):
 
     @property
     def current(self):
-        if getattr(meta, "sbs", False):
-            return None #meta.manager.getUserPackageFromFilePath()
+        if getattr(meta, "SDNode", False):
+            return meta.graph.getPackage().getFilePath()
 
         if getattr(meta, "setAttr", False):
             return meta.file(exn=1, q=1)

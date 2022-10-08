@@ -111,7 +111,7 @@ def get_pip():
         if sys.version_info.major >= 3:
             import urllib.request as _urllib
             _urllib.urlretrieve(url, "get-pip.py")
-            exec(open("get-pip.py"))
+            exec(open("get-pip.py").read())
         else:
             import urllib as _urllib
             _urllib.urlretrieve(url, "get-pip.py")

@@ -3,8 +3,6 @@ import sys as __sys
 
 try:
     import sd
-    from sd.api.sdproperty import SDPropertyCategory
-
     context = sd.getContext()
     app = context.getSDApplication()
     manager = app.getPackageMgr()
@@ -17,10 +15,11 @@ try:
         graph = manager.getUserPackages()[0].getChildrenResources(True)[0]
 
     __sys.modules[__name__] = __sys.modules["sd.api"]
-    import yurlungur
 
+    import yurlungur
     for obj in [obj for obj in dir(yurlungur) if obj[0] != "_" and obj != "Qt"]:
         setattr(__sys.modules[__name__], obj, getattr(yurlungur, obj))
+
 except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 

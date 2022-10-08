@@ -229,9 +229,6 @@ def _abcExporter(cls, *args, **kwargs):
 
 def _fbxImporter(cls, *args, **kwargs):
     """
-    Davinci   Python3 / FBX+Alembic
-    Marmoset  Python3 / FBX+GLTF
-
     Args:
         cls:
         *args:
@@ -359,6 +356,7 @@ def _usdImporter(*args, **kwargs):
     Nuke      Python2 / USD In
     Cinema4D  Python3 / USD InOut
     Painter   Python3 / USD Out
+    Designer  Python3 / USD InOut
     Modo      Python2 / USD InOut
     3dsMax    Python3 / USD InOut
     """
@@ -373,6 +371,9 @@ def _usdImporter(*args, **kwargs):
         usd.parm("filepath1").set(args[0])
         usd.parm("reload").pressButton()
         return File(args[0]) or Node(usd.name)
+
+    if getattr(meta, "data", False):
+        return 
 
     if getattr(meta, "uclass", False):
         data = meta.AutomatedAssetImportData()
@@ -416,6 +417,11 @@ def _usdImporter(*args, **kwargs):
         meta.EventAdd()
         return File(args[0])
 
+    if getattr(meta, "sbs", False):
+        current = meta.graph.getPackage().getFilePath()
+        ip = meta.sdresourcescene.SDResourceScene.sNewFromFile(current, args[0], meta.sdresource.EmbedMethod.Linked)
+        return File(ip.getFilePath())
+
 
 def _usdExporter(*args, **kwargs):
     if getattr(meta, "mayaUSDExport", False):
@@ -450,8 +456,7 @@ def _usdExporter(*args, **kwargs):
         plug.Message(meta.MSG_RETRIEVEPRIVATEDATA, data)
 
         usdExport = data.get("imexporter", None)
-        usdExport[meta.USDEXPORTER_FILEFORMAT] = meta.USDEXPORTER_FILEFORMAT_USDC if args[0].endswith(".usdc",
-                                                                                                      False) else meta.USDEXPORTER_FILEFORMAT_USDA
+        usdExport[meta.USDEXPORTER_FILEFORMAT] = meta.USDEXPORTER_FILEFORMAT_USDC if args[0].endswith(".usdc", False) else meta.USDEXPORTER_FILEFORMAT_USDA
         usdExport[meta.USDEXPORTER_ZIP] = args[0].endswith(".usdz")
         usdExport[meta.USDEXPORTER_CAMERAS] = True
         usdExport[meta.USDEXPORTER_LIGHTS] = True
@@ -461,8 +466,7 @@ def _usdExporter(*args, **kwargs):
         usdExport[meta.USDEXPORTER_DISPLAYCOLOR] = True
         usdExport[meta.USDEXPORTER_VERTEXCOLORS] = True
 
-        meta.documents.SaveDocument(meta.documents.GetActiveDocument(), args[0],
-                                    meta.SAVEDOCUMENTFLAGS_DONTADDTORECENTLIST, usdExportId)
+        meta.documents.SaveDocument(meta.documents.GetActiveDocument(), args[0], meta.SAVEDOCUMENTFLAGS_DONTADDTORECENTLIST, usdExportId)
         return File(args[0])
 
     if getattr(meta, "textureset", False):
@@ -472,6 +476,12 @@ def _usdExporter(*args, **kwargs):
             name="USD PBR Metal Roughness")
         kwargs["defaultExportPreset"] = export_preset.url()
         return meta.export.export_project_textures(**kwargs)
+
+    if getattr(meta, "sbs", False):
+        from yurlungur.adapters import substance_designer as sd
+        c = meta.sbs.sdmodelgraphexporter.SDModelGraphExporter.sNew()
+        c.exportModelGraph(sd.graph, args[0])
+        return 
 
 
 class _NodeType(object):
@@ -515,6 +525,7 @@ class _NodeType(object):
 
 # Monkey-Patch for node
 node = Node()
+
 Node.ls = _ls
 Node.sel = _select
 Node.rm = _rm
@@ -525,15 +536,13 @@ file = File()
 
 File.fbx = types.ModuleType("fbx")
 File.fbx.enable = False
-
-File.abc = types.ModuleType("abc")
-File.abc.enable = False
-
 File.usd = types.ModuleType("usd")
 File.usd.enable = False
 
-if list(filter(lambda x: getattr(meta, x, False),
-               ["ls", "runtime", "data", "uclass", "Debug", "knob", "C4DAtom", "fusion", "textureset", "SceneObject"])):
+
+# Davinci   Python3 / FBX
+# Marmoset  Python3 / FBX
+if list(filter(lambda x: getattr(meta, x, False),[ "fusion", "SceneObject"])):
     File.fbx.enable = True
     File.fbx.Import = _fbxImporter
     File.fbx.Export = _fbxExporter
@@ -543,20 +552,6 @@ else:
 
         File.fbx.enable = True
         File.fbx = fbx
-    except ImportError:
-        pass
-
-if list(filter(lambda x: getattr(meta, x, False),
-               ["ls", "runtime", "data", "uclass", "textureset", "SceneObject"])):
-    File.abc.enable = True
-    File.abc.Import = _abcImporter
-    File.abc.Export = _abcExporter
-else:
-    try:
-        import alembic
-
-        File.abc.enable = True
-        File.abc = alembic
     except ImportError:
         pass
 
