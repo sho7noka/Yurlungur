@@ -20,6 +20,20 @@ try:
     for obj in [obj for obj in dir(yurlungur) if obj[0] != "_" and obj != "Qt"]:
         setattr(__sys.modules[__name__], obj, getattr(yurlungur, obj))
 
+
+    def node_img(id, path):
+        """accesser for QImage"""
+        import sd.api
+        node = graph.getNodeFromId(id)
+        out = node.getProperties(sd.api.sdproperty.SDPropertyCategory.Output)[0]
+        vtex = node.getPropertyValue(out)
+
+        img = sd.api.qtforpythonuimgrwrapper.QtForPythonUIMgrWrapper(app.getUIMgr()).convertSDTextureToQImage(vtex.get())
+        if path:
+            img.save(path)
+        return img
+
+
 except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
