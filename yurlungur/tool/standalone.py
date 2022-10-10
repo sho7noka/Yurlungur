@@ -24,30 +24,30 @@ def _cli(args):
 
     parser.add_argument("--command", "-c",
                         help="program passed in as string (terminates option list)",
-                        nargs=2, type=str, metavar=("cmd", "app"), )
+                        nargs=2, type=str, metavar=("app", "cmd"), )
 
     parser.add_argument("--environ", "-e",
                         help="set ENV settings for module",
                         nargs=1, type=str, metavar="mod", )
 
-    parser.add_argument("--qt4python", "-q",
+    parser.add_argument("--qtforpython", "-q",
                         help="install Qt for Python.",
                         action="store_true", )
 
-    parser.add_argument("--shotg", "-s",
+    parser.add_argument("--shotgrid", "-s",
                         help="install shotgrid(shotgun) modules.",
                         action="store_true", )
 
-    parser.add_argument("--window", "-w",
-                        help="show editor window",
-                        action="store_true", )
+    # parser.add_argument("--window", "-w",
+    #                     help="show editor window",
+    #                     action="store_true", )
 
     arguments = parser.parse_args(args)
 
     if arguments.command:
-        cmd, app = arguments.command
+        app, cmd = arguments.command
         try:
-            getattr(sys.modules[__name__], app).shell(cmd)
+            getattr(sys.modules[__name__], app).run(cmd)
         except AttributeError:
             print(
                 "%s is not found." % app,
@@ -58,18 +58,18 @@ def _cli(args):
         from yurlungur.core.app import use
         use(arguments.environ[0])
 
-    if arguments.window:
-        from yurlungur.user.Qt import QtWidgets
-        from yurlungur.tool.window import console
-        app = QtWidgets.QApplication(sys.argv)
-        console()
-        app.exec_()
+    # if arguments.window:
+    #     from yurlungur.user.Qt import QtWidgets
+    #     from yurlungur.tool.window import console
+    #     app = QtWidgets.QApplication(sys.argv)
+    #     console()
+    #     app.exec_()
 
-    if arguments.qt4python:
+    if arguments.qtforpython:
         from yurlungur.core.env import set
         set("vfxwindow PySide2")
 
-    if arguments.shotg:
+    if arguments.shotgrid:
         from yurlungur.core.env import set
         set("git+git://github.com/shotgunsoftware/python-api.git")
 

@@ -41,46 +41,75 @@ import sys as __sys
 
 try:
     __sys.modules[__name__] = __sys.modules["substance_painter"]
-    from yurlungur.tool.meta import meta
-    setattr(__sys.modules[__name__], "eval", getattr(meta, "eval"))
-    del meta
 
+    from functools import partial
+    import types
+    import inspect
     import yurlungur
+    import substance_painter
+
+    class Baking:
+        @staticmethod
+        def bake(textureSetName : str):
+            return substance_painter.js.evaluate(f"alg.baking.{inspect.currentframe().f_code.co_name}('{textureSetName}')")
+        @staticmethod
+        def setCommonBakingParameters(parameters : object):
+            return substance_painter.js.evaluate(f"alg.baking.{inspect.currentframe().f_code.co_name}({parameters})")
+        @staticmethod
+        def setCurvatureMethod(method : str = "FromMesh"):
+            return substance_painter.js.evaluate(f"alg.baking.{inspect.currentframe().f_code.co_name}('{method}')")
+        @staticmethod
+        def setTextureSetBakingParameters(textureSetName : str, parameters : object):
+            return substance_painter.js.evaluate(f"alg.baking.{inspect.currentframe().f_code.co_name}('{textureSetName}',{parameters})")
+        @staticmethod
+        def textureSetBakingParameters(textureSetName : str):
+            return substance_painter.js.evaluate(f"alg.baking.{inspect.currentframe().f_code.co_name}('{textureSetName}')")
+
+    class Shaders:
+        @staticmethod
+        def groups(shaderId : int = 0):
+            return substance_painter.js.evaluate(f"alg.shaders.{inspect.currentframe().f_code.co_name}({shaderId})")
+        @staticmethod
+        def materials(shaderId : int = 0):
+            return substance_painter.js.evaluate(f"alg.shaders.{inspect.currentframe().f_code.co_name}({shaderId})")
+        @staticmethod
+        def parameter(shaderId : int, identifier : str):
+            return substance_painter.js.evaluate(f"alg.shaders.{inspect.currentframe().f_code.co_name}({shaderId},'{identifier}')")
+        @staticmethod
+        def parameters(shaderId : int = 0, group : str = ""):
+            return substance_painter.js.evaluate(f"alg.shaders.{inspect.currentframe().f_code.co_name}({shaderId},'{group}')")
+        @staticmethod
+        def setParameters(shaderId : int, parameters : object):
+            return substance_painter.js.evaluate(f"alg.shaders.{inspect.currentframe().f_code.co_name}({shaderId, parameters})")
+        @staticmethod
+        def shaderInstancesFromObject(jsObject : object):
+            return substance_painter.js.evaluate(f"alg.shaders.{inspect.currentframe().f_code.co_name}({jsObject})")
+        @staticmethod
+        def updateShaderInstance(shaderId : int = 0, shaderUrl : str = ""):
+            return substance_painter.js.evaluate(f"alg.shaders.{inspect.currentframe().f_code.co_name}({shaderId},'{shaderUrl}')")
+
 
     for obj in [obj for obj in dir(yurlungur) if obj[0] != "_" and obj != "Qt"]:
         if obj == "user" or obj == "tool":
             continue
         setattr(__sys.modules[__name__], obj, getattr(yurlungur, obj))
 
+    __sys.modules[__name__].baking = types.ModuleType("baking", "alg.baking\nManage baking of the opened project")
+    
+    for obj in "commonBakingParameters", "curvatureMethod", "selectCageMesh", "selectHighDefinitionMeshes":
+        setattr(__sys.modules[__name__].baking, obj, partial(substance_painter.js.evaluate, f"alg.baking.{obj}()"))
 
-    """
-    # Bake & Shader
-    setattr(__sys.modules[__name__], "enable", substance_painter.js.evaluate)
-    substance_painter.js.evaluate()
-    substance_painter.baking.bake()
+    for obj in inspect.getmembers(Baking, inspect.isfunction):
+        setattr(__sys.modules[__name__].baking, obj[0], getattr(Baking, obj[0]))
 
-    alg.baking
-    bake(textureSetName)
-    commonBakingParameters()
-    curvatureMethod()
-    selectCageMesh()
-    selectHighDefinitionMeshes()
-    setCommonBakingParameters(parameters)
-    setCurvatureMethod(method)
-    setTextureSetBakingParameters(textureSetName, parameters)
-    textureSetBakingParameters(textureSetName)
+    __sys.modules[__name__].shaders = types.ModuleType("shaders", "alg.shaders\nControl shader instances of the currently opened project")
+    
+    for obj in "instances", "shaderInstancesToObject":
+        setattr(__sys.modules[__name__].shaders, obj, partial(substance_painter.js.evaluate, f"alg.shaders.{obj}()"))
 
-    alg.shaders
-    groups(shaderId)
-    instances()
-    materials(shaderId)
-    parameter(shaderId, identifier)
-    parameters(shaderId[, group])
-    setParameters(shaderId, parameters[, transactionOptions])
-    shaderInstancesFromObject(jsObject)
-    shaderInstancesToObject()
-    updateShaderInstance(shaderId, shaderUrl)
-    """
+    for obj in inspect.getmembers(Shaders, inspect.isfunction):
+        setattr(__sys.modules[__name__].shaders, obj[0], getattr(Shaders, obj[0]))
+
 
 except (ImportError, KeyError):
     import base64
@@ -156,11 +185,7 @@ except (ImportError, KeyError):
 
 
     from yurlungur.core.env import App as __App
-
     __Remote = RemotePainter()
-    # __Remote.checkConnection()
     show = __Remote.show
-
     _, run, quit, _ = __App("substance_painter")._actions
-
     __all__ = ["run", "quit", "show"]
