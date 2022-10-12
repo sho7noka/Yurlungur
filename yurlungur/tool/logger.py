@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-
-"""
 import sys
 
 try:
@@ -60,9 +57,6 @@ class GuiLogHandler(Handler):
             elif env.SPainter():
                 meta.logging.error(msg)
 
-            elif env.Rumba():
-                meta.error(msg)
-
             elif env.RenderDoc():
                 meta.LogMessage(meta.LogType.Error, "", file, 0, msg)
 
@@ -94,9 +88,6 @@ class GuiLogHandler(Handler):
             elif env.SPainter():
                 meta.logging.warning(msg)
 
-            elif env.Rumba():
-                meta.warn(msg)
-
             elif env.RenderDoc():
                 meta.LogMessage(meta.LogType.Warning, "", file, 0, msg)
 
@@ -127,9 +118,6 @@ class GuiLogHandler(Handler):
 
             elif env.SPainter():
                 meta.logging.info(msg)
-
-            elif env.Rumba():
-                meta.info(msg)
 
             elif env.RenderDoc():
                 meta.LogMessage(meta.LogType.Warning.Debug, "", file, 0, msg)

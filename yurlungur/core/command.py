@@ -4,11 +4,12 @@ import types
 import importlib
 from functools import partial, wraps
 
+from yurlungur.core import vars
 from yurlungur.core.proxy import Node, Attribute, File
 from yurlungur.tool.meta import meta
 
 __all__ = [
-    "cmd", "node", "attr", "file"
+    "cmd", "node", "attr", "file", "vars"
 ]
 
 u"""
@@ -549,7 +550,6 @@ if list(filter(lambda x: getattr(meta, x, False),[ "fusion", "SceneObject"])):
 else:
     try:
         import fbx
-
         File.fbx.enable = True
         File.fbx = fbx
     except ImportError:
@@ -562,7 +562,6 @@ if list(filter(lambda x: getattr(meta, x, False), ["hda", "uclass", "Debug", "C4
 else:
     try:
         from pxr import Usd
-
         File.usd.enable = True
         File.usd = Usd
     except ImportError:

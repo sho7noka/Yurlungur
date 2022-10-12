@@ -34,13 +34,13 @@ def _cli(args):
                         help="install Qt for Python.",
                         action="store_true", )
 
-    parser.add_argument("--shotgrid", "-s",
-                        help="install shotgrid(shotgun) modules.",
+    parser.add_argument("--usd", "-u",
+                        help="install pixar usd core modules.",
                         action="store_true", )
 
-    # parser.add_argument("--window", "-w",
-    #                     help="show editor window",
-    #                     action="store_true", )
+    parser.add_argument("--window", "-w",
+                        help="show console window",
+                        action="store_true", )
 
     arguments = parser.parse_args(args)
 
@@ -58,20 +58,20 @@ def _cli(args):
         from yurlungur.core.app import use
         use(arguments.environ[0])
 
-    # if arguments.window:
-    #     from yurlungur.user.Qt import QtWidgets
-    #     from yurlungur.tool.window import console
-    #     app = QtWidgets.QApplication(sys.argv)
-    #     console()
-    #     app.exec_()
+    if arguments.window:
+        # https://code.visualstudio.com/api/advanced-topics/python-extension-template
+        # https://www.jetbrains.com/help/pycharm/console-python-console.html
+        import code #, codeop
+        console = code.InteractiveConsole(locals=locals())
+        console.interact()
 
     if arguments.qtforpython:
         from yurlungur.core.env import set
         set("vfxwindow PySide2")
 
-    if arguments.shotgrid:
+    if arguments.usd:
         from yurlungur.core.env import set
-        set("git+git://github.com/shotgunsoftware/python-api.git")
+        set("usd-core")
 
 if __name__ == '__main__':
     _cli(sys.argv[1:])
