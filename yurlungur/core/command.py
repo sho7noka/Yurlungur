@@ -186,180 +186,23 @@ def _select(cls, *args, **kwargs):
         return (cls(obj.name) for obj in meta.getSelectedObjects())
 
 
-def _abcImporter(cls, *args, **kwargs):
-    if getattr(meta, "AbcImport", False):
-        return cls(meta.AbcImport(*args, **kwargs))
-
-    if getattr(meta, "runtime", False):
-        importer = partial(
-            meta.runtime.importFile, args[0], meta.runtime.Name("noPrompt"),
-            using='AlembicImport'
-        )
-        if importer(**kwargs):
-            return args[0]
-
-    if getattr(meta, 'uclass', False):
-        data = meta.AutomatedAssetImportData()
-        data.set_editor_property('filenames', *args)
-        for k, v in kwargs:
-            data.set_editor_property(k, v)
-        return meta.tools.import_assets_automated(data)
-
-    if getattr(meta, "SceneObject", False):
-        return meta.importModel(args[0])
-
-    if getattr(meta, "textureset", False):
-        return meta.project.create(*args, **kwargs)
-
-
-def _abcExporter(cls, *args, **kwargs):
-    if getattr(meta, "AbcExport", False):
-        return cls(meta.AbcExport(*args, **kwargs))
-
-    if getattr(meta, "runtime", False):
-        export = partial(
-            meta.runtime.exportFile, args[0], meta.runtime.Name("noPrompt"),
-            using='AlembicExport'
-        )
-        if export(**kwargs):
-            return args[0]
-
-    if getattr(meta, "data", False):
-        return cls(meta.export(*args))
-
-
-def _fbxImporter(cls, *args, **kwargs):
-    """
-    Args:
-        cls:
-        *args:
-        **kwargs:
-
-    Returns:
-
-    """
-    if getattr(meta, 'eval', False):
-        return cls(meta.eval("FBXImport -file {0};".format(*args)))
-
-    if getattr(meta, "runtime", False):
-        importer = partial(
-            meta.runtime.importFile, args[0], meta.runtime.Name("noPrompt"),
-            using='FBXIMPORTER'
-        )
-        if importer(**kwargs):
-            return args[0]
-
-    if getattr(meta, "data", False):
-        return cls(partial(meta.export, file_type=args[0])(*args[1:]))
-
-    if getattr(meta, 'uclass', False):
-        data = meta.AutomatedAssetImportData()
-        data.set_editor_property('filenames', *args)
-        for k, v in kwargs:
-            data.set_editor_property(k, v)
-        factory = meta.FbxSceneImportFactory()
-        return data.set_editor_property('factory', factory)
-
-        meta.tools.import_assets_automated(data)
-
-    if getattr(meta, 'Debug', False):
-        return
-
-    if getattr(meta, "knob", False):
-        return cls(args[0]) or Node(im.Name)
-
-    if getattr(meta, "C4DAtom", False):
-        return
-
-    if getattr(meta, "fusion", False):
-        # fu:ToggleUtility('FBXImport')
-        meta.fusion.GetCurrentComp().Lock()
-        im = meta.fusion.GetCurrentComp().AddTool("SurfaceFBXMesh")
-        im.ImportFile = args[0]
-        meta.fusion.GetCurrentComp().Unlock()
-        return cls(args[0]) or Node(im.Name)
-
-    # ---
-
-    if getattr(meta, "textureset", False):
-        # from yurlungur.adapters import substance_painter
-        # substance_painter.shell(["--mesh", args[0], "--export-path", exportPath].join(" "))
-        return meta.project.create(*args, **kwargs)
-
-    if getattr(meta, "SceneObject", False):
-        return meta.importModel(args[0])
-
-
-def _fbxExporter(cls, *args, **kwargs):
-    if getattr(meta, 'eval', False):
-        return cls(meta.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args)))
-
-    if getattr(meta, "runtime", False):
-        export = partial(
-            meta.runtime.exportFile, args[0], meta.runtime.Name("noPrompt"),
-            using='FBXEXPORTER'
-        )
-        if export(**kwargs):
-            return args[0]
-
-    if getattr(meta, "data", False):
-        return cls(meta.export(*args))
-
-    if getattr(meta, 'uclass', False):
-        return
-
-    if getattr(meta, 'Debug', False):
-        return
-
-    if getattr(meta, "knob", False):
-        ex = meta.createNode("WriteGeo")
-        return cls(args[0]) or Node(ex.Name)
-
-    if getattr(meta, "fusion", False):
-        meta.fusion.GetCurrentComp().Lock()
-        ex = meta.fusion.GetCurrentComp().AddTool("ExporterFBX")
-        ex.Filename = args[0]
-        meta.eval("comp:Render({Tool = comp.%s})" % ex.Name)
-        meta.fusion.GetCurrentComp().Unlock()
-        return cls(args[0]) or Node(ex.Name)
-
-    if getattr(meta, "C4DAtom", False):
-        ExportId = 1026370
-        plug = meta.plugins.FindPlugin(ExportId, meta.PLUGINTYPE_SCENESAVER)
-        data = dict()
-        plug.Message(meta.MSG_RETRIEVEPRIVATEDATA, data)
-
-        fbxExport = data.get("imexporter", None)
-        fbxExport[meta.FBXEXPORT_CAMERAS] = True
-        fbxExport[meta.FBXEXPORT_LIGHTS] = True
-        fbxExport[meta.FBXEXPORT_SPLINES] = True
-        fbxExport[meta.FBXEXPORT_INSTANCES] = True
-
-        meta.documents.SaveDocument(meta.documents.GetActiveDocument(), args[0],
-                                    meta.SAVEDOCUMENTFLAGS_DONTADDTORECENTLIST, ExportId)
-
-    if getattr(meta, "textureset", False):
-        kwargs["exportPath"] = args[0]
-        export_preset = meta.resource.ResourceID(
-            context="allegorithmic",
-            name="USD PBR Metal Roughness")
-        kwargs["defaultExportPreset"] = export_preset.url()
-        return meta.export.export_project_textures(**kwargs)
-
-
 def _usdImporter(*args, **kwargs):
     """
-    Maya      Python3 / USD InOut(plugin)
+    Maya      Python3 / USD InOut
     Houdini   Python3 / USD InOut
+    Designer  Python3 / USD InOut
     Blender   Python3 / USD InOut
     Unreal    Python3 / USD InOut
-    Unity     Python2 / USD InOut(plugin)
+    Unity     Python2 / USD InOut
     Nuke      Python2 / USD In
+    Davinci   Python3 / USD In
     Cinema4D  Python3 / USD InOut
-    Painter   Python3 / USD Out
-    Designer  Python3 / USD InOut
-    Modo      Python2 / USD InOut
+    Marmoset  Python3 / USD InOut
+    Painter   Python3 / USD InOut
     3dsMax    Python3 / USD InOut
+    Modo      Python2 / USD InOut
+
+    https://community.foundry.com/discuss/topic/153415/extend-active-scenegraph?mode=Post&postID=1205506
     """
 
     if getattr(meta, "mayaUSDImport", False):
@@ -373,7 +216,13 @@ def _usdImporter(*args, **kwargs):
         usd.parm("reload").pressButton()
         return File(args[0]) or Node(usd.name)
 
+    if getattr(meta, "sbs", False):
+        current = meta.graph.getPackage().getFilePath()
+        ip = meta.sdresourcescene.SDResourceScene.sNewFromFile(current, args[0], meta.sdresource.EmbedMethod.Linked)
+        return File(ip.getFilePath())
+    
     if getattr(meta, "data", False):
+        meta.ops.wm.usd_import(*args, **kwargs)
         return 
 
     if getattr(meta, "uclass", False):
@@ -381,14 +230,13 @@ def _usdImporter(*args, **kwargs):
         data.set_editor_property('filenames', *args)
         for k, v in kwargs:
             data.set_editor_property(k, v)
-        factory = meta.UUSDSceneImportFactory()
+        factory = meta.USDSceneImportFactory()
         data.set_editor_property('factory', factory)
         return meta.tools.import_assets_automated(data)
 
     if getattr(meta, "Debug", False):
         return
 
-    # https://community.foundry.com/discuss/topic/153415/extend-active-scenegraph?mode=Post&postID=1205506
     if getattr(meta, "knob", False):
         geo = meta.createNode("ReadGeo")
         # TODO: scenegraph tab?
@@ -407,8 +255,7 @@ def _usdImporter(*args, **kwargs):
         usdImport[meta.USDIMPORTER_CAMERAS] = True
         usdImport[meta.USDIMPORTER_LIGHTS] = True
         usdImport[meta.USDIMPORTER_GEOMETRY] = True
-        usdImport[
-            meta.USDIMPORTER_NORMALS] = meta.USDIMPORTER_NORMALS_PHONG  # USDIMPORTER_NORMALS_NONE / USDIMPORTER_NORMALS_VERTEX
+        usdImport[meta.USDIMPORTER_NORMALS] = meta.USDIMPORTER_NORMALS_PHONG  # USDIMPORTER_NORMALS_NONE / USDIMPORTER_NORMALS_VERTEX
         usdImport[meta.USDIMPORTER_PHONG_ANGLE] = 40
         usdImport[meta.USDIMPORTER_UV] = True
         usdImport[meta.USDIMPORTER_DISPLAYCOLOR] = True
@@ -417,14 +264,30 @@ def _usdImporter(*args, **kwargs):
                                      meta.SCENEFILTER_OBJECTS | meta.SCENEFILTER_MATERIALS, None)
         meta.EventAdd()
         return File(args[0])
+    
+    if getattr(meta, "fusion", False):
+        # fu:ToggleUtility('FBXImport')
+        meta.fusion.GetCurrentComp().Lock()
+        im = meta.fusion.GetCurrentComp().AddTool("uLoader")
+        im.ImportFile = args[0]
+        # meta.eval("comp:Render({Tool = comp.%s})" % im.Name)
+        meta.fusion.GetCurrentComp().Unlock()
+        return Node(im.Name)
 
-    if getattr(meta, "sbs", False):
-        current = meta.graph.getPackage().getFilePath()
-        ip = meta.sdresourcescene.SDResourceScene.sNewFromFile(current, args[0], meta.sdresource.EmbedMethod.Linked)
-        return File(ip.getFilePath())
+    if getattr(meta, "textureset", False):
+        return meta.project.create(*args, **kwargs)
+
+    if getattr(meta, "SceneObject", False):
+        return meta.importModel(args[0])
 
 
 def _usdExporter(*args, **kwargs):
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """    
+
     if getattr(meta, "mayaUSDExport", False):
         meta.loadPlugin('mayaUsdPlugin', qt=True)
         meta.mayaUSDExport(
@@ -441,14 +304,14 @@ def _usdExporter(*args, **kwargs):
         usd.parm('execute').pressButton()
         return File(args[0]) or Node(usd.name)
 
+    if getattr(meta, "sbs", False):
+        from yurlungur.adapters import substance_designer as sd
+        c = meta.sbs.sdmodelgraphexporter.SDModelGraphExporter.sNew()
+        c.exportModelGraph(sd.graph, args[0])
+        return 
+    
     if getattr(meta, "data", False):
-        return File(partial(meta.ops.wm.save_mainfile, filepath=args[0])(**kwargs))
-
-    if getattr(meta, "uclass", False):
-        return
-
-    if getattr(meta, "Debug", False):
-        return
+        return File(partial(meta.ops.wm.usd_export, filepath=args[0])(**kwargs))
 
     if getattr(meta, "C4DAtom", False):
         usdExportId = 1055179
@@ -471,18 +334,13 @@ def _usdExporter(*args, **kwargs):
         return File(args[0])
 
     if getattr(meta, "textureset", False):
+        meta.js.evaluate("alg.project.exportMesh()")
         kwargs["exportPath"] = args[0]
         export_preset = meta.resource.ResourceID(
             context="allegorithmic",
             name="USD PBR Metal Roughness")
         kwargs["defaultExportPreset"] = export_preset.url()
         return meta.export.export_project_textures(**kwargs)
-
-    if getattr(meta, "sbs", False):
-        from yurlungur.adapters import substance_designer as sd
-        c = meta.sbs.sdmodelgraphexporter.SDModelGraphExporter.sNew()
-        c.exportModelGraph(sd.graph, args[0])
-        return 
 
 
 class _NodeType(object):
@@ -534,26 +392,8 @@ Node.glob = _glob
 
 # Monkey-Patch for file
 file = File()
-
-File.fbx = types.ModuleType("fbx")
-File.fbx.enable = False
 File.usd = types.ModuleType("usd")
 File.usd.enable = False
-
-
-# Davinci   Python3 / FBX
-# Marmoset  Python3 / FBX
-if list(filter(lambda x: getattr(meta, x, False),[ "fusion", "SceneObject"])):
-    File.fbx.enable = True
-    File.fbx.Import = _fbxImporter
-    File.fbx.Export = _fbxExporter
-else:
-    try:
-        import fbx
-        File.fbx.enable = True
-        File.fbx = fbx
-    except ImportError:
-        pass
 
 if list(filter(lambda x: getattr(meta, x, False), ["hda", "uclass", "Debug", "C4DAtom", "ls", "knob", "data"])):
     File.usd.enable = True
