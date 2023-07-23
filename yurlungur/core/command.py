@@ -188,19 +188,19 @@ def _select(cls, *args, **kwargs):
 
 def _usdImporter(*args, **kwargs):
     """
-    Maya      Python3 / USD InOut
-    Houdini   Python3 / USD InOut
-    Designer  Python3 / USD InOut
-    Blender   Python3 / USD InOut
-    Unreal    Python3 / USD InOut
-    Unity     Python2 / USD InOut
-    Nuke      Python2 / USD In
-    Davinci   Python3 / USD In
-    Cinema4D  Python3 / USD InOut
-    Marmoset  Python3 / USD InOut
-    Painter   Python3 / USD InOut
-    3dsMax    Python3 / USD InOut
-    Modo      Python2 / USD InOut
+    Maya      Python3 / USD InOut / internal
+    Houdini   Python3 / USD InOut / internal
+    Designer  Python3 / USD In    / usdcore
+    Blender   Python3 / USD InOut / internal
+    Unreal    Python3 / USD InOut / internal
+    Unity     Python2 / USD InOut /
+    Nuke      Python2 / USD In    /
+    Davinci   Python3 / USD In    / usdcore
+    Cinema4D  Python3 / USD InOut / 
+    Marmoset  Python3 / USD InOut /
+    Painter   Python3 / USD InOut /
+    3dsMax    Python3 / USD InOut /
+    Modo      Python2 / USD InOut /
 
     https://community.foundry.com/discuss/topic/153415/extend-active-scenegraph?mode=Post&postID=1205506
     """
@@ -266,7 +266,6 @@ def _usdImporter(*args, **kwargs):
         return File(args[0])
     
     if getattr(meta, "fusion", False):
-        # fu:ToggleUtility('FBXImport')
         meta.fusion.GetCurrentComp().Lock()
         im = meta.fusion.GetCurrentComp().AddTool("uLoader")
         im.ImportFile = args[0]
@@ -335,12 +334,12 @@ def _usdExporter(*args, **kwargs):
 
     if getattr(meta, "textureset", False):
         meta.js.evaluate("alg.project.exportMesh()")
-        kwargs["exportPath"] = args[0]
-        export_preset = meta.resource.ResourceID(
-            context="allegorithmic",
-            name="USD PBR Metal Roughness")
-        kwargs["defaultExportPreset"] = export_preset.url()
+        meta.js.evaluate("alg.mapexport.exportMesh()")
         return meta.export.export_project_textures(**kwargs)
+    
+    if getattr(meta, "SceneObject", False):
+        if meta.getToolbagVersion() > 4060:
+            return meta.exportSceneUSD(args[0], **kwargs)
 
 
 class _NodeType(object):
@@ -399,13 +398,13 @@ if list(filter(lambda x: getattr(meta, x, False), ["hda", "uclass", "Debug", "C4
     File.usd.enable = True
     File.usd.Import = _usdImporter
     File.usd.Export = _usdExporter
-else:
-    try:
-        from pxr import Usd
-        File.usd.enable = True
-        File.usd = Usd
-    except ImportError:
-        pass
+
+try:
+    from pxr import Usd
+    File.usd.enable = True
+    File.usd = Usd
+except ImportError:
+    pass
 
 # Monkey-Patch for command
 cmd = Command()

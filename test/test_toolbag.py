@@ -5,17 +5,17 @@ import unittest
 sys.path.append('../yurlungur')
 
 import yurlungur as yr
-from yurlungur.core.env import _Marmoset
+from yurlungur.core.env import _Toolbag
 
 
-@unittest.skipUnless(_Marmoset(), "Marmoset is not found")
+@unittest.skipUnless(_Toolbag(), "Marmoset is not found")
 class TestMarmoset(unittest.TestCase):
     def test_env(self):
-        assert _Marmoset()
+        assert _Toolbag()
 
     @unittest.skip("only runtime")
     def test_marmoset(self):
-        yr.marmoset.run("import yurlungur as yr; print yr.name")
+        yr.toolbag.run("import yurlungur as yr; print yr.name")
 
     @unittest.skip("only runtime")
     def test_cmds(self):

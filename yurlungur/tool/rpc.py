@@ -170,10 +170,3 @@ def remote_debug_listen(host='localhost', port=18811):
         return
     except ModuleNotFoundError:
         pass
-
-    try:
-        vim = importlib.import_module("pynvim")
-        vim.attach('tcp', address=host, port=port)
-        return
-    except ModuleNotFoundError:
-        pass

@@ -124,34 +124,25 @@ def get_pip():
     return pip
 
 
-# pip = get_pip()
-
-
 class App(object):
     def __init__(self, name):
         d = {
             "maya": v(_Maya), "houdini": v(_Houdini), "substance_designer": v(_Substance),
-            "unreal": v(_Unreal), "unity": v(_Unity), "blender": v(_Blender), 
+            "blender": v(_Blender), "unreal": v(_Unreal), "unity": v(_Unity),
             "nuke": v(_Nuke), "c4d": v(_Cinema4D), "davinci": v(_Davinci),
-            "3dsmax": v(_Max), "marmoset": v(_Marmoset),"substance_painter": v(_SubstancePainter),
-            "photoshop": v(_Photoshop), "renderdoc": v(_RenderDoc), # "rv": v(_RV),
-            "modo": v(_Modo)
+            "3dsmax": v(_Max), "toolbag": v(_Toolbag),"substance_painter": v(_SubstancePainter),
+            "photoshop": v(_Photoshop), "renderdoc": v(_RenderDoc), "modo": v(_Modo)
         }
         self.app_name = d[name]
         self.process = None
 
         # add PYTHONAPATH
         import yurlungur
-        pypath = os.path.dirname(os.path.dirname(yurlungur.__file__))
-
-        if platform.system() == "Windows":
-            self.python_path = "set PYTHONPATH=%PYTHONPATH$;{0}&&".format(pypath)
-        else:
-            self.python_path = "export PYTHONPATH=$PYTHONPATH:{0};".format(pypath)
+        self.pypath = os.path.dirname(os.path.dirname(yurlungur.__file__))
+        self.python_path = "set PYTHONPATH=%PYTHONPATH$;{0}&&".format(self.pypath) if platform.system() == "Windows" else "export PYTHONPATH=$PYTHONPATH:{0};".format(self.pypath)
 
     def run(self):
         self.app_name = self.python_path + "\"" + self.app_name + "\""
-
         try:
             self.process = subprocess.Popen(self.app_name, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             while self.process.poll() is None:
@@ -179,30 +170,19 @@ class App(object):
                 hython = "cd %s; source ./houdini_setup; hython" % os.path.dirname(os.path.dirname(self.app_name))
             _cmd = "%s -i -c \"%s\"" % (hython, cmd)
 
-        # https://help.autodesk.com/view/3DSMAX/2018/ENU/?guid=__developer_executing_python_scripts_from_th_html
-        elif "3dsmax" in self.app_name:
-            if sys.version_info.major > 2:
-                maxpy = os.path.join(os.path.dirname(self.app_name), "Python37\\python.exe")
-            else:
-                maxpy = self.app_name.replace("3dsmax.exe", "3dsmaxpy.exe")
-
-            _cmd = "%s -i -c \"%s\"" % (maxpy, cmd)
-
-        # https://docs.unrealengine.com/ja/Engine/Editor/ScriptingAndAutomation/Python/index.html
-        # UnrealEditor-Cmd.exe
-        elif "UE_" in self.app_name:
-            with tempfile.NamedTemporaryFile(delete=False) as tf:
-                tmp = tf.name + '.py'
-                with open(tmp, 'w') as fp:
-                    fp.write(cmd)
-                    _app = os.path.join(os.path.dirname(self.app_name), "UE4Editor-Cmd")
-                    if not os.path.exists(_app):
-                        _app = _app.replace("UE4Editor-Cmd", "UnrealEditor-Cmd")
-                    _cmd = " ".join([_app, "-run=pythonscript -script={0}".format(tmp)])
-
         # https://docs.blender.org/manual/en/latest/advanced/command_line/arguments.html#python-options
         elif "Blender" in self.app_name:
             _cmd = "{0} --python-expr '{1}' -b".format(self.app_name, cmd)
+
+        # https://docs.unrealengine.com/ja/Engine/Editor/ScriptingAndAutomation/Python/index.html
+        elif "UE_" in self.app_name:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".py") as tf:
+                with open(tf.name, 'w') as fp:
+                    fp.write(cmd)
+            _app = os.path.join(os.path.dirname(self.app_name), "UE4Editor-Cmd").replace(os.sep, "/")
+            if not os.path.exists(_app):
+                _app = _app.replace("UE4Editor-Cmd", "UnrealEditor-Cmd")
+            _cmd = " ".join(["\""+_app+"\"", "-run=pythonscript -script={0}".format(tf.name)])
 
         # https://docs.unity3d.com/jp/460/Manual/CommandLineArguments.html
         elif "Unity" in self.app_name:
@@ -220,19 +200,22 @@ class App(object):
 
         # https://www.steakunderwater.com/wesuckless/viewtopic.php?t=2012
         elif "Resolve" in self.app_name:
-            # "%PROGRAMFILES%\\Blackmagic Design\\DaVinci Resolve\\fuscript.exe <script> [args] -l python3
-            _cmd = self.app_name + " -nogui"
+            _cmd = "\"" + os.path.dirname(self.app_name).replace(os.sep, "/") + "/fuscript\" -i -l py3 -x \"%s\"" % cmd if cmd else self.app_name + " -nogui"
+
+        # https://help.autodesk.com/view/3DSMAX/2018/ENU/?guid=__developer_executing_python_scripts_from_th_html
+        elif "3dsmax" in self.app_name:
+            if sys.version_info.major > 2:
+                maxpy = os.path.join(os.path.dirname(self.app_name), "Python37\\python.exe")
+            else:
+                maxpy = self.app_name.replace("3dsmax.exe", "3dsmaxpy.exe")
+            _cmd = "%s -i -c \"%s\"" % (maxpy, cmd)
 
         # toolbag.exe -pypath "C:/More/Python/Here" "C:/myscript.py"
         elif "toolbag" in self.app_name:
-            with tempfile.NamedTemporaryFile(delete=False) as tf:
-                tmp = tf.name + '.py'
-                with open(tmp, 'w') as fp:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".py") as tf:
+                with open(tf.name, 'w') as fp:
                     fp.write(cmd)
-
-                import yurlungur
-                pypath = os.path.dirname(os.path.dirname(yurlungur.__file__))
-                _cmd = "\"%s\" -pypath \"%s\" \"%s\"" % (self.app_name, pypath, tmp)
+            _cmd = "\"%s\" -pypath \"%s\" \"%s\"" % (self.app_name, self.pypath, tf.name)
 
         # https://substance3d.adobe.com/documentation/spdoc/remote-control-with-scripting-216629326.html
         elif "Painter" in self.app_name:
@@ -410,7 +393,7 @@ def Davinci(func=None):
     return wrapper
 
 
-def Marmoset(func=None):
+def Toolbag(func=None):
     if func is None:
         return __import__("mset")
 
@@ -422,7 +405,7 @@ def Marmoset(func=None):
     return wrapper
 
 
-def SPainter(func=None):
+def Painter(func=None):
     if func is None:
         return __import__("substance_painter")
 
@@ -480,18 +463,6 @@ def RenderDoc(func=None):
     return wrapper
 
 
-def RV(func=None):
-    if func is None:
-        return __import__("rv")
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if __import__("rv"):
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
 def Modo(func=None):
     if func is None:
         return __import__("modo")
@@ -504,7 +475,7 @@ def Modo(func=None):
     return wrapper
 
 
-def _Maya(v=2022):
+def _Maya(v=2020):
     d = {
         "Linux": "/usr/Autodesk/maya%d-x64/bin/maya" % v,
         "Windows": r"{1}/Autodesk/Maya{0}/bin/maya.exe".format(v, os.environ.get("PROGRAMFILES").replace("\\", "/")),
@@ -533,29 +504,31 @@ def _Substance():
 
 
 def _Blender():
-    d = {
+    win = os.environ.get("PROGRAMFILES").replace(os.sep, "/") + "/Blender Foundation/blender.exe"
+    if not os.path.exists(win):
+        win = os.environ.get("PROGRAMFILES(X86)").replace(os.sep, "/") + "/Steam/steamapps/common/blender.exe"
+
+    return {
         "Linux": "/usr/bin/blender",
-        "Windows": os.environ.get("PROGRAMFILES") + "\\Blender Foundation\\Blender",
+        "Windows": win,
         "Darwin": "/Applications/Blender.app/Contents/MacOS/Blender"
-    }
-    return d[platform.system()]
+    }[platform.system()]
 
 
 def _Unreal(v=4.27):
-    d = {
+    editor = "UnrealEditor" if v >= 5.0 else "UE4Editor"
+    return {
         "Linux": "",
-        "Windows": os.environ.get("PROGRAMFILES") + "\\Epic Games\\UE_{0}\\Engine\\Binaries\\Win64\\UE4Editor.exe".format(v),
-        "Darwin": "/Users/Shared/Epic\ Games/UE_%s/Engine/Binaries/Mac/UE4Editor.app/Contents/MacOS/UE4Editor" % v
-    }
-    return d[platform.system()]
+        "Windows": os.environ.get("PROGRAMFILES").replace(os.sep, "/") + "/Epic Games/UE_{0}/Engine/Binaries/Win64/{1}.exe".format(v, editor),
+        "Darwin": "/Users/Shared/Epic\ Games/UE_{0}/Engine/Binaries/Mac/{1}.app/Contents/MacOS/{1}".format(v, editor)
+    }[platform.system()]
 
 
 def _Unity(v="2021.1.0b4"):
     # https://docs.unity3d.com/ja/2019.1/Manual/CommandLineArguments.html
     d = {
         "Linux": "",
-        "Windows": os.environ.get("PROGRAMFILES") + "\\Unity\\Hub\\Editor\\{0}\\Editor\\Unity.exe".format(v),
-        #os.environ.get("PROGRAMFILES") +  \\Unity 2021.1.0b12\\Editor\\Unity.exe"
+        "Windows": os.environ.get("PROGRAMFILES") + "\\Unity\\Hub\\Editor\\{0}\\Editor\\Unity.exe".format(v), #os.environ.get("PROGRAMFILES") +  \\Unity 2021.1.0b12\\Editor\\Unity.exe"
         "Darwin": "/Applications/Unity/Hub/Editor/{0}/Unity.app/Contents/MacOS/Unity".format(v)
     }
     return d[platform.system()]
@@ -580,15 +553,18 @@ def _Cinema4D(v=21):
 
 
 def _Davinci():
-    d = {
-        "Linux": "/opt/resolve/bin/resolve",
-        "Windows": os.environ.get("PROGRAMFILES") + "\\Blackmagic Design\\DaVinci Resolve Studio\\Resolve.exe",
-        "Darwin": "/Applications/DaVinci Resolve Studio.app/Contents/MacOS/Resolve"
-    }
-    return d[platform.system()]
+    for v in "DaVinci Resolve Studio", "DaVinci Resolve":
+        d = {
+            "Linux": "/opt/resolve/bin/resolve",
+            "Windows": os.environ.get("PROGRAMFILES") + "\\Blackmagic Design\\{}\\Resolve.exe".format(v),
+            "Darwin": "/Applications/{}.app/Contents/MacOS/Resolve".format(v)
+        }
+        app = d[platform.system()]
+        if os.path.exists(app):
+            return app
 
 
-def _Marmoset(v=4):
+def _Toolbag(v=4):
     d = {
         "Linux": "",
         "Windows": r"{0}/Marmoset/Toolbag {1}/toolbag.exe".format(os.environ.get("PROGRAMFILES").replace("\\", "/"), v),
@@ -622,21 +598,14 @@ def _Photoshop(v=2018):
 
 
 def _RenderDoc(v=1.13):
-    d = {
-        "Linux": "/opt/renderdoc_%d/bin/qrenderdoc" % v,
-        "Windows": os.environ.get("PROGRAMFILES") + "\\RenderDoc\\qrenderdoc.exe",
-        "Darwin": "coming soon..."
-    }
-    return d[platform.system()]
-
-
-def _RV():
-    d = {
-        "Linux": "/opt/renderdoc_%d/bin/qrenderdoc" % v,
-        "Windows": os.environ.get("PROGRAMFILES") + "\\RenderDoc\\qrenderdoc.exe",
-        "Darwin": "coming soon..."
-    }
-    return d[platform.system()]
+    for v in "RenderDocForOculus", "RenderDoc":
+        d = {
+            "Linux": "/opt/renderdoc_{}/bin/qrenderdoc".format(v),
+            "Windows": os.environ.get("PROGRAMFILES") + "\\{}\\qrenderdoc.exe".format(v)
+        }
+        app = d[platform.system()]
+        if os.path.exists(app):
+            return app 
 
 
 def _Modo(v="16.0v3"):
@@ -704,7 +673,7 @@ def Numpy(func=None):
 
 def is_version(app):
     """
-    TODO: 力技でバージョンを探す
+    WIP: 力技でバージョンを探す
 
     無し : Blender, Substance Painter/Designer, Davinci Resolve
     西暦 : Maya, Cinema4D, 3dsMax, Photoshop
@@ -720,11 +689,12 @@ def is_version(app):
     import os, datetime, re
 
     if list(filter(lambda x: app == x, [_Blender, _Substance, _SubstancePainter, _Davinci])):
+        print(app())
         if os.path.exists(app()):
             return app()
         return None
 
-    if app == _Marmoset:
+    if app == _Toolbag:
         for i in range(3):
             v = 5 - i
             if os.path.exists(app(v)):
@@ -739,19 +709,8 @@ def is_version(app):
         return None
 
     if app == _Unreal:
-        for i in range(120):
+        for i in range(150):
             v = (400 + i) / 100
-
-            # ue5
-            if v >= 5:
-                app = app(v).replace("UE4Editor", "UnrealEditor")
-                if v == 5.0:
-                    app = app.replace("\\Engine", "EA\\Engine")
-                if os.path.exists(app):
-                    return app
-                return None
-
-            # ue4
             if os.path.exists(app(v)):
                 return app(v)
         return None

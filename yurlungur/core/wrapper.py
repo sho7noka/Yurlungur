@@ -100,7 +100,7 @@ class MultiObject(object):
         if env.Max():
             return application.runtime.execute(script)
 
-        if env.SPainter():
+        if env.Painter():
             return application.js.evaluate(script)
 
         if env.Photoshop():
@@ -137,3 +137,48 @@ class MetaObject(type):
 YObject = MetaObject("YObject", (object,),
                      {"__doc__": MetaObject.__doc__,
                       "add": MetaObject.add, "rmv": MetaObject.rmv})
+
+
+class BaseActor(object):
+    """flat"""
+    def instantiate(self):
+        pass
+
+    def destroy(self):
+        pass
+
+    def id(self):
+        pass
+
+    # transform
+    # component
+
+
+class BaseNLE(object):
+    """hierarchy"""
+    def index(self):
+        pass
+
+    def duration(self):
+        pass
+
+    def render(self):
+        pass
+
+    # track
+
+
+class BaseNode(object):
+    """
+    parent children inout
+    """
+    def parent(self):
+        pass
+
+    def connect(self):
+        pass
+
+    def input(self):
+        pass
+
+    # attribute

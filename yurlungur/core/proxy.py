@@ -3,7 +3,6 @@ import os, inspect
 from functools import partial
 
 from yurlungur.core.deco import trace
-from yurlungur.core.exception import YException
 from yurlungur.core.wrapper import YObject
 from yurlungur.tool.meta import meta
 from yurlungur.core.vars import ref
@@ -77,8 +76,12 @@ class Object(YObject):
             return meta.engine.GameObject.Find(self.name).GetInstanceID() or 0
 
         if getattr(meta, "doc", False):
-            raise YException("api is not found")
-
+            return meta.eval("""
+            var ref = new ActionReference();
+            ref.putEnumerated(charIDToTypeID('Lyr '), charIDToTypeID('Ordn'), charIDToTypeID('Trgt')); // reference is active layer
+            var layerDesc = executeActionGet(ref);
+            var layerID = layerDesc.getInteger(stringIDToTypeID('layerID'));layerID;""")
+        
         if getattr(meta, "runtime", False):
             return meta.runtime.getnodebyname(self.name).gbufferChannel or 0
 
@@ -86,18 +89,10 @@ class Object(YObject):
             return meta.Scene().item(self.name).id
 
         if getattr(meta, "SceneObject", False):
-            raise YException("api is not found")
+            return meta.findObject(self.name).uid
+        
 
     def set(self, *args, **kwargs):
-        """
-        rename object
-        Args:
-            *args:
-            **kwargs:
-
-        Returns:
-
-        """
         if getattr(meta, "SDNode", False):
             meta.graph.setIdentifier(args[0])
             return Node(args[0])
@@ -177,7 +172,7 @@ class Object(YObject):
                 meta.graph.getNodeFromId(self.name).getPropertyValue(prop).get(),
                 self.name, val, )
 
-        if getattr(meta, "getAttr", False):
+        if getattr(meta, "ls", False):
             return Attribute(
                 meta.getAttr(self.name + "." + val, *args, **kwargs), self.name, val
             )
@@ -698,40 +693,6 @@ class Object(YObject):
 
     @trace
     def parent(self, *args, **kwarg):
-        if getattr(meta, "SDNode", False):
-            nodes = []
-            for prop in self._inputs:
-                for connect in meta.graph.getNodeFromId(
-                        self.name
-                ).getPropertyConnections(prop):
-                    nodes.append(Node(connect.getInputPropertyNode().getIdentifier()))
-            return nodes
-
-        if getattr(meta, "getAttr", False):
-            if len(args) == 0 and len(kwarg) > 0:
-                return meta.parent(self.item, *args, **kwarg)
-            else:
-                return Node(
-                    partial(meta.listRelatives, self.item, p=1)(*args, **kwarg)
-                )
-
-        if getattr(meta, "hda", False):
-            return Node(meta.node(self.item).parent().path())
-
-        if getattr(meta, "knob", False):
-            index = meta.toNode(self.name).inputs() - 1
-            return Node(meta.toNode(self.name).input(index).name())
-
-        # https://developers.maxon.net/docs/Cinema4DPythonSDK/html/modules/c4d.documents/BaseDocument/index.html?highlight=getactiveobject#BaseDocument.GetObjects
-        if getattr(meta, "C4DAtom", False):
-            return meta.doc.SearchObject(self.name)
-
-        if getattr(meta, "fusion", False):
-            if meta.is_fusion:
-                return meta.fusion.GetCurrentComp().FindTool(self.name).ParentTool
-            else:
-                return meta.davinci
-
         if getattr(meta, "data", False):
             if len(args) > 0:
                 return setattr(meta.data.objects[self.item], "parent", meta.data.objects[args[0]])
@@ -739,7 +700,10 @@ class Object(YObject):
                 return Object(meta.data.objects[self.item].parent.name)
 
         if getattr(meta, "uclass", False):
-            return Node(meta.unreal.uname(self.name).get_parent_actor().get_name())
+            if len(args) > 0:
+                return
+            else:
+                return Object(meta.unreal.uname(self.name).get_parent_actor().get_name())
 
         if getattr(meta, "Debug", False):
             transform = meta.engine.GameObject.Find(self.name).transform
@@ -751,100 +715,87 @@ class Object(YObject):
                 return Object(transform.parent.name) if transform.parent else None
 
         if getattr(meta, "doc", False):
-            return Node(meta.doc.artLayers[self.name].parent.name)
+            if len(args) > 0:
+                return
+            else:
+                return Object(meta.doc.artLayers[self.name].parent.name)
 
         if getattr(meta, "runtime", False):
             if len(args) > 0:
                 meta.runtime.getnodebyname(self.item).parent = args[0]
-                return Node(args[0])
+                return Object(args[0])
             else:
                 _parent = meta.runtime.getnodebyname(self.item).parent
-                return Node(_parent.name) if _parent else None
+                return Object(_parent.name) if _parent else None
 
         if getattr(meta, "SceneObject", False):
-            return Object(meta.findObject(self.name).parent.name)
-
-        if getattr(meta, "lx", False):
-            return
+            if len(args) > 0:
+                meta.findObject(self.name).parent = meta.findObject(args[0])
+                return Object(meta.findObject(args[0]))
+            else:
+                return Object(meta.findObject(self.name).parent.name)
 
     @trace
-    def children(self, *args, **kwarg):
-        if getattr(meta, "SDNode", False):
-            nodes = []
-            for prop in self._outputs:
-                for connect in meta.graph.getNodeFromId(
-                        self.name
-                ).getPropertyConnections(prop):
-                    nodes.append(Node(connect.getOutputPropertyNode().getIdentifier()))
-            return nodes
-
-        if getattr(meta, "getAttr", False):
-            return partial(meta.listRelatives, self.item, c=1)(*args, **kwarg) or None
-
-        if getattr(meta, "hda", False):
-            return [Node(node.name) for node in meta.node(self.item).children()]
-
-        if getattr(meta, "C4DAtom", False):
-            return meta.doc.SearchObject(self.item)
-
+    def children(self):
         if getattr(meta, "data", False):
             children = []
             for obj in meta.data.objects:
                 if obj.parent == meta.data.objects[self.item]:
                     children.append(obj)
-            return [Object(obj.name) for obj in children]
+            return (Object(obj.name) for obj in children)
 
         if getattr(meta, "uclass", False):
             return (
-                Node(actor.get_name())
+                Object(actor.get_name())
                 for actor in meta.unreal.uname(self.item).get_all_child_actors()
             )
 
         if getattr(meta, "Debug", False):
             transform = meta.engine.GameObject.Find(self.item).transform
-            return (Object(transform.GetChild(i).name) for i in range(transform.childCount))
+            return (
+                Object(transform.GetChild(i).name) for i in range(transform.childCount)
+            )
 
         if getattr(meta, "doc", False):
-            return [Object(layer.name)
-                    for layer in meta.doc.LayerSets[self.item].layers
-                    ]
+            return (
+                Object(layer.name) for layer in meta.doc.LayerSets[self.item].layers
+            )
 
         if getattr(meta, "runtime", False):
-            if len(args) > 0:
-                meta.eval("append $%s.children $%s" % (self.item, args[0]))
-                return Object(args[0])
-            else:
-                nodes = []
-                children = meta.runtime.getnodebyname(self.item).children
-                for i in range(children.count):
-                    nodes.append(children[i].name)
-                return [Object(node.name) for node in nodes]
+            nodes = []
+            children = meta.runtime.getnodebyname(self.item).children
+            for i in range(children.count):
+                nodes.append(children[i].name)
+            return (Object(node.name) for node in nodes)
 
         if getattr(meta, "SceneObject", False):
-            return (Object(obj.name) for obj in meta.findObject(self.name).getChildren())
-
-        if getattr(meta, "lx", False):
-            return
+            return (
+                Object(obj.name) for obj in meta.findObject(self.name).getChildren()
+            )
 
     @trace
     def sequence(self):
-        """
-        OTIO compatible
+        if getattr(meta, "fusion", False):
+            return meta.davinci.Timeline
 
-        Returns:
-        """
         if getattr(meta, "knob", False):
             index = meta.toNode(self.name).inputs() - 1
             return Node(meta.toNode(self.name).input(index).name())
-        if getattr(meta, "fusion", False):
-            if meta.is_fusion:
-                return meta.fusion.GetCurrentComp().FindTool(self.name).ParentTool
-            else:
-                return meta.davinci
-        if getattr(meta, "Debug", False):
-            return meta.unity.Timeline(self.name)
+
+        if getattr(meta, "data", False):
+            from yurlungur.adapters import blender
+            return blender.Timeline(self.name)
+
         if getattr(meta, "uclass", False):
             return meta.unreal.Timeline(self.name)
+        
+        if getattr(meta, "Debug", False):
+            return meta.unity.Timeline(self.name)
+        
+        if getattr(meta, "SceneObject", False):
+            from yurlungur.adapters import toolbag
+            return toolbag.Timeline()
+        
 
 class Node(Object):
     """relationship object"""
@@ -857,6 +808,57 @@ class Node(Object):
             self._outputs = meta.graph.getNodeFromId(self.name).getProperties(meta.sd.SDPropertyCategory.Output)
 
     @trace
+    def parent(self, *args, **kwarg):
+        if getattr(meta, "SDNode", False):
+            nodes = []
+            for prop in self._inputs:
+                for connect in meta.graph.getNodeFromId(
+                        self.name
+                ).getPropertyConnections(prop):
+                    nodes.append(Node(connect.getInputPropertyNode().getIdentifier()))
+            return nodes
+
+        if getattr(meta, "ls", False):
+            if len(args) == 0 and len(kwarg) > 0:
+                return meta.parent(self.item, *args, **kwarg)
+            else:
+                return Node(
+                    partial(meta.listRelatives, self.item, p=1)(*args, **kwarg)
+                )
+
+        if getattr(meta, "hda", False):
+            return Node(meta.node(self.item).parent().path())
+
+        if getattr(meta, "knob", False):
+            return Node(".".join(meta.toNode(self.name).fullName().split(".")[:-1]))
+
+        if getattr(meta, "fusion", False):
+            return meta.fusion.GetCurrentComp().FindTool(self.name).ParentTool
+
+    def children(self, *args, **kwarg):
+        if getattr(meta, "SDNode", False):
+            nodes = []
+            for prop in self._outputs:
+                for connect in meta.graph.getNodeFromId(
+                        self.name
+                ).getPropertyConnections(prop):
+                    nodes.append(Node(connect.getOutputPropertyNode().getIdentifier()))
+            return nodes
+
+        if getattr(meta, "ls", False):
+            return partial(meta.listRelatives, self.item, c=1)(*args, **kwarg) or None
+
+        if getattr(meta, "hda", False):
+            return [Node(node.name) for node in meta.node(self.item).children()]
+
+        if getattr(meta, "knob", False):
+            return 
+
+        if getattr(meta, "fusion", False):
+            # group or macro
+            return [Node(v) for v in meta.fusion.GetCurrentComp().ActiveTool.GetChildrenList(*args, **kwarg).values()]
+        
+    @trace
     def connect(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
             args = (args[0], meta.graph.getNodeFromId(args[1].id), args[2])
@@ -866,7 +868,7 @@ class Node(Object):
                     .getClassName()
             )
 
-        if getattr(meta, "connectAttr"):
+        if getattr(meta, "ls"):
             return partial(meta.connectAttr, self.name + "." + args[0])(
                 args[1:], **kwargs
             )
@@ -884,10 +886,6 @@ class Node(Object):
                     .ConnectInput(*args, **kwargs)
             )
 
-        if getattr(meta, "data", False):
-            # https://docs.blender.org/api/current/bpy.ops.node.html
-            meta.ops.object.modifier_add(type="NODES")
-
     @trace
     def disconnect(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
@@ -904,10 +902,9 @@ class Node(Object):
                         ).deletePropertyConnections(prop)
             return
 
-        if hasattr(meta, "disconnectAttr"):
-            return partial(meta.disconnectAttr, self.name + "." + args[0])(
-                args[1:], **kwargs
-            )
+        if hasattr(meta, "ls"):
+            return partial(
+                meta.disconnectAttr, self.name + "." + args[0])(args[1:], **kwargs)
 
         if getattr(meta, "hda", False):
             return partial(meta.node(self.name).setInput, 0, None)(*args, **kwargs)
@@ -917,12 +914,7 @@ class Node(Object):
 
         if getattr(meta, "fusion", False):
             return setattr(
-                meta.fusion.GetCurrentComp().FindTool(self.name), "Input", None
-            )
-
-        if getattr(meta, "data", False):
-            # https://docs.blender.org/api/current/bpy.ops.node.html
-            meta.ops.object.modifier_add(type="NODES")
+                meta.fusion.GetCurrentComp().FindTool(self.name), "Input", None)
 
     @trace
     def inputs(self, *args, **kwargs):
@@ -931,7 +923,7 @@ class Node(Object):
                 connect.getId() for connect in self._inputs if connect.isConnectable()
             ]
 
-        if hasattr(meta, "listConnections"):
+        if hasattr(meta, "ls"):
             return partial(meta.listConnections, s=1)(*args, **kwargs)
 
         if getattr(meta, "hda", False):
@@ -939,8 +931,7 @@ class Node(Object):
 
         if getattr(meta, "knob", False):
             return [
-                Node(meta.toNode(self.name).input(index).name())
-                for index in range(meta.toNode(self.name).inputs())
+                Node(meta.toNode(self.name).input(index).name()) for index in range(meta.toNode(self.name).inputs())
             ]
 
         if getattr(meta, "fusion", False):
@@ -951,10 +942,6 @@ class Node(Object):
                     .values()[0].GetAttrs()
             )
 
-        if getattr(meta, "data", False):
-            # https://docs.blender.org/api/current/bpy.ops.node.html
-            meta.ops.object.modifier_add(type="NODES")
-
     @trace
     def outputs(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
@@ -962,7 +949,7 @@ class Node(Object):
                 connect.getId() for connect in self._outputs if connect.isConnectable()
             ]
 
-        if hasattr(meta, "listConnections"):
+        if hasattr(meta, "ls"):
             return partial(meta.listConnections, d=1)(*args, **kwargs)
 
         if getattr(meta, "hda", False):
@@ -978,10 +965,6 @@ class Node(Object):
                     .GetOutputList()
                     .values()[0].GetAttrs()
             )
-
-        if getattr(meta, "data", False):
-            # https://docs.blender.org/api/current/bpy.ops.node.html
-            meta.ops.object.modifier_add(type="NODES")
 
 
 # @total_ordering
@@ -1106,7 +1089,6 @@ class Attribute(YObject):
                     return meta.ps.Document().layers[self.obj].setValue_forKey_(args[0], self.val)
 
         # http://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=Max_Python_API_using_pymxs_pymxs_differences_pymxs_controllers_html
-        # return meta.runtime.setProperty(meta.runtime.getnodebyname(self.obj), self.val, args[0])
         if getattr(meta, "runtime", False):
             if ":" in str(self._values[0]):
                 return setattr(self._values[0], self.val, args[0])
@@ -1122,13 +1104,13 @@ class Attribute(YObject):
     @trace
     def create(self, *args, **kwargs):
         """
-        create attribute
+        create custom attribute
         >>> import yurlungur
         >>> Attribute(meta.data.objects[self.name].name, self.name, val)
         >>> attr = yurlungur.attr.create(yurlungur.node.ls()[0], "mName", "test")
         >>> yurlungur.attr.mName.delete() or attr.delete()
         """
-        if getattr(meta, "setAttr", False):
+        if getattr(meta, "ls", False):
             setattr(self, "ID", "ID")
             return meta.addAttr(self.obj, ln='ID', k=True)
 
@@ -1179,7 +1161,7 @@ class Attribute(YObject):
 
     @trace
     def lock(self, on=True):
-        if getattr(meta, "setAttr", False):
+        if getattr(meta, "ls", False):
             return meta.setAttr(self.obj + "." + self.val, lock=on)
 
         if getattr(meta, "hda", False):
@@ -1188,15 +1170,9 @@ class Attribute(YObject):
         if getattr(meta, "knob", False):
             return meta.toNode(self.obj)[self.val].setEnabled(not on)
 
-        if getattr(meta, "data", False):
-            return setattr(meta.data.objects[self.obj], "lock_" + self.val, on)
-
-        if getattr(meta, "SceneObject", False):
-            return YException("api is not found")
-
     @trace
     def hide(self, on=True):
-        if getattr(meta, "setAttr", False):
+        if getattr(meta, "ls", False):
             return meta.setAttr(self.obj + "." + self.val, keyable=not on, channelBox=not on)
 
         if getattr(meta, "hda", False):
@@ -1204,9 +1180,6 @@ class Attribute(YObject):
 
         if getattr(meta, "knob", False):
             return meta.toNode(self.obj)[self.val].setVisible(not on)
-
-        if getattr(meta, "SceneObject", False):
-            return YException("api is not found")
 
     @property
     def vector(self):
@@ -1253,7 +1226,7 @@ class File(YObject):
 
     @classmethod
     def open(cls, *args, **kwargs):
-        if args[0].endswith("abc") or args[0].endswith("fbx") or args[0].endswith("usd"):
+        if args[0].endswith("fbx") or args[0].endswith("usd"):
             from yurlungur.core.command import file
             im = getattr(file, os.path.splitext(args[0]), False)
             if im:
@@ -1262,18 +1235,14 @@ class File(YObject):
         if getattr(meta, "SDNode", False):
             return cls(meta.manager.loadUserPackage(*args, **kwargs))
 
-        if getattr(meta, "setAttr", False):
+        if getattr(meta, "ls", False):
             return cls(partial(meta.file, i=1)(*args, **kwargs))
 
-        if getattr(meta, "hipFile", False):
+        if getattr(meta, "hda", False):
             return cls(meta.hipFile.load(*args, **kwargs))
 
         if getattr(meta, "knob", False):
             return meta.scriptOpen(*args, **kwargs)
-
-        if getattr(meta, "C4DAtom", False):
-            meta.documents.LoadFile(*args)
-            return cls(args[0])
 
         if getattr(meta, "fusion", False):
             if meta.is_fusion:
@@ -1285,14 +1254,12 @@ class File(YObject):
                 else:
                     return meta.manager.LoadProject(*args, **kwargs)
 
+        if getattr(meta, "C4DAtom", False):
+            meta.documents.LoadFile(*args)
+            return cls(args[0])
+
         if getattr(meta, "data", False):
             return partial(meta.ops.wm.open_mainfile, filepath=args[0])(**kwargs)
-
-        if getattr(meta, "uclass", False):
-            return
-
-        if getattr(meta, "Debug", False):
-            return cls(meta.editor.AssetDatabase.ImportAsset(*args, **kwargs))
 
         if getattr(meta, "doc", False):
             return meta.Open(*args, **kwargs)
@@ -1300,22 +1267,19 @@ class File(YObject):
         if getattr(meta, "runtime", False):
             if meta.runtime.loadMaxFile(*args, **kwargs):
                 return cls(args[0])
+            
+        if getattr(meta, "lx", False):
+            return meta.lx.eval('scene.open "%s" import' % args[0])
 
         if getattr(meta, "SceneObject", False):
             return meta.loadScene(*args)
 
         if getattr(meta, "textureset", False):
-            if args[0].endswith(".spp"):
-                return meta.project.open(*args)
-            else:
-                return meta.project.create(*args, **kwargs)
-
-        if getattr(meta, "lx", False):
-            return meta.lx.eval('scene.open "%s" import' % args[0])
+            return getattr(meta.project, "open" if args[0].endswith(".spp") else "create")(*args, **kwargs)
 
     @classmethod
     def save(cls, *args, **kwargs):
-        if args[0].endswith("abc") or args[0].endswith("fbx") or args[0].endswith("usd"):
+        if args[0].endswith("fbx") or args[0].endswith("usd"):
             from yurlungur.core.command import file
             ex = getattr(file, os.path.splitext(args[0]), False)
             if ex:
@@ -1324,20 +1288,14 @@ class File(YObject):
         if getattr(meta, "SDNode", False):
             return cls(meta.manager.savePackageAs(*args, **kwargs))
 
-        if getattr(meta, "setAttr", False):
+        if getattr(meta, "ls", False):
             return cls(partial(meta.file, s=1)(*args, **kwargs))
 
-        if getattr(meta, "hipFile", False):
+        if getattr(meta, "hda", False):
             return cls(meta.hipFile.save(*args, **kwargs))
 
         if getattr(meta, "knob", False):
             return meta.scriptSave(*args, **kwargs)
-
-        if getattr(meta, "C4DAtom", False):
-            meta.documents.SaveDocument(
-                meta.doc, args[0], meta.SAVEDOCUMENTFLAGS_NONE, meta.FORMAT_C4DEXPORT
-            )
-            return cls(args[0])
 
         if getattr(meta, "fusion", False):
             if meta.is_fusion:
@@ -1345,27 +1303,27 @@ class File(YObject):
             else:
                 return meta.manager.SaveProject(*args, **kwargs)
 
+        if getattr(meta, "C4DAtom", False):
+            meta.documents.SaveDocument(
+                meta.doc, args[0], meta.SAVEDOCUMENTFLAGS_NONE, meta.FORMAT_C4DEXPORT
+            )
+            return cls(args[0])
+
         if getattr(meta, "data", False):
             return partial(meta.ops.wm.save_mainfile, filepath=args[0])(**kwargs)
-
-        if getattr(meta, "uclass", False):
-            return meta.tools.export_assets(*args, **kwargs)
-
-        if getattr(meta, "Debug", False):
-            return
 
         if getattr(meta, "runtime", False):
             if meta.runtime.saveMaxFile(*args, **kwargs):
                 return cls(args[0])
 
+        if getattr(meta, "doc", False):
+            return meta.doc.Save() if args[0].endswith(".psd") else meta.doc.SaveAs(*args, **kwargs)
+    
+        if getattr(meta, "lx", False):
+            return meta.lx.eval('scene.saveAs "%s" %s true' % args)
+
         if getattr(meta, "SceneObject", False):
             return meta.saveScene(*args)
-
-        if getattr(meta, "doc", False):
-            if args[0].endswith(".psd"):
-                return meta.doc.Save()
-            else:
-                return meta.doc.SaveAs(*args, **kwargs)
 
         if getattr(meta, "textureset", False):
             if args[0].endswith(".spp"):
@@ -1373,31 +1331,28 @@ class File(YObject):
             else:
                 return meta.export.export_project_textures(**kwargs)
 
-        if getattr(meta, "lx", False):
-            return meta.lx.eval('scene.saveAs "%s" %s true' % args)
-
     @property
     def current(self):
         if getattr(meta, "SDNode", False):
             return meta.graph.getPackage().getFilePath()
 
-        if getattr(meta, "setAttr", False):
+        if getattr(meta, "ls", False):
             return meta.file(exn=1, q=1)
 
-        if getattr(meta, "hipFile", False):
+        if getattr(meta, "hda", False):
             return meta.hipFile.path()
 
         if getattr(meta, "knob", False):
             return meta.scriptName()
-
-        if getattr(meta, "C4DAtom", False):
-            return meta.doc.GetDocumentPath() + meta.doc.GetDocumentName()
 
         if getattr(meta, "fusion", False):
             if meta.is_fusion:
                 return meta.fusion
             else:
                 return meta.davinci.Projects()
+
+        if getattr(meta, "C4DAtom", False):
+            return meta.doc.GetDocumentPath() + meta.doc.GetDocumentName()
 
         if getattr(meta, "data", False):
             return meta.data.filepath
@@ -1414,9 +1369,6 @@ class File(YObject):
         if getattr(meta, "runtime", False):
             return meta.runtime.maxFilePath + meta.runtime.maxFileName
 
-        if getattr(meta, "SceneObject", False):
-            return meta.getScenePath()
-
         if getattr(meta, "doc", False):
             try:
                 return os.path.join(meta.doc.path, meta.doc.name)
@@ -1424,11 +1376,14 @@ class File(YObject):
                 path = meta.doc.filePath()
                 return path.absoluteString() if path else ""
 
+        if getattr(meta, "lx", False):
+            return meta.current().filename
+            
+        if getattr(meta, "SceneObject", False):
+            return meta.getScenePath()
+
         if getattr(meta, "textureset", False):
             if meta.project.is_open():
                 return meta.project.file_path()
             else:
                 return None
-
-        if getattr(meta, "lx", False):
-            return meta.current().filename
