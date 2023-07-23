@@ -26,7 +26,8 @@ try:
     pyext = list(filter(lambda x: x.startswith("ms-python.python"), os.listdir(ext)))
     mspy = os.path.join(ext, pyext[-1], "pythonFiles/lib/python").replace(os.sep, "/")
     sys.path.append(mspy)
-
+    
+    # vscode
     sys.modules[__name__] = importlib.import_module("debugpy")
     setattr(sys.modules[__name__], "remote_debug", remote_debug_listen)
     setattr(sys.modules[__name__], "enable", True)

@@ -6,7 +6,7 @@ from yurlungur.core.exception import except_runtime
 from yurlungur.core import vars
 from yurlungur.core.datatype import Vector, Matrix, Color
 
-if env.Maya() or env.Houdini() or env.Substance() or env.Nuke() or env.Davinci() or env.C4D():
+if env.Maya() or env.Houdini() or env.Substance() or env.Nuke() or env.Davinci():
     from yurlungur.core.proxy import Node
 else:
     from yurlungur.core.proxy import Object as Node

@@ -5,9 +5,7 @@ Qt 管理Windowモジュール
 import sys
 import os
 import inspect
-
 from yurlungur.core import env
-from yurlungur.tool import logger
 
 
 def main_window():
@@ -22,17 +20,16 @@ def main_window():
     """
     import yurlungur
     app_name = yurlungur.application.__name__
-    logger.pprint(app_name)
 
     if app_name == "maya.cmds":
         from yurlungur.user.Qt import QtCompat
         from maya import OpenMayaUI
+        window = OpenMayaUI.MQtUtil.mainWindow()
 
         if sys.version_info[0] < 3:
-            ptr = long(OpenMayaUI.MQtUtil.mainWindow())
+            ptr = long(window)
         else:
-            ptr = int(OpenMayaUI.MQtUtil.mainWindow())
-
+            ptr = int(window)
         return QtCompat.wrapInstance(ptr, QWidget)
 
     if app_name == "sd.api":

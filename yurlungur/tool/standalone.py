@@ -18,8 +18,7 @@ def _cli(args):
     parser = argparse.ArgumentParser(
         prog='yurlungur.tool.standalone._cli',
         description="{0} v.{1} {2}".format(yurlungur.name, yurlungur.version, sys.executable),
-        epilog='yurlungur console',
-        add_help=True,
+        epilog='yurlungur console', add_help=True,
     )
 
     parser.add_argument("--command", "-c",
@@ -58,9 +57,9 @@ def _cli(args):
         from yurlungur.core.app import use
         use(arguments.environ[0])
 
+    # https://code.visualstudio.com/api/advanced-topics/python-extension-template
+    # https://www.jetbrains.com/help/pycharm/console-python-console.html
     if arguments.window:
-        # https://code.visualstudio.com/api/advanced-topics/python-extension-template
-        # https://www.jetbrains.com/help/pycharm/console-python-console.html
         import code #, codeop
         console = code.InteractiveConsole(locals=locals())
         console.interact()

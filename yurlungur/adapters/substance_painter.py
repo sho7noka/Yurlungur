@@ -1,40 +1,6 @@
 # coding: utf-8
 u"""
-https://substance3d.adobe.com/documentation/spdoc/command-lines-98959411.html
-
---mesh <meshPath>	
-Mesh to load in a project.
-
-Example:
-// Create a new project with a specific mesh
-"Adobe Substance 3D Painter.exe" --mesh "E:/MymeshFolder/MyMesh.obj" 
-
-// Update a mesh inside an existing project
-"Adobe Substance 3D Painter.exe" --mesh "E:/MymeshFolder/MyMesh.obj" "E:/MyMeshFolder/Project.spp" 
---mesh-map	
-Baked maps associated with the mesh (AO, Normal, Curvature). Can be specified multiple times. Nomenclature : TextureSetName_AdditionalMapSlot
-
-Ambient occlusion = ambient_occlusion
-Curvature = curvature
-Normal = normal_base
-World Space Normal = world_space_normals
-Position = position
-Thickness = thickness
-ID = id
-Example:
-
-"Adobe Substance 3D Painter.exe" --mesh "E:/MyMeshFolder/MyMesh.obj" --mesh-map " E:/MyMeshFolder/DefaultMaterial_ambient_occlusion.png" 
---split-by-udim	Create a texture set per UDIM tile.
---export-path	Default export path where the outputs of the project will be exported.
---vram-budget <amount>	
-Override the video memory (VRAM) budget defined by Substance 3D Painter engine. "Amount" is in megabytes.
-
-Example:
-
-// Set the VRam budget to 2GB
-"Adobe Substance 3D Painter.exe" --vram-budget 2048 
---disable-version-checking	Don't check if a new version of the application is available when starting up
---enable-remote-scripting	Allow to run scripting commands from outside the application. See Remote control with scripting for more information.
+https://substance3d.adobe.com/documentation/spdoc/command-lines-98959411.htm
 """
 
 import sys as __sys
@@ -45,8 +11,15 @@ try:
     from functools import partial
     import types
     import inspect
+    import json
     import yurlungur
     import substance_painter
+
+    for obj in [obj for obj in dir(yurlungur) if obj[0] != "_" and obj != "Qt"]:
+        if obj == "user" or obj == "tool":
+            continue
+        setattr(__sys.modules[__name__], obj, getattr(yurlungur, obj))
+    
 
     class Baking:
         @staticmethod
@@ -64,6 +37,21 @@ try:
         @staticmethod
         def textureSetBakingParameters(textureSetName : str):
             return substance_painter.js.evaluate(f"alg.baking.{inspect.currentframe().f_code.co_name}('{textureSetName}')")
+
+        def textureSet(self, name : str = ""):
+            if name == "":
+                return substance_painter.textureset.get_active_stack().material().name()
+            return substance_painter.textureset.from_name(name).material().name()
+
+        def meshMap(self, key):
+            usages = ["AO", "BentNormals", "Curvature", "Height", "ID", "Normal", "Opacity", "Position", "Thickness", "WorldSpaceNormal"]
+            # ambient_occlusion, normal_base, id, curvature, position, thickness, world_space_normals
+            usage = getattr(substance_painter.textureset.MeshMapUsage, key)
+
+            res = self.textureSet().get_mesh_map_resource(usage)
+            self.textureSet().set_mesh_map_resource(usage, res or None)
+            substance_painter.js.evaluate(f"alg.mapexport.meshMapIdentifiers('{self.textureSet()}')")
+
 
     class Shaders:
         @staticmethod
@@ -87,12 +75,6 @@ try:
         @staticmethod
         def updateShaderInstance(shaderId : int = 0, shaderUrl : str = ""):
             return substance_painter.js.evaluate(f"alg.shaders.{inspect.currentframe().f_code.co_name}({shaderId},'{shaderUrl}')")
-
-
-    for obj in [obj for obj in dir(yurlungur) if obj[0] != "_" and obj != "Qt"]:
-        if obj == "user" or obj == "tool":
-            continue
-        setattr(__sys.modules[__name__], obj, getattr(yurlungur, obj))
 
     __sys.modules[__name__].baking = types.ModuleType("baking", "alg.baking\nManage baking of the opened project")
     
@@ -172,16 +154,6 @@ except (ImportError, KeyError):
 
         def show(self):
             self.execScript("import substance_painter;substance_painter.ui.show_main_window()", "python")
-
-
-    class PainterError(Exception):
-        def __init__(self, message):
-            super(PainterError, self).__init__(message)
-
-
-    class ExecuteScriptError(PainterError):
-        def __init__(self, data):
-            super(PainterError, self).__init__('An error occured when executing script: {0}'.format(data))
 
 
     from yurlungur.core.env import App as __App

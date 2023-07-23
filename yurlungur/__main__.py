@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 def main():
     """
     yurlungur cli entry point
@@ -11,7 +12,6 @@ def main():
     if not local in sys.path:
         sys.path.append(local)
     _cli(sys.argv[1:])
-
     del sys, os, inspect, _cli
 
 

@@ -23,12 +23,11 @@ try:
 
     def node_img(id, path):
         """accesser for QImage"""
-        import sd.api
         node = graph.getNodeFromId(id)
-        out = node.getProperties(sd.api.sdproperty.SDPropertyCategory.Output)[0]
-        vtex = node.getPropertyValue(out)
+        outs = node.getProperties(sd.api.sdproperty.SDPropertyCategory.Output)
+        vtex = node.getPropertyValue(outs[0])
 
-        img = sd.api.qtforpythonuimgrwrapper.QtForPythonUIMgrWrapper(app.getUIMgr()).convertSDTextureToQImage(vtex.get())
+        img = qt.convertSDTextureToQImage(vtex.get())
         if path:
             img.save(path)
         return img
