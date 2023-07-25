@@ -110,10 +110,10 @@ class Track(object):
 
     @property
     def clips(self):
-        return Item(self.track)
+        return Comp(self.track)
 
 
-class Item(object):
+class Comp(object):
     def __init__(self, track):
         self.track = track
 
@@ -178,7 +178,8 @@ class Render(object):
         else:
             self.project.DeleteRenderJobIndex(args[0])
 
-# clips
-# clips = resolve.GetMediaStorage().AddItemsToMediaPool(paths)
-# clips.GetClipProperty()
-# clips.SetClipProperty(n, v)
+    def __enter__(self, *args):
+        self.start()
+
+    def __exit__(self, *args):
+        self.stop()

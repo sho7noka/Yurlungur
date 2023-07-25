@@ -24,8 +24,6 @@ except (ImportError, KeyError):
     __all__ = ["run", "shell", "quit", "connect"]
 
 
-
-
 __version__ = "0.11.0"
 DEFAULT_DOCS_VERSION = "2019"
 
