@@ -27,12 +27,11 @@ Yurlungur is pure Python and can be used **synchronously** in mixed Python2 and 
 | Maya (2016~) | ○ | ○ | ○ |
 | Substance 3D Designer (2018.1.2~) | ○ | ○ | ☓ |
 | Houdini (16~) | ○ | ○ | ○ |
-| Unreal Engine (4.22~) | ○ | ○ | ☓ |
-| Unity (2019.1~) | ○ | ○ | ○ |
+| Unreal (4.22~) | ○ | ○ | ☓ |
 | Blender (2.80~) | ○ | ○ | ○ |
 | Nuke (10~) | ○ | ○ | ☓ |
-| Davinci Resolve(&Fusion) (15~) | ○ | ○ | ☓ |
-| Cinema4D (R21~) | ○ | ○ | ☓ |
+| DaVinci Resolve(&Fusion) (15~) | ○ | ○ | ☓ |
+| Cinema 4D (R21~) | ○ | ○ | ☓ |
 | 3dsMax (2017~) | ○ | ○ | ○ |
 | Substance 3D Painter (2020~) | ☓ | ☓ | ○ |
 | Marmoset Toolbag (3~) | ○ | ○ | ☓ |

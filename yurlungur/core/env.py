@@ -128,7 +128,7 @@ class App(object):
     def __init__(self, name):
         d = {
             "maya": v(_Maya), "houdini": v(_Houdini), "substance_designer": v(_Substance),
-            "blender": v(_Blender), "unreal": v(_Unreal), "unity": v(_Unity),
+            "blender": v(_Blender), "unreal": v(_Unreal),
             "nuke": v(_Nuke), "c4d": v(_Cinema4D), "davinci": v(_Davinci),
             "3dsmax": v(_Max), "toolbag": v(_Toolbag),"substance_painter": v(_SubstancePainter),
             "photoshop": v(_Photoshop), "renderdoc": v(_RenderDoc), "modo": v(_Modo)
@@ -183,12 +183,6 @@ class App(object):
             if not os.path.exists(_app):
                 _app = _app.replace("UE4Editor-Cmd", "UnrealEditor-Cmd")
             _cmd = " ".join(["\""+_app+"\"", "-run=pythonscript -script={0}".format(tf.name)])
-
-        # https://docs.unity3d.com/jp/460/Manual/CommandLineArguments.html
-        elif "Unity" in self.app_name:
-            from yurlungur.adapters import unity
-            unity.initialize_package()
-            _cmd = "%s -batchmode -executeMethod PythonExtensions.Startup.Exec \"%s\"" % (self.app_name, cmd)
 
         # https://learn.foundry.com/nuke/8.0/content/user_guide/configuring_nuke/command_line_operations.html
         elif "nuke" in self.app_name:
@@ -340,18 +334,6 @@ def Unreal(func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if __import__("unreal"):
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
-def Unity(func=None):
-    if func is None:
-        return __import__("UnityEngine")
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if __import__("UnityEngine"):
             return func(*args, **kwargs)
 
     return wrapper
@@ -524,16 +506,6 @@ def _Unreal(v=4.27):
     }[platform.system()]
 
 
-def _Unity(v="2021.1.0b4"):
-    # https://docs.unity3d.com/ja/2019.1/Manual/CommandLineArguments.html
-    d = {
-        "Linux": "",
-        "Windows": os.environ.get("PROGRAMFILES") + "\\Unity\\Hub\\Editor\\{0}\\Editor\\Unity.exe".format(v), #os.environ.get("PROGRAMFILES") +  \\Unity 2021.1.0b12\\Editor\\Unity.exe"
-        "Darwin": "/Applications/Unity/Hub/Editor/{0}/Unity.app/Contents/MacOS/Unity".format(v)
-    }
-    return d[platform.system()]
-
-
 def _Nuke(v="12.2v5"):
     d = {
         "Linux": "/usr/local/Nuke%s/Nuke%s" % (v, v[:4]),
@@ -678,7 +650,7 @@ def is_version(app):
     無し : Blender, Substance Painter/Designer, Davinci Resolve
     西暦 : Maya, Cinema4D, 3dsMax, Photoshop
     容易 : Unreal4.27-, Marmoset4-, RenderDoc1.13-
-    独自 : Unity2021.-, Nuke12-, Houdini18.5-
+    独自 : Nuke12-, Houdini18.5-
 
     Args:
         app:
@@ -714,15 +686,6 @@ def is_version(app):
             if os.path.exists(app(v)):
                 return app(v)
         return None
-
-    if app == _Unity:
-        hub = "%PROGRAMFILES%\\Unity\\Hub\\Editor" if platform.system() == "Windows" else "/Applications/Unity/Hub/Editor"
-
-        try:
-            versions = os.listdir(hub)
-            return app(versions[-1])
-        except FileNotFoundError:
-            return None
 
     # TODO
     if app == _Nuke or app == _Modo:

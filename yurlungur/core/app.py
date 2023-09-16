@@ -33,11 +33,6 @@ elif __import__("unreal"):
 
     application = unreal
 
-elif __import__("UnityEngine"):
-    import UnityEngine
-
-    application = UnityEngine
-
 elif __import__("nuke"):
     import nuke
 

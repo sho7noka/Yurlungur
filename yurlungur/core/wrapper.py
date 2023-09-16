@@ -19,11 +19,6 @@ class MultiObject(object):
         levels = unreal.GetEditorLevelLibrary()
         tools = unreal.tools
 
-    if env.Unity():
-        from yurlungur.adapters import unity
-        editor = unity.UnityEditor
-        engine = unity.UnityEngine
-
     if env.Substance():
         from yurlungur.adapters import substance_designer as sd
         graph = sd.graph
@@ -92,10 +87,6 @@ class MultiObject(object):
         if env.Unreal():
             from yurlungur.adapters import unreal
             return unreal.execute_console_command(script)
-
-        if env.Unity():
-            from yurlungur.adapters import unity
-            return unity.EvalScript(script)
 
         if env.Max():
             return application.runtime.execute(script)

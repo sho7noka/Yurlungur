@@ -11,7 +11,6 @@ from yurlungur.adapters import modo
 from yurlungur.adapters import substance_designer
 from yurlungur.adapters import substance_painter
 from yurlungur.adapters import toolbag
-from yurlungur.adapters import unity
 from yurlungur.adapters import unreal
 from yurlungur.adapters import pycharm
 from yurlungur.adapters import vscode

@@ -133,18 +133,6 @@ class Object(YObject):
             else:
                 return uname.set_actor_label(args[0])
 
-        if getattr(meta, "Debug", False):
-            go = meta.engine.GameObject.Find(self.name)
-            if go:
-                meta.editor.Undo.RegisterFullObjectHierarchyUndo(go, "Rename %s" % args[0])
-                go.name = args[0]
-            else:
-                meta.editor.AssetDatabase.RenameAsset(self.name, args[0])
-                asset = meta.editor.AssetDatabase.LoadAssetAtPath(*args[1:])
-                meta.editor.EditorUtility.SetDirty(asset)
-
-            return Node(args[0])
-
         if getattr(meta, "doc", False):
             try:
                 return setattr(meta.doc.activeLayer, "name", args[0])
@@ -210,13 +198,6 @@ class Object(YObject):
                     self.name, val
                 )
 
-        if getattr(meta, "Debug", False):
-            obj = meta.engine.GameObject.Find(self.name)
-            for com in obj.GetComponentsInChildren(meta.engine.Component):
-                if val in dir(obj.GetComponent(com.GetType())):
-                    return Attribute(obj.GetComponent(com.GetType()), self.name, val)
-            return None
-
         if getattr(meta, "doc", False):
             try:
                 layer = meta.doc.layers[self.name]
@@ -271,13 +252,6 @@ class Object(YObject):
 
         if getattr(meta, "uclass", False):
             return meta.unreal.uname(self.name).component_tags()
-
-        if getattr(meta, "Debug", False):
-            obj = meta.engine.GameObject.Find(self.name)
-            attrs = dir(obj)
-            for com in obj.GetComponentsInChildren(meta.engine.Component):
-                attrs.extend(dir(obj.GetComponent(com.GetType())))
-            return (set([attr for attr in attrs if not attr.startswith("__")]))
 
         if getattr(meta, "doc", False):
             try:
@@ -355,28 +329,6 @@ class Object(YObject):
             else:
                 return
 
-        if getattr(meta, "Debug", False):
-            go = meta.engine.GameObject.Find(self.name)
-            cm = getattr(meta.engine, args[0])
-
-            if go is None:
-                if issubclass(cm, meta.engine.Behaviour):
-                    import clr
-                    T = clr.GetClrType(cm)
-                    go = meta.editor.ObjectFactory.CreateGameObject(self.name, [T])
-                    meta.editor.Undo.RegisterCreatedObjectUndo(go, "Create %s" % self.name)
-                    return Object(go.name)
-                else:
-                    # prefab = PrefabUtility.CreatePrefab("Assets/camera_test.prefab", go)
-                    # PrefabUtility.ReplacePrefab(go, prefab, ReplacePrefabOptions.ConnectToPrefab)
-                    # issubclass(cm, meta.engine.Object)
-                    instance = meta.editor.ObjectFactory.CreateInstance(cm)
-                    return meta.editor.AssetDatabase.CreateAsset(instance, "Assets/%s" % self.name)
-
-            elif go and isinstance(cm, meta.engine.Component):
-                meta.editor.Undo.AddComponent(go, cm)
-                return Object(cm.name)
-
         if getattr(meta, "doc", False):
             try:
                 ps = getattr(meta.photoshop.Photoshop, "ps%s" % args[0], meta.doc.psNormalLayer)
@@ -452,13 +404,6 @@ class Object(YObject):
             else:
                 return uname.destroy_actor()
 
-        if getattr(meta, "Debug", False):
-            go = meta.engine.GameObject.Find(self.name)
-            if go:
-                return meta.editor.Undo.DestroyObjectImmediate(go)
-            else:
-                return meta.editor.AssetDatabase.DeleteAsset(self.name)
-
         if getattr(meta, "doc", False):
             try:
                 return meta.doc.layers[self.name].delete()
@@ -519,16 +464,6 @@ class Object(YObject):
                 )
             else:
                 return
-
-        if getattr(meta, "Debug", False):
-            go = meta.engine.GameObject.Find(self.name)
-            if go:
-                return go.Instantiate(go, *args)
-            else:
-                meta.editor.AssetDatabase.CopyAsset(self.name, args[0])
-                asset = meta.editor.AssetDatabaseLoadAssetAtPath(*args[1:])
-                meta.editor.EditorUtility.SetDirty(asset)
-                return Object(asset.name)
 
         if getattr(meta, "doc", False):
             try:
@@ -614,15 +549,6 @@ class Object(YObject):
                 else:
                     return meta.editor.set_actor_selection_state(uname, *args)
 
-        if getattr(meta, "Debug", False):
-            if len(args) == 0 and len(kwargs) == 0:
-                return node.sel
-            else:
-                return setattr(
-                    meta.editor.Selection.activeGameObject,
-                    meta.engine.GameObject.Find(*args)
-                )
-
         if getattr(meta, "doc", False):
             if len(args) == 0 and len(kwargs) == 0:
                 return node.sel
@@ -669,9 +595,6 @@ class Object(YObject):
                 "visible", not on
             )
 
-        if getattr(meta, "Debug", False):
-            return meta.engine.GameObject.Find(self.name).SetActive(not on)
-
         if getattr(meta, "doc", False):
             try:
                 return setattr(meta.doc.layers[self.name], "visible", not on)
@@ -704,15 +627,6 @@ class Object(YObject):
                 return
             else:
                 return Object(meta.unreal.uname(self.name).get_parent_actor().get_name())
-
-        if getattr(meta, "Debug", False):
-            transform = meta.engine.GameObject.Find(self.name).transform
-            if len(args) > 0:
-                parent = meta.engine.GameObject.Find(args[0]).transform
-                meta.editor.Undo.SetTransformParent(transform, parent, "%s Parenting" % transform.name)
-                return Object(parent.name)
-            else:
-                return Object(transform.parent.name) if transform.parent else None
 
         if getattr(meta, "doc", False):
             if len(args) > 0:
@@ -750,12 +664,6 @@ class Object(YObject):
                 for actor in meta.unreal.uname(self.item).get_all_child_actors()
             )
 
-        if getattr(meta, "Debug", False):
-            transform = meta.engine.GameObject.Find(self.item).transform
-            return (
-                Object(transform.GetChild(i).name) for i in range(transform.childCount)
-            )
-
         if getattr(meta, "doc", False):
             return (
                 Object(layer.name) for layer in meta.doc.LayerSets[self.item].layers
@@ -788,9 +696,6 @@ class Object(YObject):
 
         if getattr(meta, "uclass", False):
             return meta.unreal.Timeline(self.name)
-        
-        if getattr(meta, "Debug", False):
-            return meta.unity.Timeline(self.name)
         
         if getattr(meta, "SceneObject", False):
             from yurlungur.adapters import toolbag
@@ -999,9 +904,6 @@ class Attribute(YObject):
         if getattr(meta, "SDNode", False):
             return self._values[0]
 
-        if getattr(meta, "Debug", False):
-            return getattr(self._values[0], self.val)
-
         if ":" in str(self._values[0]):
             try:
                 return getattr(self._values[0], self.val)
@@ -1068,14 +970,6 @@ class Attribute(YObject):
                 return meta.unreal.uname(self.obj).root_component.set_editor_property(
                     self.val, args[0]
                 )
-
-        if getattr(meta, "Debug", False):
-            go = meta.engine.GameObject.Find(self.obj)
-            meta.editor.Undo.RecordObject(go, "Inspector")
-
-            for com in go.GetComponentsInChildren(meta.engine.Component):
-                if self.val in dir(go.GetComponent(com.GetType())):
-                    return setattr(go.GetComponent(com.GetType()), self.val, args[0])
 
         if getattr(meta, "doc", False):
             try:
@@ -1362,9 +1256,6 @@ class File(YObject):
                 return meta.assets.find_asset_data(self.path).package_path
             else:
                 return meta.assets.list_assets("/Game", recursive=True, include_folder=True)
-
-        if getattr(meta, "Debug", False):
-            return meta.editor.AssetDatabase.GetAssetOrScenePath()
 
         if getattr(meta, "runtime", False):
             return meta.runtime.maxFilePath + meta.runtime.maxFileName

@@ -87,8 +87,6 @@ def _ls(cls, *args, **kwargs):
         return
     if getattr(meta, "uclass", False):
         return
-    if getattr(meta, "Debug", False):
-        return
     if getattr(meta, "knob", False):
         return
     if getattr(meta, "C4DAtom", False):
@@ -116,8 +114,6 @@ def _glob(cls, *args, **kwargs):
     if getattr(meta, "data", False):
         return
     if getattr(meta, "uclass", False):
-        return
-    if getattr(meta, "Debug", False):
         return
     if getattr(meta, "knob", False):
         return
@@ -193,7 +189,6 @@ def _usdImporter(*args, **kwargs):
     Designer  Python3 / USD In    / usdcore
     Blender   Python3 / USD InOut / internal
     Unreal    Python3 / USD InOut / internal
-    Unity     Python2 / USD InOut /
     Nuke      Python2 / USD In    /
     Davinci   Python3 / USD In    / usdcore
     Cinema4D  Python3 / USD InOut / 
@@ -233,9 +228,6 @@ def _usdImporter(*args, **kwargs):
         factory = meta.USDSceneImportFactory()
         data.set_editor_property('factory', factory)
         return meta.tools.import_assets_automated(data)
-
-    if getattr(meta, "Debug", False):
-        return
 
     if getattr(meta, "knob", False):
         geo = meta.createNode("ReadGeo")
@@ -394,7 +386,7 @@ file = File()
 File.usd = types.ModuleType("usd")
 File.usd.enable = False
 
-if list(filter(lambda x: getattr(meta, x, False), ["hda", "uclass", "Debug", "C4DAtom", "ls", "knob", "data"])):
+if list(filter(lambda x: getattr(meta, x, False), ["hda", "uclass", "C4DAtom", "ls", "knob", "data"])):
     File.usd.enable = True
     File.usd.Import = _usdImporter
     File.usd.Export = _usdExporter

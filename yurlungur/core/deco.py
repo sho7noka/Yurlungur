@@ -65,11 +65,6 @@ class UndoGroup(ContextDecorator):
         elif env.Davinci():
             meta.fusion.StartUndo()
 
-        elif env.Unity():
-            meta.editor.Undo.IncrementCurrentGroup()
-            meta.editor.Undo.SetCurrentGroupName(self.label)
-            self.index = meta.editor.Undo.GetCurrentGroup()
-
         elif env.Blender():
             self.label = 0
 
@@ -93,9 +88,6 @@ class UndoGroup(ContextDecorator):
 
         elif env.Davinci():
             meta.fusion.EndUndo()
-
-        elif env.Unity():
-            meta.editor.Undo.CollapseUndoOperations(self.index)
 
         elif env.Blender():
             meta.ops.ed.undo_history(item=self.label)

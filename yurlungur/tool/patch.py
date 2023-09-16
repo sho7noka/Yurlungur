@@ -15,6 +15,12 @@ try:
 except ImportError:
     pass
 
+from pxr import Usd
+from yurlungur.core.command import File
+usd = Usd
+
+# maya houdini blender DaVinci Renderdoc
+Gl = object
 
 # dispatch for Qt
 if _env.Qt():
@@ -24,7 +30,6 @@ if _env.Qt():
     Qt.main_window = _window.main_window
     Qt.show = _window.show
 
-
 # dispatch for app
 try:
     from vfxwindow import VFXWindow as _UIWindow
@@ -33,13 +38,9 @@ try:
     _UIWindow.c4d = _env.C4D()
     _UIWindow.toolbag = _env.Toolbag()
     _UIWindow.substance_painter = _env.Painter()
-    _UIWindow.unity = _env.Unity()
 
     # https://github.com/huntfx/vfxwindow/wiki/Quick-Start#callbacks
     if _env.Max():
-        _UIWindow.addCallback = None
-
-    if _env.Unity():
         _UIWindow.addCallback = None
 
     if _env.Substance():
@@ -102,8 +103,6 @@ if not v(_env._Blender):
     del yurlungur.blender
 if not v(_env._Unreal):
     del yurlungur.unreal
-if not v(_env._Unity):
-    del yurlungur.unity
 
 if not v(_env._RenderDoc):
     del yurlungur.renderdoc

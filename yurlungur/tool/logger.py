@@ -49,9 +49,6 @@ class GuiLogHandler(Handler):
             elif env.Unreal():
                 meta.log_error(msg)
 
-            elif env.Unity():
-                meta.engine.Debug.LogError(msg)
-
             elif env.Nuke():
                 meta.error(msg)
 
@@ -80,9 +77,6 @@ class GuiLogHandler(Handler):
             elif env.Unreal():
                 meta.log_warning(msg)
 
-            elif env.Unity():
-                meta.engine.Debug.LogWarning(msg)
-
             elif env.Nuke():
                 meta.warning(msg)
 
@@ -110,9 +104,6 @@ class GuiLogHandler(Handler):
 
             elif env.Unreal():
                 meta.log(msg)
-
-            elif env.Unity():
-                meta.engine.Debug.Log(msg)
 
             elif env.Nuke():
                 meta.debug(msg)
