@@ -7,7 +7,6 @@ from yurlungur.adapters import maya
 from yurlungur.adapters import nuke
 # from yurlungur.adapters import photoshop
 from yurlungur.adapters import renderdoc
-from yurlungur.adapters import modo
 from yurlungur.adapters import substance_designer
 from yurlungur.adapters import substance_painter
 from yurlungur.adapters import toolbag

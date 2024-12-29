@@ -87,8 +87,6 @@ if not v(_env._Cinema4D):
     del yurlungur.c4d
 if not v(_env._Max):
     del yurlungur.max
-if not v(_env._Modo):
-    del yurlungur.modo
 if not v(_env._Substance):
     del yurlungur.substance_designer
 if not v(_env._SubstancePainter):

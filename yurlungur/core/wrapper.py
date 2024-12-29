@@ -97,10 +97,6 @@ class MultiObject(object):
         if env.Photoshop():
             return application.DoJavascript(script)
 
-        if env.Modo():
-            import lx
-            return lx.eval(script)
-
     @property
     def module(self):
         return application

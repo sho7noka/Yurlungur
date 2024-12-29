@@ -189,13 +189,12 @@ def _usdImporter(*args, **kwargs):
     Designer  Python3 / USD In    / usdcore
     Blender   Python3 / USD InOut / internal
     Unreal    Python3 / USD InOut / internal
-    Nuke      Python2 / USD In    /
-    Davinci   Python3 / USD In    / usdcore
+    Nuke      Python3 / USD In    /
+    Davinci   Python3 / USD InOut / usdcore
     Cinema4D  Python3 / USD InOut / 
     Marmoset  Python3 / USD InOut /
     Painter   Python3 / USD InOut /
     3dsMax    Python3 / USD InOut /
-    Modo      Python2 / USD InOut /
 
     https://community.foundry.com/discuss/topic/153415/extend-active-scenegraph?mode=Post&postID=1205506
     """

@@ -131,7 +131,7 @@ class App(object):
             "blender": v(_Blender), "unreal": v(_Unreal),
             "nuke": v(_Nuke), "c4d": v(_Cinema4D), "davinci": v(_Davinci),
             "3dsmax": v(_Max), "toolbag": v(_Toolbag),"substance_painter": v(_SubstancePainter),
-            "photoshop": v(_Photoshop), "renderdoc": v(_RenderDoc), "modo": v(_Modo)
+            "photoshop": v(_Photoshop), "renderdoc": v(_RenderDoc),
         }
         self.app_name = d[name]
         self.process = None
@@ -217,9 +217,6 @@ class App(object):
 
         elif "renderdoc" in self.app_name:
             _cmd = self.app_name
-
-        elif "modo" in self.app_name:
-            _cmd = self.app_name.replace("/modo", "/modo_cl") + " -console:python -cmdlate:@mytelnet.py"
 
         try:
             os.system(self.python_path + _cmd)
@@ -445,18 +442,6 @@ def RenderDoc(func=None):
     return wrapper
 
 
-def Modo(func=None):
-    if func is None:
-        return __import__("modo")
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if __import__("modo"):
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
 def _Maya(v=2020):
     d = {
         "Linux": "/usr/Autodesk/maya%d-x64/bin/maya" % v,
@@ -580,15 +565,6 @@ def _RenderDoc(v=1.13):
             return app 
 
 
-def _Modo(v="16.0v3"):
-    d = {
-        "Linux": "/opt/modo_{0}/bin/modo".format(v),
-        "Windows": "\"{0}/Foundry/Modo/{1}/modo.exe\"".format(os.environ.get("PROGRAMFILES").replace("\\", "/"), v),
-        "Darwin": "/Applications/Foundry/Modo/{0}/modo.app/Contents/MacOS/modo".format(v)
-    }
-    return d[platform.system()]
-
-
 def Qt(func=None):
     """
     except for Cinema4D, Marmoset
@@ -688,7 +664,7 @@ def is_version(app):
         return None
 
     # TODO
-    if app == _Nuke or app == _Modo:
+    if app == _Nuke:
         v = 10
         # re.search("\d\d\.\dv\d", app(v))
         return app()

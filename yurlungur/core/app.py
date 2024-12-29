@@ -63,11 +63,6 @@ elif __import__("renderdoc"):
 
     application = renderdoc
 
-elif __import__("modo"):
-    import modo
-
-    application = modo
-
 else:
     from yurlungur.tool import standalone
 

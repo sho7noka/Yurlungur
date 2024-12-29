@@ -85,9 +85,6 @@ class Object(YObject):
         if getattr(meta, "runtime", False):
             return meta.runtime.getnodebyname(self.name).gbufferChannel or 0
 
-        if getattr(meta, "lx", False):
-            return meta.Scene().item(self.name).id
-
         if getattr(meta, "SceneObject", False):
             return meta.findObject(self.name).uid
         
@@ -141,10 +138,6 @@ class Object(YObject):
 
         if getattr(meta, "runtime", False):
             meta.runtime.getnodebyname(self.name).name = args[0]
-            return Node(args[0])
-
-        if getattr(meta, "lx", False):
-            meta.Scene().item(self.name).name = args[0]
             return Node(args[0])
 
         if getattr(meta, "SceneObject", False):
@@ -210,9 +203,6 @@ class Object(YObject):
             return Attribute(
                 getattr(meta.runtime.getnodebyname(self.name), val), self.name, val)
 
-        if getattr(meta, "lx", False):
-            return Attribute(getattr(meta.Scene().item(self.name), val), self.name, val)
-
         if getattr(meta, "SceneObject", False):
             return Attribute(meta.findObject(val), self.name, val)
 
@@ -261,9 +251,6 @@ class Object(YObject):
 
         if getattr(meta, "runtime", False):
             return tuple(inspect.getmembers(meta.runtime.getnodebyname(self.name)))
-
-        if getattr(meta, "lx", False):
-            return (attr for attr in dir(meta.Scene().item(self.name)) if not attr.startswith("__"))
 
         if getattr(meta, "SceneObject", False):
             return (attr for attr in dir(meta.findObject(args[0])) if not attr.startswith("__"))
@@ -357,14 +344,6 @@ class Object(YObject):
 
             return Node(_obj.name)
 
-        if getattr(meta, "lx", False):
-            obj = {
-                "actor": meta.current().addActor, "camera": meta.current().addCamera, "group": meta.current().addGroup,
-                "item": meta.current().addItem, "joint": meta.current().addJointLocator, "material": meta.current().addMaterial,
-                "mesh": meta.current().addMesh, "render": meta.current().addRenderPassGroup, "shader": meta.current().addShaderItem
-            }[args[0]](*args[1:])
-            return Object(obj.name)
-
         if getattr(meta, "SceneObject", False):
             obj = {
                 "mesh": meta.MeshObject, "material": meta.Material,
@@ -412,10 +391,6 @@ class Object(YObject):
 
         if getattr(meta, "runtime", False):
             return meta.runtime.delete(meta.runtime.getnodebyname(self.name))
-
-        if getattr(meta, "lx", False):
-            meta.Scene().select(meta.Scene().item(self.name))
-            return meta.lx.eval("item.delete")
 
         if getattr(meta, "SceneObject", False):
             return meta.findObject(self.name).destroy()
@@ -475,9 +450,6 @@ class Object(YObject):
             return Node(
                 meta.runtime.instance(meta.runtime.getnodebyname(self.name)).name
             )
-
-        if getattr(meta, "lx", False):
-            return meta.Scene().duplicateItem(meta.Scene().item(self.name), instance=True)
 
         if getattr(meta, "SceneObject", False):
             return Object(meta.findObject(self.name).duplicate(args[0]).name)
@@ -566,12 +538,6 @@ class Object(YObject):
             else:
                 return meta.runtime.select(meta.runtime.getnodebyname(self.name))
 
-        if getattr(meta, "lx", False):
-            if len(args) == 0 and len(kwargs) == 0:
-                return meta.Scene().selected
-            else:
-                return meta.Scene().select(meta.Scene().item(self.name))
-
         if getattr(meta, "SceneObject", False):
             return node.sel
 
@@ -605,10 +571,6 @@ class Object(YObject):
             return getattr(meta.runtime, "hide" if on else "unhide")(
                 meta.runtime.getnodebyname(self.name)
             )
-
-        if getattr(meta, "lx", False):
-            self.select(self.name)
-            return meta.lx.eval("item.channel locator$visible %s" % "on" if on else "off")
 
         if getattr(meta, "SceneObject", False):
             return setattr(meta.findObject(self.name), "visible", not on)
@@ -992,9 +954,6 @@ class Attribute(YObject):
         if getattr(meta, "SceneObject", False):
             return setattr(meta.findObject(self.val), "", args[0])
 
-        if getattr(meta, "lx", False):
-            return setattr(meta.Scene().item(self.obj), self.val, args[0])
-
     @trace
     def create(self, *args, **kwargs):
         """
@@ -1161,9 +1120,6 @@ class File(YObject):
         if getattr(meta, "runtime", False):
             if meta.runtime.loadMaxFile(*args, **kwargs):
                 return cls(args[0])
-            
-        if getattr(meta, "lx", False):
-            return meta.lx.eval('scene.open "%s" import' % args[0])
 
         if getattr(meta, "SceneObject", False):
             return meta.loadScene(*args)
@@ -1212,9 +1168,6 @@ class File(YObject):
 
         if getattr(meta, "doc", False):
             return meta.doc.Save() if args[0].endswith(".psd") else meta.doc.SaveAs(*args, **kwargs)
-    
-        if getattr(meta, "lx", False):
-            return meta.lx.eval('scene.saveAs "%s" %s true' % args)
 
         if getattr(meta, "SceneObject", False):
             return meta.saveScene(*args)
@@ -1266,9 +1219,6 @@ class File(YObject):
             except AttributeError:
                 path = meta.doc.filePath()
                 return path.absoluteString() if path else ""
-
-        if getattr(meta, "lx", False):
-            return meta.current().filename
             
         if getattr(meta, "SceneObject", False):
             return meta.getScenePath()
