@@ -27,8 +27,8 @@ Yurlungur is pure Python and can be used **synchronously** in mixed Python2 and 
 | Maya (2016~) | ○ | ○ | ○ |
 | Substance 3D Designer (2018.1.2~) | ○ | ○ | ☓ |
 | Houdini (16~) | ○ | ○ | ○ |
-| Unreal (4.22~) | ○ | ○ | ☓ |
 | Blender (2.80~) | ○ | ○ | ○ |
+| Unreal (4.22~) | ○ | ○ | ☓ |
 | Nuke (10~) | ○ | ○ | ☓ |
 | DaVinci Resolve(&Fusion) (15~) | ○ | ○ | ☓ |
 | Cinema 4D (R21~) | ○ | ○ | ☓ |
@@ -36,7 +36,12 @@ Yurlungur is pure Python and can be used **synchronously** in mixed Python2 and 
 | Substance 3D Painter (2020~) | ☓ | ☓ | ○ |
 | Marmoset Toolbag (3~) | ○ | ○ | ☓ |
 
-We also support Photoshop, Modo, Renderdoc(and RV).
+We also support Photoshop.
+
+### disable
+The following applications are being deprecated:
+- Unity
+- Modo
 
 
 #### Why Sync?
@@ -56,10 +61,10 @@ $ pip install yurlungur
 ```
 
 #### optional
-If you use UE4 Editor or Standalone for full supports, Yurlungur recommend `Qt for Python` module.
+If you use UE5 Editor or Standalone for full supports, Yurlungur recommend `Qt for Python` module.
 
 ```bash
-$ pip install PySide2
+$ pip install PySide6
 ```
 
 ### semantics

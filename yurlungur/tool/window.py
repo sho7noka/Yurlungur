@@ -52,10 +52,6 @@ def main_window():
         fusion = fusionscript.scriptapp('Fusion')
         return fusion.GetMainWindow()
 
-    if app_name == "renderdoc":
-        import qrenderdoc
-        return qrenderdoc.MainWindow
-
     if app_name == "substance_painter":
         import substance_painter
         return substance_painter.ui.get_main_window()

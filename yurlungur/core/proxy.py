@@ -72,9 +72,6 @@ class Object(YObject):
         if getattr(meta, "uclass", False):
             return meta.unreal.uname(self.name).get_name() or 0
 
-        if getattr(meta, "Debug", False):
-            return meta.engine.GameObject.Find(self.name).GetInstanceID() or 0
-
         if getattr(meta, "doc", False):
             return meta.eval("""
             var ref = new ActionReference();
@@ -1079,7 +1076,7 @@ class File(YObject):
 
     @classmethod
     def open(cls, *args, **kwargs):
-        if args[0].endswith("fbx") or args[0].endswith("usd"):
+        if args[0].endswith("usd"):
             from yurlungur.core.command import file
             im = getattr(file, os.path.splitext(args[0]), False)
             if im:
@@ -1129,7 +1126,7 @@ class File(YObject):
 
     @classmethod
     def save(cls, *args, **kwargs):
-        if args[0].endswith("fbx") or args[0].endswith("usd"):
+        if args[0].endswith("usd"):
             from yurlungur.core.command import file
             ex = getattr(file, os.path.splitext(args[0]), False)
             if ex:

@@ -131,7 +131,7 @@ class App(object):
             "blender": v(_Blender), "unreal": v(_Unreal),
             "nuke": v(_Nuke), "c4d": v(_Cinema4D), "davinci": v(_Davinci),
             "3dsmax": v(_Max), "toolbag": v(_Toolbag),"substance_painter": v(_SubstancePainter),
-            "photoshop": v(_Photoshop), "renderdoc": v(_RenderDoc),
+            "photoshop": v(_Photoshop)
         }
         self.app_name = d[name]
         self.process = None
@@ -214,9 +214,6 @@ class App(object):
         # https://substance3d.adobe.com/documentation/spdoc/remote-control-with-scripting-216629326.html
         elif "Painter" in self.app_name:
             _cmd = "\"%s\" --enable-remote-scripting" % self.app_name
-
-        elif "renderdoc" in self.app_name:
-            _cmd = self.app_name
 
         try:
             os.system(self.python_path + _cmd)
@@ -430,18 +427,6 @@ def Photoshop(func=None):
     return wrapper
 
 
-def RenderDoc(func=None):
-    if func is None:
-        return __import__("renderdoc")
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if __import__("renderdoc"):
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
 def _Maya(v=2020):
     d = {
         "Linux": "/usr/Autodesk/maya%d-x64/bin/maya" % v,
@@ -554,17 +539,6 @@ def _Photoshop(v=2018):
     return d[platform.system()]
 
 
-def _RenderDoc(v=1.13):
-    for v in "RenderDocForOculus", "RenderDoc":
-        d = {
-            "Linux": "/opt/renderdoc_{}/bin/qrenderdoc".format(v),
-            "Windows": os.environ.get("PROGRAMFILES") + "\\{}\\qrenderdoc.exe".format(v)
-        }
-        app = d[platform.system()]
-        if os.path.exists(app):
-            return app 
-
-
 def Qt(func=None):
     """
     except for Cinema4D, Marmoset
@@ -625,7 +599,7 @@ def is_version(app):
 
     無し : Blender, Substance Painter/Designer, Davinci Resolve
     西暦 : Maya, Cinema4D, 3dsMax, Photoshop
-    容易 : Unreal4.27-, Marmoset4-, RenderDoc1.13-
+    容易 : Unreal4.27-, Marmoset4-
     独自 : Nuke12-, Houdini18.5-
 
     Args:
@@ -645,13 +619,6 @@ def is_version(app):
     if app == _Toolbag:
         for i in range(3):
             v = 5 - i
-            if os.path.exists(app(v)):
-                return app(v)
-        return None
-
-    if app == _RenderDoc:
-        for i in range(20):
-            v = (120 - i) / 100
             if os.path.exists(app(v)):
                 return app(v)
         return None
