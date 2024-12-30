@@ -175,9 +175,6 @@ def _select(cls, *args, **kwargs):
             for asset in meta.editor.get_selected_assets()
         )
 
-    if getattr(meta, "Debug", False):
-        return (cls(go.name) for go in meta.editor.Selection.gameObjects)
-
     if getattr(meta, "SceneObject", False):
         return (cls(obj.name) for obj in meta.getSelectedObjects())
 
@@ -186,17 +183,15 @@ def _usdImporter(*args, **kwargs):
     """
     Maya      Python3 / USD InOut / internal
     Houdini   Python3 / USD InOut / internal
-    Designer  Python3 / USD In    / usdcore
+    Designer  Python3 / USD In    /
     Blender   Python3 / USD InOut / internal
     Unreal    Python3 / USD InOut / internal
-    Nuke      Python3 / USD In    /
-    Davinci   Python3 / USD InOut / usdcore
+    Nuke      Python3 / USD In    / internal
+    Davinci   Python3 / USD InOut /
     Cinema4D  Python3 / USD InOut / 
-    Marmoset  Python3 / USD InOut /
+    Toolbag   Python3 / USD InOut /
     Painter   Python3 / USD InOut /
-    3dsMax    Python3 / USD InOut /
-
-    https://community.foundry.com/discuss/topic/153415/extend-active-scenegraph?mode=Post&postID=1205506
+    3dsMax    Python3 / USD InOut / internal
     """
 
     if getattr(meta, "mayaUSDImport", False):
@@ -323,6 +318,15 @@ def _usdExporter(*args, **kwargs):
         meta.documents.SaveDocument(meta.documents.GetActiveDocument(), args[0], meta.SAVEDOCUMENTFLAGS_DONTADDTORECENTLIST, usdExportId)
         return File(args[0])
 
+    if getattr(meta, "fusion", False):
+        meta.fusion.GetCurrentComp().Lock()
+        ex = meta.fusion.GetCurrentComp().AddTool("uExport")
+        ex.ExportStage = args[0]
+        # ex.Format = args[0]
+        # meta.eval("comp:Render({Tool = comp.%s})" % ex.Name)
+        meta.fusion.GetCurrentComp().Unlock()
+        return Node(ex.Name)
+    
     if getattr(meta, "textureset", False):
         meta.js.evaluate("alg.project.exportMesh()")
         meta.js.evaluate("alg.mapexport.exportMesh()")

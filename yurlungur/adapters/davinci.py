@@ -21,7 +21,6 @@ class Projects(object):
         self.project = self.manager.GetCurrentProject()
         self.projects = self.manager.GetProjectListInCurrentFolder()
         self.v16 = meta.resolve.GetVersion()[0] > 16
-        self.v17 = meta.resolve.GetVersion()[0] > 17
 
     def __repr__(self):
         return self.project.GetName()
@@ -31,7 +30,6 @@ class Projects(object):
             self.project = self.manager.LoadProject(val)
         else:
             self.project = self.manager.CreateProject(val)
-
         return self
 
     @property
@@ -87,6 +85,10 @@ class Timeline(object):
     @property
     def tracks(self):
         return Track(self.timeline)
+    
+    @property
+    def graph(self):
+        return self.timeline.GetNodeGraph()
 
 
 class Track(object):
