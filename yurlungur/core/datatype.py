@@ -38,20 +38,6 @@ elif env.Houdini() or env.Unreal():
     _MSpace_kTransform = _api2.MSpace.kTransform
     _TOLERANCE = _MM.kTolerance
 
-
-elif env.Unity():
-    import UnityEngine
-
-    _MM = UnityEngine.Matrix4x4
-    _MQ = _api2.MQuaternion
-    _ME = _api2.MEulerRotation
-    _MP = _api2.MPoint
-    _MV = UnityEngine.Vector3
-    _MX = _api2.MTransformationMatrix
-    _MSpace_kTransform = _api2.MSpace.kTransform
-    _TOLERANCE = _MM.kTolerance
-
-
 elif env.Substance():
     import sd
 
@@ -123,7 +109,7 @@ elif env.Davinci():
     _TOLERANCE = None
 
 else:
-    # marmoset,photoshop,renderdoc
+    # marmoset,photoshop
     _MM = None
     _MQ = None
     _ME = None

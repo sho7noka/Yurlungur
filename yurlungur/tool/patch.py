@@ -102,8 +102,6 @@ if not v(_env._Blender):
 if not v(_env._Unreal):
     del yurlungur.unreal
 
-if not v(_env._RenderDoc):
-    del yurlungur.renderdoc
 if not yurlungur.pycharm.enable:
     del yurlungur.pycharm
 if not yurlungur.vscode.enable:
