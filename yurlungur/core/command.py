@@ -1,78 +1,59 @@
 # -*- coding: utf-8 -*-
 import fnmatch
 import types
-import importlib
-from functools import partial, wraps
+from functools import partial
 
-from yurlungur.core import vars
-from yurlungur.core.proxy import Node, Attribute, File
+from yurlungur.core.proxy import Node, File
 from yurlungur.tool.meta import meta
 
-__all__ = [
-    "cmd", "node", "attr", "file", "vars"
-]
-
-u"""
-node ベースのアプリだとコマンド化されずに
-まとまったAPIで読み込みを行う必要があるので
-ここでコマンドにしておく
-
-runtimecommand 化
-"""
-
-_CMDS_ = {}
+__all__ = ["node", "file"]
 
 
-class Command(object):
+class _NodeType(object):
     """
-    >>> def pydef1():
-    >>>     return True
-    >>> Command.register(pydef1)
-    >>> # or
-    >>> @Command.register
-    >>> def pydef2():
-    >>>     return False
-    >>> # result
-    >>> yurlungur.cmd.pydef1()
+    >>> blur = yurlungur.node.Blur()
+    >>> blur = yurlungur.Node().create("Blur")
     """
 
     def __getattr__(self, item):
-        return _CMDS_[item]
-
-    # @wraps(func)
-    @staticmethod
-    def register(func):
-        p = partial(meta.eval, func)
-        m = types.ModuleType(func)
-        if _CMDS_.has_key(func):
-            _CMDS_.update(func, p)  # cmd.func()
+        if getattr(meta, "types", False):
+            nodes = fnmatch.filter(dir(meta.types), str(item))
         else:
-            _CMDS_.update(func, m)  # cmd.func
+            nodes = self.findNodes(item)
 
-    @classmethod
-    def list(cls):
-        return [obj for obj in dir(cls) if not obj.startswith("_")]
+        for node in nodes:
+            setattr(self, str(item), Node(node))
 
-    @staticmethod
-    def unregister():
-        _CMDS_.clear()
+        return Node(item)
 
-def _Bake(cls, *args, **kwargs):
-    """"""
+    def findNodes(self, pattern):
+        """
+        https://help.autodesk.com/cloudhelp/2023/JPN/Maya-Tech-Docs/CommandsPython/shadingNode.html
+        """
+        if getattr(meta, "listNodeTypes", False):
+            categories = ["geometry", "camera", "light",
+                          "utility", "color", "shader",
+                          "texture", "rendering", "postprocess"]
 
-# Monkey-Patch for attribute
-attr = Attribute()
-Attribute.create = None
-Attribute.delete = None
+            # meta.allNodeTypes(ia=1)
+            for category in categories:
+                yield fnmatch.filter(meta.listNodeTypes(category), pattern)
+
+        if getattr(meta, "hda", False):
+            for category in meta.nodeTypeCategories().keys():
+                yield fnmatch.filter(
+                    meta.nodeTypeCategories()[category].nodeTypes().keys(),
+                    pattern
+                )
+
+        if getattr(meta, "knob", False):
+            yield
 
 
 def _rm(cls, *args):
     for obj in args:
-        try:
-            node = cls(obj.name)
-            node.delete()
-        except:
-            pass
+        node = cls(obj.name)
+        node.delete()
 
 
 def _ls(cls, *args, **kwargs):
@@ -179,19 +160,27 @@ def _select(cls, *args, **kwargs):
         return (cls(obj.name) for obj in meta.getSelectedObjects())
 
 
+# Monkey-Patch for node
+node = Node()
+Node.ls = _ls
+Node.sel = _select
+Node.rm = _rm
+Node.glob = _glob
+
+
 def _usdImporter(*args, **kwargs):
     """
-    Maya      Python3 / USD InOut / internal
-    Houdini   Python3 / USD InOut / internal
+    Maya      Python3 / USD InOut / internal module
+    Houdini   Python3 / USD InOut / internal module
     Designer  Python3 / USD In    /
-    Blender   Python3 / USD InOut / internal
-    Unreal    Python3 / USD InOut / internal
-    Nuke      Python3 / USD In    / internal
+    Blender   Python3 / USD InOut /
+    Unreal    Python3 / USD InOut / internal module
+    Nuke      Python3 / USD In    / internal module
+    Cinema4D  Python3 / USD InOut /
     Davinci   Python3 / USD InOut /
-    Cinema4D  Python3 / USD InOut / 
-    Toolbag   Python3 / USD InOut /
     Painter   Python3 / USD InOut /
-    3dsMax    Python3 / USD InOut / internal
+    Toolbag   Python3 / USD InOut /
+    3dsMax    Python3 / USD InOut / internal module
     """
 
     if getattr(meta, "mayaUSDImport", False):
@@ -224,8 +213,8 @@ def _usdImporter(*args, **kwargs):
         return meta.tools.import_assets_automated(data)
 
     if getattr(meta, "knob", False):
-        geo = meta.createNode("ReadGeo")
         # TODO: scenegraph tab?
+        geo = meta.createNode("ReadGeo")
         geo["file"].setValue(args[0])
         geo["reload"].execute()
         return File(args[0]) or Node(geo.name)
@@ -264,6 +253,20 @@ def _usdImporter(*args, **kwargs):
 
     if getattr(meta, "SceneObject", False):
         return meta.importModel(args[0])
+    
+    if getattr(meta, "runtime", False):
+        opts = meta.runtime.USDImporter.CreateOptions()
+        opts.LogLevel = meta.runtime.name('warn')
+        opts.UnregisterCallbacks(id=meta.runtime.name('importcallback'))
+
+        def importcallback(stageId, conversionInfo, filename, options):
+            meta.runtime.format("import succeeded stage:% conversionInfo:% ", stageId, conversionInfo)
+
+        opts.RegisterCallback( importcallback, meta.runtime.name('importcallback'), meta.runtime.name('onImportComplete'))
+
+        meta.runtime.USDImporter.importFile(args[0], importOptions=opts)
+
+        opts.UnregisterCallbacks( id=meta.runtime.name('importcallback'))
 
 
 def _usdExporter(*args, **kwargs):
@@ -288,12 +291,15 @@ def _usdExporter(*args, **kwargs):
         usd.parm('lopoutput').set(args[0])
         usd.parm('execute').pressButton()
         return File(args[0]) or Node(usd.name)
-
-    if getattr(meta, "sbs", False):
-        from yurlungur.adapters import substance_designer as sd
-        c = meta.sbs.sdmodelgraphexporter.SDModelGraphExporter.sNew()
-        c.exportModelGraph(sd.graph, args[0])
-        return 
+    
+    if getattr(meta, "uclass", False):
+        data = meta.AutomatedAssetImportData()
+        data.set_editor_property('filenames', *args)
+        for k, v in kwargs:
+            data.set_editor_property(k, v)
+        factory = meta.USDExporterLibrary()
+        data.set_editor_property('factory', factory)
+        return meta.tools.import_assets_automated(data)
     
     if getattr(meta, "data", False):
         return File(partial(meta.ops.wm.usd_export, filepath=args[0])(**kwargs))
@@ -335,61 +341,30 @@ def _usdExporter(*args, **kwargs):
     if getattr(meta, "SceneObject", False):
         if meta.getToolbagVersion() > 4060:
             return meta.exportSceneUSD(args[0], **kwargs)
+        
+    if getattr(meta, "runtime", False):
+        export_options = meta.runtime.USDExporter.createOptions()
+        export_options.Meshes = True
+        export_options.Lights = True
+        export_options.Cameras = True
+        export_options.Materials = True
+        export_options.FileFormat = meta.runtime.name('ascii')
+        export_options.UpAxis = meta.runtime.name('y')
+        export_options.LogLevel = meta.runtime.name('info')
+        export_options.PreserveEdgeOrientation = True
+        export_options.Normals = meta.runtime.name('none')
+        export_options.TimeMode = meta.runtime.name('current')
+        meta.runtime.USDexporter.UIOptions = export_options
 
+        meta.runtime.USDExporter.ExportFile(args[0], exportOptions=export_options, contentSource=meta.runtime.name('nodeList'), nodeList=teapots)
 
-class _NodeType(object):
-    """
-    >>> blur = yurlungur.node.Blur()
-    >>> blur = yurlungur.Node().create("Blur")
-    """
-
-    def __getattr__(self, item):
-        if getattr(meta, "types", False):
-            nodes = fnmatch.filter(dir(meta.types), str(item))
-        else:
-            nodes = self.findNodes(item)
-
-        for node in nodes:
-            setattr(self, str(item), Node(node))
-
-        return Node(item)
-
-    def findNodes(self, pattern):
-        if getattr(meta, "listNodeTypes", False):
-            # http://help.autodesk.com/cloudhelp/2016/JPN/Maya-Tech-Docs/CommandsPython/shadingNode.html
-            categories = ["geometry", "camera", "light",
-                          "utility", "color", "shader",
-                          "texture", "rendering", "postprocess"]
-
-            # meta.allNodeTypes(ia=1)
-            for category in categories:
-                yield fnmatch.filter(meta.listNodeTypes(category), pattern)
-
-        if getattr(meta, "hda", False):
-            for category in meta.nodeTypeCategories().keys():
-                yield fnmatch.filter(
-                    meta.nodeTypeCategories()[category].nodeTypes().keys(),
-                    pattern
-                )
-
-        if getattr(meta, "knob", False):
-            yield
-
-
-# Monkey-Patch for node
-node = Node()
-
-Node.ls = _ls
-Node.sel = _select
-Node.rm = _rm
-Node.glob = _glob
 
 # Monkey-Patch for file
 file = File()
 File.usd = types.ModuleType("usd")
 File.usd.enable = False
 
-if list(filter(lambda x: getattr(meta, x, False), ["hda", "uclass", "C4DAtom", "ls", "knob", "data"])):
+if list(filter(lambda x: getattr(meta, x, False), ["hda", "uclass", "C4DAtom", "ls", "knob", "data", "fusion", "textureset", "SceneObject"])):
     File.usd.enable = True
     File.usd.Import = _usdImporter
     File.usd.Export = _usdExporter
@@ -400,7 +375,3 @@ try:
     File.usd = Usd
 except ImportError:
     pass
-
-# Monkey-Patch for command
-cmd = Command()
-Command.bake = _Bake

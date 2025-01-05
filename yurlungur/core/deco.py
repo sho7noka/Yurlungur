@@ -37,9 +37,6 @@ import contextlib
 
 class UndoGroup(ContextDecorator):
     """
-    undoGroup for with statements.
-    https://answers.unity.com/questions/1587818/how-to-undo-a-lot-of-created-objects-at-once-2.html
-.
     >>> import yurlungur
     >>> with yurlungur.UndoGroup("undo group"):
     >>>     for node in "hoge", "fuga", "piyo":
@@ -131,10 +128,6 @@ def threads(func):
     available for Maya, Houdini, Nuke, 3dsMax, Substance Blender and Cinema 4D
     
     https://developers.maxon.net/docs/Cinema4DPythonSDK/html/modules/c4d.threading/index.html
-    
-    >>>
-    :param func:
-    :return:
     """
 
     def __worker(func):
