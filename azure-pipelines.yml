@@ -17,7 +17,7 @@ jobs:
       Python27:
         python.version: '2.7' # back forward
       Python37:
-        python.version: '3.7' # latest interpreter
+        python.version: '3.9' # latest interpreter
   
   steps:
   - task: UsePythonVersion@0
@@ -46,7 +46,7 @@ jobs:
       Python27:
         python.version: '2.7'
       Python37:
-        python.version: '3.7'
+        python.version: '3.9'
 
   steps:
     - task: UsePythonVersion@0
@@ -75,7 +75,7 @@ jobs:
         Python27:
           python.version: '2.7'
         Python37:
-          python.version: '3.7'
+          python.version: '3.9'
 
     steps:
       - task: UsePythonVersion@0
@@ -102,9 +102,9 @@ pool:
 
 steps:
 - task: UsePythonVersion@0
-  displayName: "Use Python 3.6"
+  displayName: "Use Python 3.9"
   inputs:
-    versionSpec: '3.6'
+    versionSpec: '3.9'
     architecture: 'x64'
 
 - script: pip install -r source/requirements.txt

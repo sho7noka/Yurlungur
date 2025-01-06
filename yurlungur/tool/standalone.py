@@ -66,7 +66,7 @@ def _cli(args):
 
     if arguments.qtforpython:
         from yurlungur.core.env import set
-        set("vfxwindow PySide2")
+        set("vfxwindow PySide6")
 
     if arguments.usd:
         from yurlungur.core.env import set
