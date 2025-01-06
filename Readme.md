@@ -80,12 +80,6 @@ bpy.data.objects["foo"].bar = True
 setAttr "foo.bar" true;
 ```
 
-```cs
-// Unity C#
-using UnityEngine;
-UnityEngine.GameObject.Find("foo").bar = true;
-```
-
 YNode behaves as a base class for the object.
 
 ```python
